@@ -182,10 +182,12 @@ function removeCustomTool(toolId) {
  * Setup IPC handlers
  */
 function setupIPC() {
+  ipcMain.removeHandler(IPC.GET_AI_TOOL_CONFIG);
   ipcMain.handle(IPC.GET_AI_TOOL_CONFIG, () => {
     return getConfig();
   });
 
+  ipcMain.removeHandler(IPC.SET_AI_TOOL);
   ipcMain.handle(IPC.SET_AI_TOOL, (event, toolId) => {
     return setActiveTool(toolId);
   });

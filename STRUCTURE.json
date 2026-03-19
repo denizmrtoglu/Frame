@@ -3249,14 +3249,14 @@
           "purpose": "Setup IPC handlers"
         },
         "getCommand": {
-          "line": 197,
+          "line": 199,
           "params": [
             "action"
           ],
           "purpose": "Get command for specific action"
         },
         "getStartCommand": {
-          "line": 205,
+          "line": 207,
           "purpose": "Get the start command for active tool"
         }
       },

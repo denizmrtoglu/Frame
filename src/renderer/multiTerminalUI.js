@@ -18,6 +18,7 @@ class MultiTerminalUI {
     this.initialized = false;
     this.autoCreateInitialTerminal = true; // Flag to control initial terminal creation
     this.isOverviewVisible = false; // Track if overview is shown
+    this._mountedTerminalId = null; // Track which terminal is currently mounted to avoid unnecessary remounts
 
     this._setup();
   }
@@ -137,14 +138,22 @@ class MultiTerminalUI {
    * Render tab view (single terminal)
    */
   _renderTabView(state) {
-    // Clear container and reset inline styles from grid
-    this.contentContainer.innerHTML = '';
+    // Reset grid styles if switching from grid view
     this.contentContainer.className = 'terminal-content tab-view';
     this.contentContainer.style.display = '';
     this.contentContainer.style.gridTemplateRows = '';
     this.contentContainer.style.gridTemplateColumns = '';
     this.contentContainer.style.gap = '';
     this.contentContainer.style.backgroundColor = '';
+
+    // If the active terminal hasn't changed, skip remount to preserve scroll position
+    if (this._mountedTerminalId === state.activeTerminalId && state.terminals.length > 0) {
+      return;
+    }
+
+    // Active terminal changed — full remount
+    this._mountedTerminalId = state.activeTerminalId;
+    this.contentContainer.innerHTML = '';
 
     const contentArea = document.createElement('div');
     contentArea.className = 'tab-content-area';
@@ -154,7 +163,7 @@ class MultiTerminalUI {
 
     // Check if there are any terminals for current project
     if (state.terminals.length === 0) {
-      // Show empty state message
+      this._mountedTerminalId = null;
       const emptyState = document.createElement('div');
       emptyState.className = 'terminal-empty-state';
       emptyState.innerHTML = `
@@ -167,12 +176,10 @@ class MultiTerminalUI {
       return;
     }
 
-    // Mount only active terminal
     if (state.activeTerminalId) {
       this.manager.mountTerminal(state.activeTerminalId, contentArea);
     }
 
-    // Fit after render with slight delay
     setTimeout(() => this.manager.fitAll(), 100);
   }
 

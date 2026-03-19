@@ -133,6 +133,11 @@ class TerminalTabBar {
             <span class="usage-reset"></span>
           </div>
         </div>
+        <button class="btn-scroll-bottom" title="Scroll to bottom">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="6 9 12 15 18 9"/>
+          </svg>
+        </button>
         <button class="btn-new-terminal" title="New Terminal - Click to select shell, Right-click for default">+</button>
         <button class="btn-view-toggle" title="Toggle Grid View">⊞</button>
         <select class="grid-layout-select" title="Grid Layout">
@@ -322,6 +327,11 @@ class TerminalTabBar {
     // Grid layout selector
     this.element.querySelector('.grid-layout-select').addEventListener('change', (e) => {
       this.manager.setGridLayout(e.target.value);
+    });
+
+    // Scroll to bottom button
+    this.element.querySelector('.btn-scroll-bottom').addEventListener('click', () => {
+      this.manager.scrollActiveToBottom();
     });
 
     // Tasks toggle button

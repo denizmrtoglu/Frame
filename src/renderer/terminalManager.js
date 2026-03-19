@@ -276,7 +276,8 @@ class TerminalManager {
       fontFamily: 'Consolas, "Courier New", monospace',
       theme: getTerminalTheme(),
       allowTransparency: false,
-      scrollback: 10000
+      scrollback: 10000,
+      scrollOnUserInput: false
     });
 
     const fitAddon = new FitAddon();
@@ -536,6 +537,15 @@ class TerminalManager {
   /**
    * Fit all terminals
    */
+  scrollActiveToBottom() {
+    if (this.activeTerminalId) {
+      const instance = this.terminals.get(this.activeTerminalId);
+      if (instance) {
+        instance.terminal.scrollToBottom();
+      }
+    }
+  }
+
   fitAll() {
     for (const [id, instance] of this.terminals) {
       if (instance.opened) {
@@ -645,7 +655,17 @@ class TerminalManager {
     ipcRenderer.on(IPC.TERMINAL_OUTPUT_ID, (event, { terminalId, data }) => {
       const instance = this.terminals.get(terminalId);
       if (instance) {
-        instance.terminal.write(data);
+        const term = instance.terminal;
+
+        term.write(data, () => {
+          const buf = term.buffer.active;
+          // If viewport is at the very top but there's content below,
+          // escape codes (e.g. Claude Code's \033[2J\033[H) forced the scroll.
+          // Auto-scroll back to bottom.
+          if (buf.viewportY === 0 && buf.baseY > 5) {
+            term.scrollToBottom();
+          }
+        });
       }
     });
 

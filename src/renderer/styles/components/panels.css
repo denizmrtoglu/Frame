@@ -791,6 +791,15 @@
   background: rgba(120, 165, 212, 0.15);
 }
 
+/* Plugins Tab Content */
+.plugins-tab-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  overflow: hidden;
+}
+
 /* Plugins Content */
 #plugins-content {
   flex: 1;

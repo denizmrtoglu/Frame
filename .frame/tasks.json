@@ -8458,13 +8458,13 @@
       "title": "Add the error-reporting row to the Privacy & Analytics section of `index.html` and wire it in `src/renderer/frameSettingsModal.js` beside the crash-dumps toggle",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T08",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:47:32Z",
+      "completedAt": "2026-09-21T13:47:32Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T09",

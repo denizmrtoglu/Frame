@@ -58,3 +58,11 @@ _Captured: 2026-09-21 · 3 file change(s)_
 
 ---
 
+## T08 — The error-reporting row in Settings
+
+Added the opt-in "Send error reports" row and updated the usage-stats copy to name the random install ID, which is the disclosure D1 traded for keeping the default-on model. **Went one file outside plan.md's Files**: `src/renderer/styles/components/settings-modal.css` had a disabled state for selects and buttons but none for a switch, and without it the gated row would have looked operable while doing nothing — the two rules follow the file's existing 0.5-opacity convention. Files touched: `index.html`, `src/renderer/frameSettingsModal.js`, `src/renderer/styles/components/settings-modal.css`.
+
+_Captured: 2026-09-21 · 3 file change(s)_
+
+---
+

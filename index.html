@@ -1582,12 +1582,27 @@
             <div class="settings-row-text">
               <label class="settings-row-label" for="settings-telemetry-toggle">Send anonymous usage stats</label>
               <p class="settings-row-desc">
-                Frame collects only your app version and OS to count active users.
+                A random ID for this install, plus your app version and OS, so we can
+                count active users and see which features get used.
                 No code, file paths, prompts, or personal data — ever.
               </p>
             </div>
             <label class="settings-switch">
               <input type="checkbox" id="settings-telemetry-toggle" />
+              <span class="settings-switch-slider"></span>
+            </label>
+          </div>
+          <div class="settings-row">
+            <div class="settings-row-text">
+              <label class="settings-row-label" for="settings-error-reporting-toggle">Send error reports</label>
+              <p class="settings-row-desc">
+                Off by default. When on, crashes are sent with their message and stack,
+                stripped of secrets and of every path above the filename.
+                Requires anonymous usage stats to be on.
+              </p>
+            </div>
+            <label class="settings-switch">
+              <input type="checkbox" id="settings-error-reporting-toggle" />
               <span class="settings-switch-slider"></span>
             </label>
           </div>

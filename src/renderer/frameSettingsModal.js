@@ -22,11 +22,13 @@ const uiZoom = require('../shared/uiZoom');
 
 const TELEMETRY_KEY = 'telemetryEnabled';
 const CRASH_DUMPS_KEY = 'crashDumpsEnabled';
+const ERROR_REPORTING_KEY = 'errorReportingEnabled';
 const DISMISSED_VERSION_KEY = 'dismissedUpdateVersion';
 
 let overlay = null;
 let toggleEl = null;
 let crashDumpsToggleEl = null;
+let errorReportingToggleEl = null;
 // Appearance › Interface size (ui-zoom-steps spec). Main owns the step; this
 // select shows it and asks for another over UI_ZOOM_SET.
 let zoomSelectEl = null;
@@ -45,6 +47,7 @@ let currentUpdateInfo = null;
 function init() {
   toggleEl = document.getElementById('settings-telemetry-toggle');
   crashDumpsToggleEl = document.getElementById('settings-crash-dumps-toggle');
+  errorReportingToggleEl = document.getElementById('settings-error-reporting-toggle');
   zoomSelectEl = document.getElementById('settings-ui-zoom');
   initZoomSelect();
 
@@ -68,12 +71,24 @@ function init() {
   syncToggleFromSettings();
   initAboutSection();
 
-  // Toggle: persist + tell main process to enable/disable Aptabase
+  // Toggle: persist + tell main to enable/disable sending (and to mint or
+  // delete the install id, which setEnabled does on the spot)
   toggleEl.addEventListener('change', async () => {
     const enabled = toggleEl.checked;
     await ipcRenderer.invoke(IPC.SET_USER_SETTING, TELEMETRY_KEY, enabled);
     await ipcRenderer.invoke(IPC.TELEMETRY_SET_ENABLED, enabled);
+    // Error reporting rides on analytics being on, so the row follows it
+    // rather than sitting enabled over a switch that silences it.
+    syncErrorReportingAvailability(enabled);
   });
+
+  // Error reports: opt-in, persisted setting only — telemetry.captureException
+  // reads it per call, so a change takes effect immediately.
+  if (errorReportingToggleEl) {
+    errorReportingToggleEl.addEventListener('change', async () => {
+      await ipcRenderer.invoke(IPC.SET_USER_SETTING, ERROR_REPORTING_KEY, errorReportingToggleEl.checked);
+    });
+  }
 
   // Crash dumps: persisted setting only — crashGuard reads it at startup
   // (the reporter can't be stopped once started, so changes apply on next launch)
@@ -315,12 +330,32 @@ async function syncZoomFromMain() {
   }
 }
 
+/**
+ * Error reporting is gated on analytics in main (telemetry.captureException
+ * requires both), so the row is disabled rather than left looking live over a
+ * switch that silences it. The stored value is untouched — turning analytics
+ * back on restores whatever the user had chosen here.
+ */
+function syncErrorReportingAvailability(analyticsOn) {
+  if (!errorReportingToggleEl) return;
+  errorReportingToggleEl.disabled = !analyticsOn;
+  const row = errorReportingToggleEl.closest('.settings-row');
+  if (row) row.classList.toggle('settings-row-disabled', !analyticsOn);
+}
+
 async function syncToggleFromSettings() {
   if (!toggleEl) return;
   syncZoomFromMain();
   const value = await ipcRenderer.invoke(IPC.GET_USER_SETTING, TELEMETRY_KEY);
   // Default ON when unset (opt-out semantics)
   toggleEl.checked = value !== false;
+
+  if (errorReportingToggleEl) {
+    const errors = await ipcRenderer.invoke(IPC.GET_USER_SETTING, ERROR_REPORTING_KEY);
+    // Default OFF when unset — this one is opt-in
+    errorReportingToggleEl.checked = errors === true;
+    syncErrorReportingAvailability(toggleEl.checked);
+  }
 
   if (crashDumpsToggleEl) {
     const dumps = await ipcRenderer.invoke(IPC.GET_USER_SETTING, CRASH_DUMPS_KEY);

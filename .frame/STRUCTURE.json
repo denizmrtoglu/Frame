@@ -6608,19 +6608,19 @@
       ],
       "functions": {
         "init": {
-          "line": 45
+          "line": 47
         },
         "initAboutSection": {
-          "line": 104
+          "line": 119
         },
         "runCheck": {
-          "line": 189,
+          "line": 204,
           "params": [
             "userInitiated"
           ]
         },
         "renderUpdateState": {
-          "line": 228,
+          "line": 243,
           "params": [
             "{ checked",
             "found",
@@ -6632,32 +6632,39 @@
           ]
         },
         "showUpdateBanner": {
-          "line": 252,
+          "line": 267,
           "params": [
             "info"
           ]
         },
         "hideUpdateBanner": {
-          "line": 263
+          "line": 278
         },
         "hideSidebarDot": {
-          "line": 267
+          "line": 282
         },
         "formatRelative": {
-          "line": 273,
+          "line": 288,
           "params": [
             "date"
           ]
         },
         "initZoomSelect": {
-          "line": 289,
+          "line": 304,
           "purpose": "Fill the Interface size select from the shared ladder — one option per"
         },
         "syncZoomFromMain": {
-          "line": 308
+          "line": 323
+        },
+        "syncErrorReportingAvailability": {
+          "line": 339,
+          "params": [
+            "analyticsOn"
+          ],
+          "purpose": "Error reporting is gated on analytics in main (telemetry.captureException"
         },
         "syncToggleFromSettings": {
-          "line": 318
+          "line": 346
         }
       },
       "ipc": {

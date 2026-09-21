@@ -20,7 +20,7 @@ const { IPC } = require('../shared/ipcChannels');
 const settingsOverlay = require('./settingsOverlay');
 const uiZoom = require('../shared/uiZoom');
 
-const TELEMETRY_KEY = 'telemetryEnabled';
+const ANALYTICS_KEY = 'analyticsEnabled';
 const CRASH_DUMPS_KEY = 'crashDumpsEnabled';
 const ERROR_REPORTING_KEY = 'errorReportingEnabled';
 const DISMISSED_VERSION_KEY = 'dismissedUpdateVersion';
@@ -45,7 +45,7 @@ let updateDismissBtn = null;
 let currentUpdateInfo = null;
 
 function init() {
-  toggleEl = document.getElementById('settings-telemetry-toggle');
+  toggleEl = document.getElementById('settings-analytics-toggle');
   crashDumpsToggleEl = document.getElementById('settings-crash-dumps-toggle');
   errorReportingToggleEl = document.getElementById('settings-error-reporting-toggle');
   zoomSelectEl = document.getElementById('settings-ui-zoom');
@@ -75,22 +75,22 @@ function init() {
   // delete the install id, which setEnabled does on the spot)
   toggleEl.addEventListener('change', async () => {
     const enabled = toggleEl.checked;
-    await ipcRenderer.invoke(IPC.SET_USER_SETTING, TELEMETRY_KEY, enabled);
-    await ipcRenderer.invoke(IPC.TELEMETRY_SET_ENABLED, enabled);
+    await ipcRenderer.invoke(IPC.SET_USER_SETTING, ANALYTICS_KEY, enabled);
+    await ipcRenderer.invoke(IPC.ANALYTICS_SET_ENABLED, enabled);
     // Only arrives when switching ON: track() is gated on the new state, so
     // an opt-out sends nothing, which is the point of an opt-out.
-    ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'telemetry' });
+    ipcRenderer.send(IPC.ANALYTICS_TRACK, 'settings_changed', { setting: 'analytics' });
     // Error reporting rides on analytics being on, so the row follows it
     // rather than sitting enabled over a switch that silences it.
     syncErrorReportingAvailability(enabled);
   });
 
-  // Error reports: opt-in, persisted setting only — telemetry.captureException
+  // Error reports: opt-in, persisted setting only — analytics.captureException
   // reads it per call, so a change takes effect immediately.
   if (errorReportingToggleEl) {
     errorReportingToggleEl.addEventListener('change', async () => {
       await ipcRenderer.invoke(IPC.SET_USER_SETTING, ERROR_REPORTING_KEY, errorReportingToggleEl.checked);
-      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'error_reporting' });
+      ipcRenderer.send(IPC.ANALYTICS_TRACK, 'settings_changed', { setting: 'error_reporting' });
     });
   }
 
@@ -99,7 +99,7 @@ function init() {
   if (crashDumpsToggleEl) {
     crashDumpsToggleEl.addEventListener('change', async () => {
       await ipcRenderer.invoke(IPC.SET_USER_SETTING, CRASH_DUMPS_KEY, crashDumpsToggleEl.checked);
-      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'crash_dumps' });
+      ipcRenderer.send(IPC.ANALYTICS_TRACK, 'settings_changed', { setting: 'crash_dumps' });
     });
   }
 
@@ -322,7 +322,7 @@ function initZoomSelect() {
       // From this control only. Zoom also changes by shortcut, menu, status
       // bar and trackpad; counting those too would say "people zoom", not
       // "people go to Settings to zoom", which is the question here.
-      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'ui_zoom' });
+      ipcRenderer.send(IPC.ANALYTICS_TRACK, 'settings_changed', { setting: 'ui_zoom' });
     } catch (err) {
       console.error('Frame settings: could not set the interface size', err);
     }
@@ -340,7 +340,7 @@ async function syncZoomFromMain() {
 }
 
 /**
- * Error reporting is gated on analytics in main (telemetry.captureException
+ * Error reporting is gated on analytics in main (analytics.captureException
  * requires both), so the row is disabled rather than left looking live over a
  * switch that silences it. The stored value is untouched — turning analytics
  * back on restores whatever the user had chosen here.
@@ -355,7 +355,7 @@ function syncErrorReportingAvailability(analyticsOn) {
 async function syncToggleFromSettings() {
   if (!toggleEl) return;
   syncZoomFromMain();
-  const value = await ipcRenderer.invoke(IPC.GET_USER_SETTING, TELEMETRY_KEY);
+  const value = await ipcRenderer.invoke(IPC.GET_USER_SETTING, ANALYTICS_KEY);
   // Default ON when unset (opt-out semantics)
   toggleEl.checked = value !== false;
 

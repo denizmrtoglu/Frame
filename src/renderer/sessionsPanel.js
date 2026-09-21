@@ -203,7 +203,7 @@ function resumeSession(sessionId) {
   // No session id, no transcript, nothing about the work — only that the
   // resume path was used at all, which is what says the feature earns its
   // place.
-  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'session_resumed');
+  ipcRenderer.send(IPC.ANALYTICS_TRACK, 'session_resumed');
   require('./agentDispatch').resumeClaudeSession(sessionId);
 }
 

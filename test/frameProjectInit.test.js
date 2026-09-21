@@ -8,7 +8,7 @@
  * is byte-identical afterwards, because Frame no longer reads, consumes or
  * replaces anything at the project root.
  *
- * Electron and the telemetry package are stubbed (the specTasksSync pattern):
+ * Electron and the analytics package are stubbed (the specTasksSync pattern):
  * CI runs this suite with no node_modules.
  */
 

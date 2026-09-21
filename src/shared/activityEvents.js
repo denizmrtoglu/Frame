@@ -3,7 +3,7 @@
  *
  * The registry below is the single source of truth for what Frame may record
  * about its own background work. It exists for the same reason
- * `telemetryEvents.js` does, applied to a different destination: an event
+ * `analyticsEvents.js` does, applied to a different destination: an event
  * that is not declared here is dropped, and a field value outside its
  * declared enum is stripped. `perfMonitor.js` shows what the alternative
  * looks like — eight call sites scattered over five months with no registry
@@ -388,7 +388,7 @@ function fieldPasses(spec, value) {
  * Returns null for an unregistered event — the caller must drop it entirely.
  * Otherwise the subset of fields that are declared and carry an acceptable
  * value; unknown keys and bad values are stripped silently, exactly as
- * `telemetryEvents.validateEvent` does.
+ * `analyticsEvents.validateEvent` does.
  */
 function validateEvent(name, fields) {
   if (!isRegistered(name)) return null;

@@ -200,7 +200,7 @@ async function dispatch({ terminalId = null, createNew = false, toolId = null, p
 
     // The CLI actually launched and reached ready — that is an agent run.
     // Main normalizes the tool id to the registry enum before sending.
-    ipcRenderer.send(IPC.TELEMETRY_TRACK, 'agent_run_started', { tool: chosenToolId });
+    ipcRenderer.send(IPC.ANALYTICS_TRACK, 'agent_run_started', { tool: chosenToolId });
 
     // This dispatch started the session. Record whether it carried the
     // autonomous permission flags and the CLI kept them (didn't come up
@@ -301,7 +301,7 @@ function _startAgentIn(terminalId, { fresh = false } = {}) {
 // "send" and "listen". A custom CLI is never recognized as an agent by
 // laneStatus, so it cannot be seen coming up and counts on launch.
 function _trackAgentRunWhenReady(terminalId, toolId) {
-  const track = () => ipcRenderer.send(IPC.TELEMETRY_TRACK, 'agent_run_started', { tool: toolId });
+  const track = () => ipcRenderer.send(IPC.ANALYTICS_TRACK, 'agent_run_started', { tool: toolId });
   if (!laneStatus.KNOWN_AGENTS.has(toolId)) {
     track();
     return;
@@ -531,7 +531,7 @@ async function _dispatchImplement({ slug, title, projectPath, assignment }) {
   // Which mode people actually pick is a product question the spec flow
   // cannot answer from the filesystem: autonomous runs are launched
   // elsewhere, so status.json alone under-counts them.
-  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'implement_mode_selected', { mode: choice.mode });
+  ipcRenderer.send(IPC.ANALYTICS_TRACK, 'implement_mode_selected', { mode: choice.mode });
 
   // Record the chosen mode *before* staging so the flags follow the choice.
   try {

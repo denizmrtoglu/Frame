@@ -5,7 +5,7 @@
  * process silently and renderer/child crashes went unobserved. Everything
  * here logs (rotating, redacted file via logger) and degrades instead of
  * dying, and — only when the user has opted in to error reporting — also
- * sends the exception, sanitized, via telemetry: uncaught errors surface
+ * sends the exception, sanitized, via analytics: uncaught errors surface
  * as a renderer health notice, a dead
  * renderer offers reload, and Electron's built-in crashReporter collects
  * **local-only** minidumps (uploadToServer: false — nothing ever leaves the
@@ -15,7 +15,7 @@
 
 const { app, dialog, crashReporter } = require('electron');
 const logger = require('./logger');
-const telemetry = require('./telemetry');
+const analytics = require('./analytics');
 const { IPC } = require('../shared/ipcChannels');
 const userSettings = require('./userSettings');
 
@@ -25,15 +25,15 @@ function init() {
   process.on('uncaughtException', (err) => {
     logger.error('crash', 'uncaughtException:', err);
     // Sanitized and gated on the opt-in setting; a no-op for everyone who
-    // has not turned error reporting on. See telemetry.captureException.
-    telemetry.captureException(err);
+    // has not turned error reporting on. See analytics.captureException.
+    analytics.captureException(err);
     notify('uncaught-exception', `Main process error: ${err.message}`);
   });
 
   process.on('unhandledRejection', (reason) => {
     const err = reason instanceof Error ? reason : new Error(String(reason));
     logger.error('crash', 'unhandledRejection:', err);
-    telemetry.captureException(err);
+    analytics.captureException(err);
     notify('unhandled-rejection', `Unhandled rejection: ${err.message}`);
   });
 

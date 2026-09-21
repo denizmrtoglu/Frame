@@ -1,23 +1,23 @@
 /**
- * Telemetry Notice Banner
+ * Analytics Notice Banner
  *
  * Card in the bottom-right corner, above the status bar, carrying the
- * telemetry disclosure. Independent of the onboarding screen so users who
+ * analytics disclosure. Independent of the onboarding screen so users who
  * never see that screen still get it.
  *
  * Versioned rather than once-and-done: people acknowledged a system that
  * carried no identifier, and it now sends a random install id. Bumping
- * NOTICE_VERSION (telemetryEvents.js) shows the changed text once to
+ * NOTICE_VERSION (analyticsEvents.js) shows the changed text once to
  * everyone, including users who dismissed the previous one.
  *
  * This module draws and dismisses; whether the notice is due is main's call
- * (telemetry.noticeState), so the policy sits with the settings it reads.
+ * (analytics.noticeState), so the policy sits with the settings it reads.
  */
 
 const { ipcRenderer } = require('electron');
 const { IPC } = require('../shared/ipcChannels');
 
-const NOTICE_VERSION_KEY = 'telemetryNoticeVersion';
+const NOTICE_VERSION_KEY = 'analyticsNoticeVersion';
 
 // The version main said was current when it decided the notice was due —
 // stored on dismiss, so acknowledging records exactly what was read.
@@ -29,16 +29,16 @@ let closeBtn = null;
 let settingsLink = null;
 
 async function init(openSettings) {
-  bannerEl = document.getElementById('telemetry-notice');
-  acknowledgeBtn = document.getElementById('telemetry-notice-ack');
-  closeBtn = document.getElementById('telemetry-notice-close');
-  settingsLink = document.getElementById('telemetry-notice-settings-link');
+  bannerEl = document.getElementById('analytics-notice');
+  acknowledgeBtn = document.getElementById('analytics-notice-ack');
+  closeBtn = document.getElementById('analytics-notice-close');
+  settingsLink = document.getElementById('analytics-notice-settings-link');
 
   if (!bannerEl) return;
 
   // Show only if this version of the disclosure hasn't been seen. Main
-  // decides — see telemetry.noticeState.
-  const { show, version } = await ipcRenderer.invoke(IPC.TELEMETRY_NOTICE_STATE);
+  // decides — see analytics.noticeState.
+  const { show, version } = await ipcRenderer.invoke(IPC.ANALYTICS_NOTICE_STATE);
   if (!show) {
     bannerEl.remove();
     return;
@@ -62,7 +62,7 @@ function dismiss() {
   ipcRenderer
     .invoke(IPC.SET_USER_SETTING, NOTICE_VERSION_KEY, noticeVersion)
     .catch((err) =>
-      console.error('Telemetry notice: failed to persist dismiss', err)
+      console.error('Analytics notice: failed to persist dismiss', err)
     );
   bannerEl.classList.remove('visible');
   // Remove from DOM after fade so layout reflows

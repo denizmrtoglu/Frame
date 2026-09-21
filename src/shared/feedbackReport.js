@@ -22,7 +22,7 @@
  * Privacy is a property of this file: a body is the user's description plus,
  * at most, the two lines `diagnosticsLines()` returns, and there is no code
  * path here that appends a third. No project path, no project name, no
- * remote, no file contents — the same line `telemetry.js` and `PRIVACY.md`
+ * remote, no file contents — the same line `analytics.js` and `PRIVACY.md`
  * hold.
  *
  * Pure — no Electron, no filesystem — so it runs under `node --test`.

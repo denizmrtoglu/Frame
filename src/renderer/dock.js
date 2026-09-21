@@ -353,7 +353,7 @@ function mountTab(tab) {
   // One event for every dock panel. mountTab is the only way a panel is
   // shown, and the early return above means a re-render of the panel you
   // are already on does not count as opening it.
-  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'panel_opened', { panel: tab });
+  ipcRenderer.send(IPC.ANALYTICS_TRACK, 'panel_opened', { panel: tab });
   try {
     entry.mount(slot);
   } catch (err) {

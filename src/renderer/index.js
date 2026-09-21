@@ -48,7 +48,7 @@ const projectSettingsModal = require('./projectSettingsModal');
 const doneWindow = require('./doneWindow');
 const frameSettingsModal = require('./frameSettingsModal');
 const feedbackPanel = require('./feedbackPanel');
-const telemetryNotice = require('./telemetryNotice');
+const analyticsNotice = require('./analyticsNotice');
 const healthNotice = require('./healthNotice');
 const specDrivenHint = require('./specDrivenHint');
 const docsHealthHint = require('./docsHealthHint');
@@ -288,7 +288,7 @@ function init() {
   feedbackPanel.init();
   // The notice is about what Frame sends home — Privacy lives in Frame's
   // own settings, not the project's.
-  telemetryNotice.init(() => frameSettingsModal.open());
+  analyticsNotice.init(() => frameSettingsModal.open());
   healthNotice.init();
   sampleBanner.init();
   specDrivenHint.init();
@@ -1016,7 +1016,7 @@ async function startAiSession() {
 function forwardException(err) {
   try {
     const e = err instanceof Error ? err : new Error(String(err));
-    ipcRenderer.send(IPC.TELEMETRY_EXCEPTION, {
+    ipcRenderer.send(IPC.ANALYTICS_EXCEPTION, {
       name: e.name,
       message: e.message,
       stack: e.stack

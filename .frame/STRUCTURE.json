@@ -165,7 +165,7 @@
         "child_process",
         "fsSafe",
         "logger",
-        "telemetry",
+        "analytics",
         "envPath",
         "shared/ipcChannels"
       ],
@@ -283,6 +283,212 @@
           "AI_TOOL_CHANGED",
           "AI_TOOL_CHANGED"
         ]
+      }
+    },
+    "main/analytics": {
+      "file": "src/main/analytics.js",
+      "description": "Analytics",
+      "exports": [
+        "init",
+        "track",
+        "trackAppStarted",
+        "captureException",
+        "noticeState",
+        "setEnabled",
+        "isEnabled",
+        "isErrorReportingEnabled",
+        "migrateLegacySettings",
+        "enforceFailClosed",
+        "shutdown"
+      ],
+      "depends": [
+        "posthog-node",
+        "electron",
+        "userSettings",
+        "analyticsEvents"
+      ],
+      "functions": {
+        "init": {
+          "line": 74,
+          "purpose": "Build the PostHog client."
+        },
+        "distinctId": {
+          "line": 98,
+          "purpose": "This install's distinct id, resolved on first use and cached for the run."
+        },
+        "personProperties": {
+          "line": 117,
+          "purpose": "Person properties, sent once per run alongside the first event."
+        },
+        "track": {
+          "line": 130,
+          "params": [
+            "name",
+            "props"
+          ],
+          "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
+        },
+        "isErrorReportingEnabled": {
+          "line": 158,
+          "purpose": "Whether exception detail may be sent."
+        },
+        "captureException": {
+          "line": 175,
+          "params": [
+            "err"
+          ],
+          "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
+        },
+        "noticeState": {
+          "line": 202,
+          "purpose": "Whether the disclosure notice is due, and the version to store when it is"
+        },
+        "trackAppStarted": {
+          "line": 215,
+          "purpose": "Anonymous event marking this launch."
+        },
+        "setEnabled": {
+          "line": 229,
+          "params": [
+            "enabled"
+          ],
+          "purpose": "Toggle analytics from Settings. Persists the new state, then re-resolves"
+        },
+        "migrateLegacySettings": {
+          "line": 248,
+          "purpose": "Copy settings forward from the names this feature used when it was called"
+        },
+        "enforceFailClosed": {
+          "line": 272,
+          "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
+        },
+        "isEnabled": {
+          "line": 283,
+          "purpose": "Effective enabled state. Default ON when the setting has never been"
+        },
+        "shutdown": {
+          "line": 299,
+          "purpose": "Flush the batcher and close the client, for the quit path."
+        }
+      }
+    },
+    "main/analyticsEvents": {
+      "file": "src/main/analyticsEvents.js",
+      "description": "Analytics events — pure policy module",
+      "exports": [
+        "EVENTS",
+        "normalizeTool",
+        "validateEvent",
+        "effectiveEnabled",
+        "resolveInstallId",
+        "LEGACY_SETTING_KEYS",
+        "planLegacyMigration",
+        "sanitizeException",
+        "NOTICE_VERSION",
+        "shouldShowNotice",
+        "createRateLimiter",
+        "DEFAULT_RATE_LIMIT",
+        "diffSpecLifecycle",
+        "renameSpecLifecycle"
+      ],
+      "depends": [
+        "node:crypto",
+        "../scripts/redact"
+      ],
+      "functions": {
+        "normalizeTool": {
+          "line": 84,
+          "params": [
+            "id"
+          ],
+          "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
+        },
+        "validateEvent": {
+          "line": 99,
+          "params": [
+            "name",
+            "props"
+          ],
+          "purpose": "Validate an (event, props) pair against the registry."
+        },
+        "effectiveEnabled": {
+          "line": 123,
+          "params": [
+            "{ value",
+            "loadFailed }"
+          ],
+          "purpose": "Effective analytics state from the persisted setting plus settings-load"
+        },
+        "shouldShowNotice": {
+          "line": 153,
+          "params": [
+            "{ storedVersion",
+            "legacyShown",
+            "currentVersion }"
+          ],
+          "purpose": "Whether the disclosure notice should be shown."
+        },
+        "stripAbsolutePaths": {
+          "line": 181,
+          "params": [
+            "text"
+          ]
+        },
+        "sanitizeException": {
+          "line": 197,
+          "params": [
+            "err"
+          ],
+          "purpose": "Make an exception safe to send."
+        },
+        "planLegacyMigration": {
+          "line": 236,
+          "params": [
+            "snapshot"
+          ],
+          "purpose": "What the rename owes this install."
+        },
+        "resolveInstallId": {
+          "line": 278,
+          "params": [
+            "{ stored",
+            "enabled }",
+            "mint"
+          ],
+          "purpose": "Decide this launch's install id from what is stored and whether analytics"
+        },
+        "createRateLimiter": {
+          "line": 309,
+          "params": [
+            "options"
+          ],
+          "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
+        },
+        "stampedSince": {
+          "line": 369,
+          "params": [
+            "stamp",
+            "since"
+          ]
+        },
+        "diffSpecLifecycle": {
+          "line": 388,
+          "params": [
+            "previous",
+            "specs",
+            "now"
+          ],
+          "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
+        },
+        "renameSpecLifecycle": {
+          "line": 427,
+          "params": [
+            "state",
+            "oldSlug",
+            "newSlug"
+          ],
+          "purpose": "Carry a renamed spec's history to its new slug, so the rename does not read"
+        }
       }
     },
     "main/claudeSessionsManager": {
@@ -534,7 +740,7 @@
       "depends": [
         "electron",
         "logger",
-        "telemetry",
+        "analytics",
         "shared/ipcChannels",
         "userSettings"
       ],
@@ -939,7 +1145,7 @@
         "../scripts/activity-log",
         "specManager",
         "fileTree",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "init": {
@@ -2295,7 +2501,7 @@
         "uiZoom",
         "gitStatusManager",
         "gitDiffManager",
-        "telemetry",
+        "analytics",
         "specManager",
         "orchestrationManager",
         "child_process"
@@ -2321,7 +2527,7 @@
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 339,
+          "line": 340,
           "params": [
             "window"
           ],
@@ -2332,10 +2538,10 @@
         "listens": [
           "GET_USER_SETTING",
           "SET_USER_SETTING",
-          "TELEMETRY_SET_ENABLED",
-          "TELEMETRY_TRACK",
-          "TELEMETRY_EXCEPTION",
-          "TELEMETRY_NOTICE_STATE",
+          "ANALYTICS_SET_ENABLED",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_EXCEPTION",
+          "ANALYTICS_NOTICE_STATE",
           "GET_LOG_INFO",
           "TERMINAL_INPUT",
           "RECONCILE_TERMINALS"
@@ -2720,7 +2926,7 @@
         "ptyManager",
         "gitBranchesManager",
         "specManager",
-        "telemetry",
+        "analytics",
         "pollGate"
       ],
       "functions": {
@@ -3054,7 +3260,7 @@
         "os",
         "child_process",
         "shared/ipcChannels",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "execGit": {
@@ -3477,7 +3683,7 @@
         "shared/ipcChannels",
         "logger",
         "promptLogger",
-        "telemetry",
+        "analytics",
         "pollGate",
         "child_process",
         "fs"
@@ -3662,8 +3868,8 @@
         "tasksManager",
         "commandStaging",
         "frameProject",
-        "telemetry",
-        "telemetryEvents",
+        "analytics",
+        "analyticsEvents",
         "activityLog",
         "perfMonitor",
         "../scripts/toolVocabulary",
@@ -4180,7 +4386,7 @@
         "activityLog",
         "shared/ipcChannels",
         "shared/frameConstants",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "cacheKeyFor": {
@@ -4331,198 +4537,6 @@
         ]
       }
     },
-    "main/telemetry": {
-      "file": "src/main/telemetry.js",
-      "description": "Telemetry",
-      "exports": [
-        "init",
-        "track",
-        "trackAppStarted",
-        "captureException",
-        "noticeState",
-        "setEnabled",
-        "isEnabled",
-        "isErrorReportingEnabled",
-        "enforceFailClosed",
-        "shutdown"
-      ],
-      "depends": [
-        "posthog-node",
-        "electron",
-        "userSettings",
-        "telemetryEvents"
-      ],
-      "functions": {
-        "init": {
-          "line": 73,
-          "purpose": "Build the PostHog client."
-        },
-        "distinctId": {
-          "line": 97,
-          "purpose": "This install's distinct id, resolved on first use and cached for the run."
-        },
-        "personProperties": {
-          "line": 116,
-          "purpose": "Person properties, sent once per run alongside the first event."
-        },
-        "track": {
-          "line": 129,
-          "params": [
-            "name",
-            "props"
-          ],
-          "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
-        },
-        "isErrorReportingEnabled": {
-          "line": 157,
-          "purpose": "Whether exception detail may be sent."
-        },
-        "captureException": {
-          "line": 174,
-          "params": [
-            "err"
-          ],
-          "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
-        },
-        "noticeState": {
-          "line": 201,
-          "purpose": "Whether the disclosure notice is due, and the version to store when it is"
-        },
-        "trackAppStarted": {
-          "line": 214,
-          "purpose": "Anonymous event marking this launch."
-        },
-        "setEnabled": {
-          "line": 228,
-          "params": [
-            "enabled"
-          ],
-          "purpose": "Toggle telemetry from Settings. Persists the new state, then re-resolves"
-        },
-        "enforceFailClosed": {
-          "line": 249,
-          "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
-        },
-        "isEnabled": {
-          "line": 260,
-          "purpose": "Effective enabled state. Default ON when the setting has never been"
-        },
-        "shutdown": {
-          "line": 276,
-          "purpose": "Flush the batcher and close the client, for the quit path."
-        }
-      }
-    },
-    "main/telemetryEvents": {
-      "file": "src/main/telemetryEvents.js",
-      "description": "Telemetry events — pure policy module",
-      "exports": [
-        "EVENTS",
-        "normalizeTool",
-        "validateEvent",
-        "effectiveEnabled",
-        "resolveInstallId",
-        "sanitizeException",
-        "NOTICE_VERSION",
-        "shouldShowNotice",
-        "createRateLimiter",
-        "DEFAULT_RATE_LIMIT",
-        "diffSpecLifecycle",
-        "renameSpecLifecycle"
-      ],
-      "depends": [
-        "node:crypto",
-        "../scripts/redact"
-      ],
-      "functions": {
-        "normalizeTool": {
-          "line": 84,
-          "params": [
-            "id"
-          ],
-          "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
-        },
-        "validateEvent": {
-          "line": 99,
-          "params": [
-            "name",
-            "props"
-          ],
-          "purpose": "Validate an (event, props) pair against the registry."
-        },
-        "effectiveEnabled": {
-          "line": 123,
-          "params": [
-            "{ value",
-            "loadFailed }"
-          ],
-          "purpose": "Effective telemetry state from the persisted setting plus settings-load"
-        },
-        "shouldShowNotice": {
-          "line": 153,
-          "params": [
-            "{ storedVersion",
-            "legacyShown",
-            "currentVersion }"
-          ],
-          "purpose": "Whether the disclosure notice should be shown."
-        },
-        "stripAbsolutePaths": {
-          "line": 181,
-          "params": [
-            "text"
-          ]
-        },
-        "sanitizeException": {
-          "line": 197,
-          "params": [
-            "err"
-          ],
-          "purpose": "Make an exception safe to send."
-        },
-        "resolveInstallId": {
-          "line": 238,
-          "params": [
-            "{ stored",
-            "enabled }",
-            "mint"
-          ],
-          "purpose": "Decide this launch's install id from what is stored and whether telemetry"
-        },
-        "createRateLimiter": {
-          "line": 269,
-          "params": [
-            "options"
-          ],
-          "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
-        },
-        "stampedSince": {
-          "line": 329,
-          "params": [
-            "stamp",
-            "since"
-          ]
-        },
-        "diffSpecLifecycle": {
-          "line": 348,
-          "params": [
-            "previous",
-            "specs",
-            "now"
-          ],
-          "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
-        },
-        "renameSpecLifecycle": {
-          "line": 387,
-          "params": [
-            "state",
-            "oldSlug",
-            "newSlug"
-          ],
-          "purpose": "Carry a renamed spec's history to its new slug, so the rename does not read"
-        }
-      }
-    },
     "main/uiZoom": {
       "file": "src/main/uiZoom.js",
       "description": "UI zoom — the main-process owner of the interface scale (ui-zoom-steps spec).",
@@ -4647,7 +4661,7 @@
         "path",
         "electron",
         "fsSafe",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "init": {
@@ -5113,9 +5127,9 @@
           "TERMINAL_DESTROYED"
         ],
         "emits": [
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
           "SPEC_AGENT_ACTIVITY"
         ]
       }
@@ -5188,6 +5202,28 @@
           "AI_TOOL_CHANGED"
         ],
         "emits": []
+      }
+    },
+    "renderer/analyticsNotice": {
+      "file": "src/renderer/analyticsNotice.js",
+      "description": "Analytics Notice Banner",
+      "exports": [
+        "init"
+      ],
+      "depends": [
+        "electron",
+        "shared/ipcChannels"
+      ],
+      "functions": {
+        "init": {
+          "line": 31,
+          "params": [
+            "openSettings"
+          ]
+        },
+        "dismiss": {
+          "line": 60
+        }
       }
     },
     "renderer/appHeader": {
@@ -5902,7 +5938,7 @@
       "ipc": {
         "listens": [],
         "emits": [
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK"
         ]
       }
     },
@@ -6401,7 +6437,7 @@
       "ipc": {
         "listens": [],
         "emits": [
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK"
         ]
       }
     },
@@ -6688,7 +6724,7 @@
           "params": [
             "analyticsOn"
           ],
-          "purpose": "Error reporting is gated on analytics in main (telemetry.captureException"
+          "purpose": "Error reporting is gated on analytics in main (analytics.captureException"
         },
         "syncToggleFromSettings": {
           "line": 355
@@ -6701,10 +6737,10 @@
           "UPDATE_AVAILABLE"
         ],
         "emits": [
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK"
         ]
       }
     },
@@ -7770,7 +7806,7 @@
       "ipc": {
         "listens": [],
         "emits": [
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK"
         ]
       }
     },
@@ -8300,7 +8336,7 @@
         "doneWindow",
         "frameSettingsModal",
         "feedbackPanel",
-        "telemetryNotice",
+        "analyticsNotice",
         "healthNotice",
         "specDrivenHint",
         "docsHealthHint",
@@ -8364,7 +8400,7 @@
         ],
         "emits": [
           "REFRESH_GIT_STATUS",
-          "TELEMETRY_EXCEPTION"
+          "ANALYTICS_EXCEPTION"
         ]
       }
     },
@@ -9001,7 +9037,7 @@
           "ORCH_STATE"
         ],
         "emits": [
-          "TELEMETRY_TRACK",
+          "ANALYTICS_TRACK",
           "ORCH_WORKER_LANE"
         ]
       }
@@ -10003,7 +10039,7 @@
       "ipc": {
         "listens": [],
         "emits": [
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK"
         ]
       }
     },
@@ -12240,28 +12276,6 @@
           "ADD_TASK",
           "UPDATE_TASK"
         ]
-      }
-    },
-    "renderer/telemetryNotice": {
-      "file": "src/renderer/telemetryNotice.js",
-      "description": "Telemetry Notice Banner",
-      "exports": [
-        "init"
-      ],
-      "depends": [
-        "electron",
-        "shared/ipcChannels"
-      ],
-      "functions": {
-        "init": {
-          "line": 31,
-          "params": [
-            "openSettings"
-          ]
-        },
-        "dismiss": {
-          "line": 60
-        }
       }
     },
     "renderer/terminal": {
@@ -14676,6 +14690,28 @@
         "direction": "",
         "description": ""
       }
+    },
+    "analytics": {
+      "ANALYTICS_SET_ENABLED": {
+        "name": "analytics-set-enabled",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_TRACK": {
+        "name": "analytics-track",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_EXCEPTION": {
+        "name": "analytics-exception",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_NOTICE_STATE": {
+        "name": "analytics-notice-state",
+        "direction": "",
+        "description": ""
+      }
     }
   },
   "dataFlow": [],
@@ -14721,6 +14757,18 @@
         "module": "renderer/aiToolSelector",
         "file": "src/renderer/aiToolSelector.js",
         "description": "AI Tool Selector Module"
+      }
+    ],
+    "analytics": [
+      {
+        "module": "main/analytics",
+        "file": "src/main/analytics.js",
+        "description": "Analytics"
+      },
+      {
+        "module": "renderer/analyticsNotice",
+        "file": "src/renderer/analyticsNotice.js",
+        "description": "Analytics Notice Banner"
       }
     ],
     "branch": [
@@ -14848,9 +14896,9 @@
     ],
     "events": [
       {
-        "module": "main/telemetryEvents",
-        "file": "src/main/telemetryEvents.js",
-        "description": "Telemetry events — pure policy module"
+        "module": "main/analyticsEvents",
+        "file": "src/main/analyticsEvents.js",
+        "description": "Analytics events — pure policy module"
       },
       {
         "module": "shared/activityEvents",
@@ -15455,18 +15503,6 @@
         "module": "renderer/tasksPanel",
         "file": "src/renderer/tasksPanel.js",
         "description": "Tasks Panel Module"
-      }
-    ],
-    "telemetry": [
-      {
-        "module": "main/telemetry",
-        "file": "src/main/telemetry.js",
-        "description": "Telemetry"
-      },
-      {
-        "module": "renderer/telemetryNotice",
-        "file": "src/renderer/telemetryNotice.js",
-        "description": "Telemetry Notice Banner"
       }
     ],
     "terminal": [

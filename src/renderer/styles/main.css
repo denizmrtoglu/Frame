@@ -48,8 +48,8 @@
 /* 11. Settings Modal */
 @import 'components/settings-modal.css';
 
-/* 12. Telemetry Notice (one-time disclosure banner) */
-@import 'components/telemetry-notice.css';
+/* 12. Analytics Notice (one-time disclosure banner) */
+@import 'components/analytics-notice.css';
 
 /* 12a. Health Notice (degraded/recovered state banner) */
 

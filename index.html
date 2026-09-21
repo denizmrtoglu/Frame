@@ -18,27 +18,27 @@
   <link rel="stylesheet" href="src/renderer/styles/main.css">
 </head>
 <body>
-  <!-- Telemetry Notice (one-time, dismissable): a small solid card in the
+  <!-- Analytics Notice (one-time, dismissable): a small solid card in the
        bottom-right corner, above the status bar. It used to be a translucent
        strip across the top that sat over the app header and was hard to read
        through; the corner is free (toasts appear top-centre) and covers
        nothing the user needs on a first launch. -->
-  <div id="telemetry-notice" class="telemetry-notice" role="status" aria-labelledby="telemetry-notice-title">
-    <div class="telemetry-notice-head">
-      <span class="telemetry-notice-icon" aria-hidden="true">
+  <div id="analytics-notice" class="analytics-notice" role="status" aria-labelledby="analytics-notice-title">
+    <div class="analytics-notice-head">
+      <span class="analytics-notice-icon" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v16a2 2 0 0 0 2 2h16"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/></svg>
       </span>
-      <span id="telemetry-notice-title" class="telemetry-notice-title">Anonymous usage stats</span>
-      <button type="button" id="telemetry-notice-close" class="telemetry-notice-close" aria-label="Dismiss">&#x2715;</button>
+      <span id="analytics-notice-title" class="analytics-notice-title">Anonymous usage stats</span>
+      <button type="button" id="analytics-notice-close" class="analytics-notice-close" aria-label="Dismiss">&#x2715;</button>
     </div>
-    <p class="telemetry-notice-text">
+    <p class="analytics-notice-text">
       Frame sends a random ID for this install, your app version, OS, and the country
       your request came from, so we can count active users and see which features get
       used. No code, file paths or prompts. Turning this off in Settings deletes the ID.
     </p>
-    <div class="telemetry-notice-actions">
-      <a href="#" id="telemetry-notice-settings-link" class="telemetry-notice-link">Manage in Settings</a>
-      <button type="button" id="telemetry-notice-ack" class="primary-btn telemetry-notice-ack">Got it</button>
+    <div class="analytics-notice-actions">
+      <a href="#" id="analytics-notice-settings-link" class="analytics-notice-link">Manage in Settings</a>
+      <button type="button" id="analytics-notice-ack" class="primary-btn analytics-notice-ack">Got it</button>
     </div>
   </div>
 
@@ -1582,7 +1582,7 @@
           <h4 class="settings-section-title">Privacy &amp; Analytics</h4>
           <div class="settings-row">
             <div class="settings-row-text">
-              <label class="settings-row-label" for="settings-telemetry-toggle">Send anonymous usage stats</label>
+              <label class="settings-row-label" for="settings-analytics-toggle">Send anonymous usage stats</label>
               <p class="settings-row-desc">
                 A random ID for this install, plus your app version, OS and country, so we
                 can count active users and see which features get used.
@@ -1590,7 +1590,7 @@
               </p>
             </div>
             <label class="settings-switch">
-              <input type="checkbox" id="settings-telemetry-toggle" />
+              <input type="checkbox" id="settings-analytics-toggle" />
               <span class="settings-switch-slider"></span>
             </label>
           </div>

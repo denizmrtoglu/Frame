@@ -1,10 +1,10 @@
 /**
- * Telemetry
+ * Analytics
  *
- * Anonymous usage events via PostHog. Default opt-out: telemetry runs
+ * Anonymous usage events via PostHog. Default opt-out: analytics runs
  * unless the user disables it from Settings, and fails closed when the
  * settings file is unreadable. Every event must be declared in the
- * registry in telemetryEvents.js — event names plus low-cardinality enum
+ * registry in analyticsEvents.js — event names plus low-cardinality enum
  * props only. No file paths, no project names, no code, no free-form
  * strings, no personally identifying information. The full event list is
  * documented in PRIVACY.md; keep the two in sync.
@@ -22,7 +22,7 @@
 const { PostHog } = require('posthog-node');
 const { app } = require('electron');
 const userSettings = require('./userSettings');
-const telemetryEvents = require('./telemetryEvents');
+const analyticsEvents = require('./analyticsEvents');
 
 // PostHog project token (Settings → Project token & ID, project 280352, EU
 // Cloud). Write-only and safe in a public app — it can send events and
@@ -37,15 +37,16 @@ const POSTHOG_HOST = 'https://eu.i.posthog.com';
 // open, so the flush gets this long and the quit proceeds regardless.
 const SHUTDOWN_TIMEOUT_MS = 2000;
 
-const ENABLED_KEY = 'telemetryEnabled';
-const INSTALL_ID_KEY = 'telemetryInstallId';
+const ENABLED_KEY = 'analyticsEnabled';
+const INSTALL_ID_KEY = 'analyticsInstallId';
 // Opt-IN, unlike ENABLED_KEY. PRIVACY.md committed, before this existed,
 // that any ability to *send* crash detail would be a separate opt-in
 // setting; absent means off, and only an explicit true turns it on.
 const ERROR_REPORTING_KEY = 'errorReportingEnabled';
-const NOTICE_VERSION_KEY = 'telemetryNoticeVersion';
+const NOTICE_VERSION_KEY = 'analyticsNoticeVersion';
 // Superseded by NOTICE_VERSION_KEY; still read so an existing install is not
-// mistaken for a fresh one. Never written again.
+// mistaken for a fresh one. Never written again. It only ever existed under
+// the old name — it was replaced before the rename.
 const NOTICE_SHOWN_KEY = 'telemetryNoticeShown';
 
 let client = null;
@@ -53,9 +54,9 @@ let installId = null;
 let identified = false;
 
 // Bounds what one run can spend of the analytics quota; see the limiter's
-// note in telemetryEvents.js for why an app that only sends user-driven
+// note in analyticsEvents.js for why an app that only sends user-driven
 // events still needs a ceiling.
-const rateLimiter = telemetryEvents.createRateLimiter();
+const rateLimiter = analyticsEvents.createRateLimiter();
 
 /**
  * Build the PostHog client.
@@ -73,7 +74,7 @@ const rateLimiter = telemetryEvents.createRateLimiter();
 function init() {
   if (client) return;
   if (!POSTHOG_API_KEY.startsWith('phc_') || POSTHOG_API_KEY.includes('REPLACE')) {
-    console.warn('Telemetry: no PostHog project API key configured — nothing will be sent');
+    console.warn('Analytics: no PostHog project API key configured — nothing will be sent');
     return;
   }
   try {
@@ -83,7 +84,7 @@ function init() {
     // derived, and PROJECT_NOTES for why the trade was re-taken.
     client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST });
   } catch (err) {
-    console.error('Telemetry: PostHog init failed', err);
+    console.error('Analytics: PostHog init failed', err);
   }
 }
 
@@ -92,11 +93,11 @@ function init() {
  *
  * Lazy because userSettings loads after init(): asking earlier would read an
  * empty cache and mint an id for a user who had opted out. Returns null when
- * telemetry is off, which is also the caller's signal to send nothing.
+ * analytics is off, which is also the caller's signal to send nothing.
  */
 function distinctId() {
   if (installId) return installId;
-  const { id, write } = telemetryEvents.resolveInstallId({
+  const { id, write } = analyticsEvents.resolveInstallId({
     stored: userSettings.get(INSTALL_ID_KEY),
     enabled: isEnabled()
   });
@@ -122,16 +123,16 @@ function personProperties() {
 /**
  * Send a registered anonymous event. No-op if disabled or not initialized.
  * The (name, props) pair is validated against the registry in
- * telemetryEvents.js — unregistered events are dropped entirely, unknown
+ * analyticsEvents.js — unregistered events are dropped entirely, unknown
  * props and out-of-enum values are stripped — so no call site (main or
  * renderer via IPC) can ship content past the allowlist.
  */
 function track(name, props) {
   if (!isEnabled() || !client) return;
-  const validated = telemetryEvents.validateEvent(name, props);
+  const validated = analyticsEvents.validateEvent(name, props);
   if (validated === null) return;
   const gate = rateLimiter.check(Date.now());
-  if (gate.notice) console.warn('Telemetry:', gate.notice);
+  if (gate.notice) console.warn('Analytics:', gate.notice);
   if (!gate.allowed) return;
   const id = distinctId();
   if (!id) return;
@@ -142,14 +143,14 @@ function track(name, props) {
       properties: Object.assign({}, validated, personProperties())
     });
   } catch (err) {
-    console.error('Telemetry: capture failed', err);
+    console.error('Analytics: capture failed', err);
   }
 }
 
 /**
  * Whether exception detail may be sent.
  *
- * Two gates, both required: analytics must be on at all (so a telemetry
+ * Two gates, both required: analytics must be on at all (so an analytics
  * opt-out silences this too, and a corrupt settings file fails closed here
  * as well), and this setting must be explicitly true. Anything else —
  * absent, null, a stray string — reads as off.
@@ -174,18 +175,18 @@ function isErrorReportingEnabled() {
 function captureException(err) {
   if (!isErrorReportingEnabled() || !client) return;
   const gate = rateLimiter.check(Date.now());
-  if (gate.notice) console.warn('Telemetry:', gate.notice);
+  if (gate.notice) console.warn('Analytics:', gate.notice);
   if (!gate.allowed) return;
   const id = distinctId();
   if (!id) return;
-  const safe = telemetryEvents.sanitizeException(err);
+  const safe = analyticsEvents.sanitizeException(err);
   try {
     const scrubbed = new Error(safe.message);
     scrubbed.name = safe.name;
     scrubbed.stack = safe.stack;
     client.captureException(scrubbed, id);
   } catch (e) {
-    console.error('Telemetry: captureException failed', e);
+    console.error('Analytics: captureException failed', e);
   }
 }
 
@@ -194,17 +195,17 @@ function captureException(err) {
  * acknowledged.
  *
  * Decided here rather than in the renderer: the policy lives in
- * telemetryEvents.js next to everything else telemetry decides, and the
+ * analyticsEvents.js next to everything else analytics decides, and the
  * renderer reaches main for it the way it reaches main for every other
- * telemetry call.
+ * analytics call.
  */
 function noticeState() {
   return {
-    show: telemetryEvents.shouldShowNotice({
+    show: analyticsEvents.shouldShowNotice({
       storedVersion: userSettings.get(NOTICE_VERSION_KEY),
       legacyShown: userSettings.get(NOTICE_SHOWN_KEY)
     }),
-    version: telemetryEvents.NOTICE_VERSION
+    version: analyticsEvents.NOTICE_VERSION
   };
 }
 
@@ -216,10 +217,10 @@ function trackAppStarted() {
 }
 
 /**
- * Toggle telemetry from Settings. Persists the new state, then re-resolves
+ * Toggle analytics from Settings. Persists the new state, then re-resolves
  * the install id so the toggle takes effect on disk immediately.
  *
- * Turning telemetry off deletes the stored id rather than parking it: an
+ * Turning analytics off deletes the stored id rather than parking it: an
  * opt-out that leaves a resumable identifier behind is not an opt-out.
  * Turning it back on therefore mints a new one, and the returning user is
  * deliberately a new user to the dashboard — continuity is the thing the
@@ -235,14 +236,36 @@ function setEnabled(enabled) {
 }
 
 /**
+ * Copy settings forward from the names this feature used when it was called
+ * "telemetry". Runs once, right after userSettings loads and before anything
+ * reads a setting.
+ *
+ * Skipped entirely when the settings file could not be read: a write would
+ * clear userSettings' `failed` flag and take fail-closed down with it, so a
+ * corrupt file would end up re-enabling analytics for someone who had opted
+ * out — the precise bug this codebase already fixed once.
+ */
+function migrateLegacySettings() {
+  if (userSettings.loadFailed()) return;
+  const snapshot = {};
+  for (const [current, legacy] of Object.entries(analyticsEvents.LEGACY_SETTING_KEYS)) {
+    snapshot[current] = userSettings.get(current);
+    snapshot[legacy] = userSettings.get(legacy);
+  }
+  for (const { key, value } of analyticsEvents.planLegacyMigration(snapshot)) {
+    userSettings.set(key, value);
+  }
+}
+
+/**
  * Make a failed settings load's fail-closed state stick. Called right after
  * userSettings loads.
  *
  * The in-memory flag alone does not hold: any later setting write (dismissing
- * the telemetry notice, which reappears because its own flag was lost too)
+ * the analytics notice, which reappears because its own flag was lost too)
  * rewrites the file from an empty cache and clears the flag, and the corrupt
  * file has already been moved aside, so the next launch reads "no file" as a
- * fresh install. Either way telemetry came back on for someone who may have
+ * fresh install. Either way analytics came back on for someone who may have
  * opted out. Writing the opt-out persists the only safe assumption; the user
  * can turn it back on in Settings.
  */
@@ -255,10 +278,10 @@ function enforceFailClosed() {
  * Effective enabled state. Default ON when the setting has never been
  * touched (opt-out semantics) — but fails CLOSED when the settings file
  * could not be loaded at all, so corruption can never silently re-enable
- * telemetry for a user who opted out.
+ * analytics for a user who opted out.
  */
 function isEnabled() {
-  return telemetryEvents.effectiveEnabled({
+  return analyticsEvents.effectiveEnabled({
     value: userSettings.get(ENABLED_KEY),
     loadFailed: userSettings.loadFailed(),
   });
@@ -278,7 +301,7 @@ async function shutdown() {
   try {
     await client.shutdown(SHUTDOWN_TIMEOUT_MS);
   } catch (err) {
-    console.error('Telemetry: shutdown failed', err);
+    console.error('Analytics: shutdown failed', err);
   } finally {
     client = null;
   }
@@ -293,6 +316,7 @@ module.exports = {
   setEnabled,
   isEnabled,
   isErrorReportingEnabled,
+  migrateLegacySettings,
   enforceFailClosed,
   shutdown
 };

@@ -1,15 +1,15 @@
 /**
- * Telemetry policy tests — fail-closed opt-out decision.
+ * Analytics policy tests — fail-closed opt-out decision.
  * Runs with Node's built-in runner: `npm test` (node --test test/).
  *
- * Targets the pure policy module (src/main/telemetryEvents.js); the Electron
- * side of telemetry.js is a thin wrapper over it.
+ * Targets the pure policy module (src/main/analyticsEvents.js); the Electron
+ * side of analytics.js is a thin wrapper over it.
  */
 
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, sanitizeException, NOTICE_VERSION, shouldShowNotice, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
+const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, planLegacyMigration, LEGACY_SETTING_KEYS, sanitizeException, NOTICE_VERSION, shouldShowNotice, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/analyticsEvents');
 
 // ─── effectiveEnabled — the re-opt-in regression ──────────
 
@@ -27,7 +27,7 @@ test('explicit opt-in on a healthy load stays on', () => {
 
 test('failed settings load fails CLOSED regardless of the cached value', () => {
   // The re-opt-in bug: an unrecoverable user-settings.json used to reset the
-  // cache to {} so `null !== false` re-enabled telemetry for opted-out users.
+  // cache to {} so `null !== false` re-enabled analytics for opted-out users.
   assert.equal(effectiveEnabled({ value: null, loadFailed: true }), false);
   assert.equal(effectiveEnabled({ value: true, loadFailed: true }), false);
   assert.equal(effectiveEnabled({ value: false, loadFailed: true }), false);
@@ -58,13 +58,13 @@ test('a malformed stored id is replaced rather than sent', () => {
   }
 });
 
-test('telemetry off yields no id and asks for the stored one to be deleted', () => {
+test('analytics off yields no id and asks for the stored one to be deleted', () => {
   const r = resolveInstallId({ stored: UUID_A, enabled: false }, mintB);
   assert.equal(r.id, null);
   assert.equal(r.write, 'delete');
 });
 
-test('telemetry off with nothing stored writes nothing', () => {
+test('analytics off with nothing stored writes nothing', () => {
   const r = resolveInstallId({ stored: null, enabled: false }, mintB);
   assert.equal(r.id, null);
   assert.equal(r.write, null);
@@ -79,7 +79,7 @@ test('a minted id is a random UUID, not derived from the machine', () => {
 
 // ─── opt-out leaves no identifier behind ──────────────────
 //
-// The composition is the point: whatever decides telemetry is off — an
+// The composition is the point: whatever decides analytics is off — an
 // explicit opt-out or a settings file that could not be read — must also
 // leave no install id on disk. Testing the two functions separately would
 // miss a wiring that consulted the wrong one.
@@ -101,7 +101,7 @@ test('an unreadable settings file yields no id, whatever was cached', () => {
   }
 });
 
-test('turning telemetry back on mints a new id, not the old one', () => {
+test('turning analytics back on mints a new id, not the old one', () => {
   const off = idFor({ value: false, loadFailed: false, stored: UUID_A });
   assert.equal(off.write, 'delete');
   // The delete has landed, so the re-enable sees nothing stored.
@@ -192,6 +192,43 @@ test('a garbage stored version is treated as never seen', () => {
   for (const junk of ['2', null, {}, NaN, 1.5]) {
     assert.equal(shouldShowNotice({ storedVersion: junk }), true, `${String(junk)} should re-show`);
   }
+});
+
+// ─── planLegacyMigration — the rename must not lose a choice ──
+
+test('an explicit opt-out survives the telemetry→analytics rename', () => {
+  // The whole point: read as "never set", false would default back ON.
+  const writes = planLegacyMigration({ telemetryEnabled: false });
+  assert.deepEqual(writes, [{ key: 'analyticsEnabled', value: false }]);
+});
+
+test('the install id carries over, so one user does not become two', () => {
+  const writes = planLegacyMigration({ telemetryInstallId: UUID_A });
+  assert.deepEqual(writes, [{ key: 'analyticsInstallId', value: UUID_A }]);
+});
+
+test('a seen notice version carries over, so nobody is interrupted twice', () => {
+  const writes = planLegacyMigration({ telemetryNoticeVersion: 2 });
+  assert.deepEqual(writes, [{ key: 'analyticsNoticeVersion', value: 2 }]);
+});
+
+test('a value already set under the new name is never overwritten', () => {
+  const writes = planLegacyMigration({ analyticsEnabled: true, telemetryEnabled: false });
+  assert.deepEqual(writes, []);
+});
+
+test('a fresh install has nothing to migrate', () => {
+  assert.deepEqual(planLegacyMigration({}), []);
+  assert.deepEqual(planLegacyMigration(undefined), []);
+});
+
+test('every legacy key maps to a distinct current key', () => {
+  const current = Object.keys(LEGACY_SETTING_KEYS);
+  const legacy = Object.values(LEGACY_SETTING_KEYS);
+  assert.equal(new Set(current).size, current.length);
+  assert.equal(new Set(legacy).size, legacy.length);
+  for (const k of legacy) assert.ok(k.startsWith('telemetry'), `${k} should be an old-name key`);
+  for (const k of current) assert.ok(k.startsWith('analytics'), `${k} should be a new-name key`);
 });
 
 // ─── The registry is enum-only ────────────────────────────
@@ -334,7 +371,7 @@ test('the session ceiling holds even when every window is under the cap', () => 
 
 // ─── diffSpecLifecycle — spec_created / spec_phase_advanced ─
 
-const { diffSpecLifecycle, renameSpecLifecycle } = require('../src/main/telemetryEvents');
+const { diffSpecLifecycle, renameSpecLifecycle } = require('../src/main/analyticsEvents');
 
 const HOUR = 60 * 60 * 1000;
 const T0 = Date.parse('2026-09-14T10:00:00Z');

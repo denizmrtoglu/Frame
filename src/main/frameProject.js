@@ -489,7 +489,7 @@ function frameHookCommands() {
  * surfaced via the returned summary.
  */
 function installSpecHintHook(projectPath, { file = 'settings.json' } = {}) {
-  // Lazy require — aiToolManager pulls telemetry; keep init's module graph flat.
+  // Lazy require — aiToolManager pulls analytics; keep init's module graph flat.
   const aiToolManager = require('./aiToolManager');
   const active = aiToolManager.getActiveTool();
   if (!active || active.id !== 'claude') {
@@ -1550,10 +1550,10 @@ function setupIPC(ipcMain) {
       }
 
       const config = await initializeFrameProject(projectPath, projectName, { gitSharing });
-      // Lazy require, same reason as aiToolManager above: telemetry pulls
+      // Lazy require, same reason as aiToolManager above: analytics pulls
       // posthog-node and electron, and CI runs the suite with no
       // node_modules. Keep this module's load graph Electron-free.
-      require('./telemetry').track('project_initialized');
+      require('./analytics').track('project_initialized');
       event.sender.send(IPC.FRAME_PROJECT_INITIALIZED, {
         projectPath,
         config,

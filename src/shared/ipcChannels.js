@@ -157,11 +157,11 @@ const IPC = {
   GIT_STATUS_DATA: 'git-status-data',
   GET_GIT_DIFF: 'get-git-diff',
 
-  // Telemetry (PostHog, opt-out via Settings; exceptions are a separate opt-in)
-  TELEMETRY_SET_ENABLED: 'telemetry-set-enabled',
-  TELEMETRY_TRACK: 'telemetry-track',
-  TELEMETRY_EXCEPTION: 'telemetry-exception',
-  TELEMETRY_NOTICE_STATE: 'telemetry-notice-state',
+  // Analytics (PostHog, opt-out via Settings; exceptions are a separate opt-in)
+  ANALYTICS_SET_ENABLED: 'analytics-set-enabled',
+  ANALYTICS_TRACK: 'analytics-track',
+  ANALYTICS_EXCEPTION: 'analytics-exception',
+  ANALYTICS_NOTICE_STATE: 'analytics-notice-state',
 
   // Health / crash recovery (main → renderer notices)
   MAIN_PROCESS_ERROR: 'main-process-error',

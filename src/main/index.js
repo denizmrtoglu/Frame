@@ -38,13 +38,13 @@ const userSettings = require('./userSettings');
 const uiZoom = require('./uiZoom');
 const gitStatusManager = require('./gitStatusManager');
 const gitDiffManager = require('./gitDiffManager');
-const telemetry = require('./telemetry');
+const analytics = require('./analytics');
 const specManager = require('./specManager');
 const orchestrationManager = require('./orchestrationManager');
 
 let mainWindow = null;
 let quitConfirmed = false;
-let telemetryFlushed = false;
+let analyticsFlushed = false;
 
 /**
  * Quitting (or closing the window) tears down every PTY — killing running
@@ -236,28 +236,28 @@ function setupAllIPC() {
   // Orchestration — conductor-led parallel spec execution
   orchestrationManager.setupIPC(ipcMain);
 
-  // Telemetry — toggle from Settings
-  ipcMain.handle(IPC.TELEMETRY_SET_ENABLED, (event, enabled) =>
-    telemetry.setEnabled(enabled)
+  // Analytics — toggle from Settings
+  ipcMain.handle(IPC.ANALYTICS_SET_ENABLED, (event, enabled) =>
+    analytics.setEnabled(enabled)
   );
 
-  // Telemetry — renderer-originated events; track() validates (name, props)
+  // Analytics — renderer-originated events; track() validates (name, props)
   // against the registry, so the renderer cannot bypass the allowlist
-  ipcMain.on(IPC.TELEMETRY_TRACK, (event, name, props) => {
-    telemetry.track(name, props);
+  ipcMain.on(IPC.ANALYTICS_TRACK, (event, name, props) => {
+    analytics.track(name, props);
   });
 
-  // Telemetry — renderer exceptions. The renderer forwards the raw shape and
-  // captureException sanitizes here, for the same reason TELEMETRY_TRACK
+  // Analytics — renderer exceptions. The renderer forwards the raw shape and
+  // captureException sanitizes here, for the same reason ANALYTICS_TRACK
   // revalidates here: the main process is the only place the guarantee can
   // be enforced, whatever a renderer module sends.
-  ipcMain.on(IPC.TELEMETRY_EXCEPTION, (event, err) => {
-    telemetry.captureException(err);
+  ipcMain.on(IPC.ANALYTICS_EXCEPTION, (event, err) => {
+    analytics.captureException(err);
   });
 
-  // Telemetry — is the disclosure notice due? The renderer draws it; the
+  // Analytics — is the disclosure notice due? The renderer draws it; the
   // decision stays here, beside the settings it reads.
-  ipcMain.handle(IPC.TELEMETRY_NOTICE_STATE, () => telemetry.noticeState());
+  ipcMain.handle(IPC.ANALYTICS_NOTICE_STATE, () => analytics.noticeState());
 
   // Diagnostics — Settings "Open Logs Folder"
   ipcMain.handle(IPC.GET_LOG_INFO, () => ({
@@ -313,8 +313,9 @@ function init() {
   // Initialize user settings (must run after app is ready so userData path resolves)
   userSettings.init();
   // Before anything can write a setting: an unreadable settings file must
-  // leave telemetry durably off, not just off until the next write.
-  telemetry.enforceFailClosed();
+  // leave analytics durably off, not just off until the next write.
+  analytics.migrateLegacySettings();
+  analytics.enforceFailClosed();
   // The interface scale reads its step from user settings, and createWindow
   // reads the factor from it — so it sits between the two.
   uiZoom.init();
@@ -327,7 +328,7 @@ function init() {
   // Send the launch event after userSettings is loaded so the opt-out
   // check uses the correct state, and so the install id resolves against
   // the user's real choice rather than an empty cache.
-  telemetry.trackAppStarted();
+  analytics.trackAppStarted();
 
   // Setup IPC handlers
   setupAllIPC();
@@ -357,7 +358,7 @@ function initModulesWithWindow(window) {
 // event is fired after userSettings loads, from app.whenReady below. The
 // call site predates posthog-node — Aptabase had to run pre-ready — and
 // stays here because moving it buys nothing and risks the boot order.
-telemetry.init();
+analytics.init();
 
 // App lifecycle
 app.whenReady().then(() => {
@@ -386,10 +387,10 @@ app.whenReady().then(() => {
 });
 
 // Confirm-on-quit: Cmd-Q / app menu / OS shutdown with live agents, then
-// flush telemetry. posthog-node batches, so a session's last events — the
+// flush analytics. posthog-node batches, so a session's last events — the
 // ones that say what the user did just before leaving — would otherwise die
 // with the process. The flush borrows the same preventDefault-then-re-quit
-// shape the confirmation already uses, and telemetry.shutdown() carries its
+// shape the confirmation already uses, and analytics.shutdown() carries its
 // own timeout so a dead network cannot hold the app open.
 app.on('before-quit', (e) => {
   if (!quitConfirmed) {
@@ -399,10 +400,10 @@ app.on('before-quit', (e) => {
     }
     quitConfirmed = true;
   }
-  if (telemetryFlushed) return;
-  telemetryFlushed = true;
+  if (analyticsFlushed) return;
+  analyticsFlushed = true;
   e.preventDefault();
-  telemetry.shutdown().finally(() => app.quit());
+  analytics.shutdown().finally(() => app.quit());
 });
 
 app.on('window-all-closed', () => {

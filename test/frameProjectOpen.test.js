@@ -9,7 +9,7 @@
  * with the artifacts an already-migrated one has, and five opens produce the
  * tree the first one did.
  *
- * Electron and the telemetry package are stubbed (the frameProjectInit
+ * Electron and the analytics package are stubbed (the frameProjectInit
  * pattern): CI runs this suite with no node_modules.
  */
 

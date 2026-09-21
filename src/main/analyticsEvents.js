@@ -1,7 +1,7 @@
 /**
- * Telemetry events — pure policy module
+ * Analytics events — pure policy module
  *
- * Every decision telemetry makes without touching Electron lives here so it
+ * Every decision analytics makes without touching Electron lives here so it
  * can be unit-tested under `node --test`: the effective enabled/fail-closed
  * decision, and (as of the event-registry work) the allowlist of events and
  * property values that may ever leave the machine.
@@ -53,9 +53,9 @@ const EVENTS = {
   task_completed: {},
   // Which setting was touched, never its value — the value of the one that
   // matters most is already carried by the opt-out itself. Switching
-  // telemetry *off* deliberately never arrives: track() is gated on the new
+  // analytics *off* deliberately never arrives: track() is gated on the new
   // state, which is the correct behaviour for an opt-out.
-  settings_changed: { setting: ['telemetry', 'error_reporting', 'crash_dumps', 'ui_zoom'] },
+  settings_changed: { setting: ['analytics', 'error_reporting', 'crash_dumps', 'ui_zoom'] },
   error_occurred: {
     category: [
       'agent_cli_not_found',
@@ -110,13 +110,13 @@ function validateEvent(name, props) {
 }
 
 /**
- * Effective telemetry state from the persisted setting plus settings-load
+ * Effective analytics state from the persisted setting plus settings-load
  * health. Default ON when the setting was never touched (opt-out semantics),
  * but a failed settings load fails CLOSED: we can no longer know whether the
  * user opted out, so we must assume they did.
  *
  * @param {{ value: any, loadFailed: boolean }} state
- *   value      — userSettings.get('telemetryEnabled') (null when never set)
+ *   value      — userSettings.get('analyticsEnabled') (null when never set)
  *   loadFailed — userSettings.loadFailed()
  * @returns {boolean}
  */
@@ -128,7 +128,7 @@ function effectiveEnabled({ value, loadFailed }) {
 // ─── The disclosure notice ────────────────────────────────
 //
 // The notice used to be a boolean: shown once, dismissed forever. That was
-// honest while telemetry carried no identifier, but people acknowledged a
+// honest while analytics carried no identifier, but people acknowledged a
 // system that has since changed — a stable install id now rides along. So
 // the flag became a version, and bumping it shows the new text once to
 // everyone, including the users who dismissed the old one.
@@ -142,8 +142,8 @@ const NOTICE_VERSION = 3;
  * Whether the disclosure notice should be shown.
  *
  * @param {{ storedVersion: any, legacyShown?: any, currentVersion?: number }} state
- *   storedVersion — telemetryNoticeVersion, absent before this existed
- *   legacyShown   — telemetryNoticeShown, the boolean this replaced
+ *   storedVersion — analyticsNoticeVersion, absent before this existed
+ *   legacyShown   — analyticsNoticeShown, the boolean this replaced
  * @returns {boolean}
  *
  * A client that stored only the old boolean is treated as having seen
@@ -204,6 +204,46 @@ function sanitizeException(err) {
   };
 }
 
+// ─── Settings that outlived their name ────────────────────
+//
+// This feature shipped as "telemetry" and was renamed to "analytics". The
+// settings on disk did not rename themselves, and three of them must not
+// be lost: an opt-out silently read as "never set" would default back ON,
+// which is the exact re-opt-in bug effectiveEnabled exists to prevent; a
+// forgotten install id would split one user into two; a forgotten notice
+// version would interrupt someone who had already read the card.
+//
+// So the old keys are copied forward once and then left alone — never
+// deleted, so an older Frame build still reads its own settings.
+
+const LEGACY_SETTING_KEYS = {
+  analyticsEnabled: 'telemetryEnabled',
+  analyticsInstallId: 'telemetryInstallId',
+  analyticsNoticeVersion: 'telemetryNoticeVersion'
+};
+
+/**
+ * What the rename owes this install.
+ *
+ * @param {Record<string, any>} snapshot  current and legacy keys, as read
+ * @returns {Array<{key: string, value: any}>}  writes to perform, in order
+ *
+ * A key already set under its new name always wins: the migration may fill
+ * a gap, never overwrite a choice made since the rename. `false` and `0`
+ * are values, not absences — only null/undefined count as unset, which is
+ * what makes an explicit opt-out survive.
+ */
+function planLegacyMigration(snapshot) {
+  const writes = [];
+  const src = snapshot || {};
+  for (const [current, legacy] of Object.entries(LEGACY_SETTING_KEYS)) {
+    if (src[current] !== undefined && src[current] !== null) continue;
+    if (src[legacy] === undefined || src[legacy] === null) continue;
+    writes.push({ key: current, value: src[legacy] });
+  }
+  return writes;
+}
+
 // ─── The install identifier ───────────────────────────────
 //
 // Frame's analytics became user-level when it moved to PostHog: counting
@@ -213,13 +253,13 @@ function sanitizeException(err) {
 // are stable across reinstalls and shared with every other program on the
 // box, which is exactly the linkage this avoids.
 //
-// The decision is pure so it can be tested; `telemetry.js` performs the
+// The decision is pure so it can be tested; `analytics.js` performs the
 // write or the delete the returned `write` asks for.
 
 const INSTALL_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 /**
- * Decide this launch's install id from what is stored and whether telemetry
+ * Decide this launch's install id from what is stored and whether analytics
  * is on.
  *
  * @param {{ stored: any, enabled: boolean }} state
@@ -229,9 +269,9 @@ const INSTALL_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]
  *   write — what the caller must persist: store `id`, delete the stored
  *           value, or nothing
  *
- * Telemetry off deletes the stored id rather than parking it: an opt-out
+ * Analytics off deletes the stored id rather than parking it: an opt-out
  * that leaves a resumable identifier behind is not an opt-out, and turning
- * telemetry back on deliberately mints a new one. A malformed stored value
+ * analytics back on deliberately mints a new one. A malformed stored value
  * is replaced rather than sent — it can only come from a hand-edited or
  * half-written settings file, and neither is an identity worth keeping.
  */
@@ -400,6 +440,8 @@ module.exports = {
   validateEvent,
   effectiveEnabled,
   resolveInstallId,
+  LEGACY_SETTING_KEYS,
+  planLegacyMigration,
   sanitizeException,
   NOTICE_VERSION,
   shouldShowNotice,

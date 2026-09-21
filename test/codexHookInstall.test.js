@@ -17,7 +17,7 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-// frameProject reaches Electron and telemetry transitively; CI runs with no
+// frameProject reaches Electron and analytics transitively; CI runs with no
 // node_modules on purpose, so both are stubbed the way specTasksSync does it.
 const Module = require('node:module');
 const ACTIVE = { id: 'codex' };

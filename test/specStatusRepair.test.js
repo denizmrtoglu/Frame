@@ -18,12 +18,12 @@ const fs = require('fs');
 const os = require('os');
 const path = require('path');
 
-// specManager reaches two packages transitively: telemetry.js requires
+// specManager reaches two packages transitively: analytics.js requires
 // @aptabase/electron/main, and userSettings.js requires electron. CI runs this
 // suite with no node_modules on purpose (see .github/workflows/ci.yml), so both
 // are stubbed before specManager loads — the same shim specTasksSync.test.js
 // uses. Neither is exercised here: listing and repairing a spec emits no
-// telemetry, and app.getPath is only reached from userSettings.init().
+// analytics, and app.getPath is only reached from userSettings.init().
 const Module = require('node:module');
 const EXTERNAL_STUBS = {
   '@aptabase/electron/main': { initialize() {}, trackEvent() {} },

@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
+const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
 
 // ─── effectiveEnabled — the re-opt-in regression ──────────
 
@@ -31,6 +31,50 @@ test('failed settings load fails CLOSED regardless of the cached value', () => {
   assert.equal(effectiveEnabled({ value: null, loadFailed: true }), false);
   assert.equal(effectiveEnabled({ value: true, loadFailed: true }), false);
   assert.equal(effectiveEnabled({ value: false, loadFailed: true }), false);
+});
+
+// ─── resolveInstallId — one stable id, and no id at all ───
+
+const UUID_A = '3f2504e0-4f89-41d3-9a0c-0305e82c3301';
+const mintB = () => '9f8e7d6c-5b4a-4938-8271-615243342516';
+
+test('no stored id mints one and asks for it to be written', () => {
+  const r = resolveInstallId({ stored: null, enabled: true }, mintB);
+  assert.equal(r.id, mintB());
+  assert.equal(r.write, 'set');
+});
+
+test('a stored id is reused and needs no write', () => {
+  const r = resolveInstallId({ stored: UUID_A, enabled: true }, mintB);
+  assert.equal(r.id, UUID_A);
+  assert.equal(r.write, null);
+});
+
+test('a malformed stored id is replaced rather than sent', () => {
+  for (const bad of ['', 'not-a-uuid', 42, {}, 'hostname-of-this-mac']) {
+    const r = resolveInstallId({ stored: bad, enabled: true }, mintB);
+    assert.equal(r.id, mintB(), `${JSON.stringify(bad)} should be replaced`);
+    assert.equal(r.write, 'set');
+  }
+});
+
+test('telemetry off yields no id and asks for the stored one to be deleted', () => {
+  const r = resolveInstallId({ stored: UUID_A, enabled: false }, mintB);
+  assert.equal(r.id, null);
+  assert.equal(r.write, 'delete');
+});
+
+test('telemetry off with nothing stored writes nothing', () => {
+  const r = resolveInstallId({ stored: null, enabled: false }, mintB);
+  assert.equal(r.id, null);
+  assert.equal(r.write, null);
+});
+
+test('a minted id is a random UUID, not derived from the machine', () => {
+  const a = resolveInstallId({ stored: null, enabled: true });
+  const b = resolveInstallId({ stored: null, enabled: true });
+  assert.match(a.id, /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+  assert.notEqual(a.id, b.id);
 });
 
 // ─── The registry is enum-only ────────────────────────────

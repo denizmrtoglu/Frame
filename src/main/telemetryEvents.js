@@ -7,6 +7,8 @@
  * property values that may ever leave the machine.
  */
 
+const { randomUUID } = require('node:crypto');
+
 /**
  * The registry: every event Frame may ever send, with every allowed property
  * and every allowed value. Properties are enums only — no free-form strings,
@@ -102,6 +104,47 @@ function validateEvent(name, props) {
 function effectiveEnabled({ value, loadFailed }) {
   if (loadFailed) return false;
   return value !== false;
+}
+
+// ─── The install identifier ───────────────────────────────
+//
+// Frame's analytics became user-level when it moved to PostHog: counting
+// unique users, following an activation funnel and reading a retention
+// cohort all need one stable id per install. It is a random UUID and
+// nothing else — never a machine id, hostname or username, all of which
+// are stable across reinstalls and shared with every other program on the
+// box, which is exactly the linkage this avoids.
+//
+// The decision is pure so it can be tested; `telemetry.js` performs the
+// write or the delete the returned `write` asks for.
+
+const INSTALL_ID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Decide this launch's install id from what is stored and whether telemetry
+ * is on.
+ *
+ * @param {{ stored: any, enabled: boolean }} state
+ * @param {() => string} [mint]  id source; injectable so tests stay deterministic
+ * @returns {{ id: string|null, write: 'set'|'delete'|null }}
+ *   id    — the distinct id to send with, or null when nothing may be sent
+ *   write — what the caller must persist: store `id`, delete the stored
+ *           value, or nothing
+ *
+ * Telemetry off deletes the stored id rather than parking it: an opt-out
+ * that leaves a resumable identifier behind is not an opt-out, and turning
+ * telemetry back on deliberately mints a new one. A malformed stored value
+ * is replaced rather than sent — it can only come from a hand-edited or
+ * half-written settings file, and neither is an identity worth keeping.
+ */
+function resolveInstallId({ stored, enabled }, mint) {
+  const valid = typeof stored === 'string' && INSTALL_ID_RE.test(stored);
+
+  if (!enabled) {
+    return { id: null, write: stored === undefined || stored === null ? null : 'delete' };
+  }
+  if (valid) return { id: stored, write: null };
+  return { id: (mint || randomUUID)(), write: 'set' };
 }
 
 /**
@@ -258,6 +301,7 @@ module.exports = {
   normalizeTool,
   validateEvent,
   effectiveEnabled,
+  resolveInstallId,
   createRateLimiter,
   DEFAULT_RATE_LIMIT,
   diffSpecLifecycle,

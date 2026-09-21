@@ -8367,13 +8367,13 @@
       "title": "Add `resolveInstallId({ stored, enabled })` to `src/main/telemetryEvents.js` returning `{ id, write }`, with tests for mint-when-absent, reuse-when-stored, reject-malformed, and null-plus-delete when telemetry is off",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T01",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:36:43Z",
+      "completedAt": "2026-09-21T13:36:43Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T02",

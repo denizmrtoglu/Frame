@@ -313,15 +313,15 @@
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 98,
+          "line": 104,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 117,
+          "line": 123,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 130,
+          "line": 136,
           "params": [
             "name",
             "props"
@@ -329,45 +329,45 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "isErrorReportingEnabled": {
-          "line": 158,
+          "line": 164,
           "purpose": "Whether exception detail may be sent."
         },
         "captureException": {
-          "line": 175,
+          "line": 181,
           "params": [
             "err"
           ],
           "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
         },
         "noticeState": {
-          "line": 202,
+          "line": 208,
           "purpose": "Whether the disclosure notice is due, and the version to store when it is"
         },
         "trackAppStarted": {
-          "line": 215,
+          "line": 221,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 229,
+          "line": 235,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle analytics from Settings. Persists the new state, then re-resolves"
         },
         "migrateLegacySettings": {
-          "line": 248,
+          "line": 254,
           "purpose": "Copy settings forward from the names this feature used when it was called"
         },
         "enforceFailClosed": {
-          "line": 272,
+          "line": 278,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 283,
+          "line": 289,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 299,
+          "line": 305,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }

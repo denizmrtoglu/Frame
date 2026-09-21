@@ -78,11 +78,17 @@ function init() {
     return;
   }
   try {
-    // Geo lookup is ON: PostHog resolves the request IP to country/region and
-    // discards the IP itself. That is a deliberate reversal of this file's
-    // first version, which disabled it — see PRIVACY.md, which states what is
-    // derived, and PROJECT_NOTES for why the trade was re-taken.
-    client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST });
+    // Geo lookup ON: PostHog resolves the request IP to country/region and
+    // discards the IP itself. See PRIVACY.md for what is derived.
+    //
+    // `false` is load-bearing and must not be "cleaned up" to an omitted
+    // option. posthog-node is a *server-side* SDK, where the request IP is
+    // usually the server's, so its core defaults `disableGeoip` to TRUE
+    // (@posthog/core posthog-core-stateless.js: `options.disableGeoip ?? true`)
+    // and stamps `$geoip_disable: true` on every event. Frame is the
+    // exception the default does not expect: it runs on the user's machine,
+    // so the request IP is the user's and the lookup is meaningful.
+    client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST, disableGeoip: false });
   } catch (err) {
     console.error('Analytics: PostHog init failed', err);
   }

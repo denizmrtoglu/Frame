@@ -77,6 +77,47 @@ test('a minted id is a random UUID, not derived from the machine', () => {
   assert.notEqual(a.id, b.id);
 });
 
+// ─── opt-out leaves no identifier behind ──────────────────
+//
+// The composition is the point: whatever decides telemetry is off — an
+// explicit opt-out or a settings file that could not be read — must also
+// leave no install id on disk. Testing the two functions separately would
+// miss a wiring that consulted the wrong one.
+
+const idFor = (state) =>
+  resolveInstallId({ stored: state.stored, enabled: effectiveEnabled(state) }, mintB);
+
+test('an explicit opt-out yields no id and deletes the stored one', () => {
+  const r = idFor({ value: false, loadFailed: false, stored: UUID_A });
+  assert.equal(r.id, null);
+  assert.equal(r.write, 'delete');
+});
+
+test('an unreadable settings file yields no id, whatever was cached', () => {
+  for (const value of [null, true, false]) {
+    const r = idFor({ value, loadFailed: true, stored: UUID_A });
+    assert.equal(r.id, null, `loadFailed with cached ${value} must send nothing`);
+    assert.equal(r.write, 'delete');
+  }
+});
+
+test('turning telemetry back on mints a new id, not the old one', () => {
+  const off = idFor({ value: false, loadFailed: false, stored: UUID_A });
+  assert.equal(off.write, 'delete');
+  // The delete has landed, so the re-enable sees nothing stored.
+  const on = idFor({ value: true, loadFailed: false, stored: null });
+  assert.equal(on.write, 'set');
+  assert.notEqual(on.id, UUID_A);
+});
+
+test('a healthy default-on install keeps its id across launches', () => {
+  const first = idFor({ value: null, loadFailed: false, stored: null });
+  assert.equal(first.write, 'set');
+  const second = idFor({ value: null, loadFailed: false, stored: first.id });
+  assert.equal(second.id, first.id);
+  assert.equal(second.write, null);
+});
+
 // ─── The registry is enum-only ────────────────────────────
 
 test('registry props are arrays of fixed strings — no free-form values possible', () => {

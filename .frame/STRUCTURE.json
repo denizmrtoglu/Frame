@@ -4371,22 +4371,22 @@
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 147,
+          "line": 153,
           "params": [
             "enabled"
           ],
-          "purpose": "Toggle telemetry from Settings. Persists the new state. The client is"
+          "purpose": "Toggle telemetry from Settings. Persists the new state, then re-resolves"
         },
         "enforceFailClosed": {
-          "line": 165,
+          "line": 174,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 176,
+          "line": 185,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 192,
+          "line": 201,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }

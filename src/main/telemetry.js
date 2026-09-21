@@ -141,12 +141,21 @@ function trackAppStarted() {
 }
 
 /**
- * Toggle telemetry from Settings. Persists the new state. The client is
- * already built on boot; flipping this flag just gates capture.
+ * Toggle telemetry from Settings. Persists the new state, then re-resolves
+ * the install id so the toggle takes effect on disk immediately.
+ *
+ * Turning telemetry off deletes the stored id rather than parking it: an
+ * opt-out that leaves a resumable identifier behind is not an opt-out.
+ * Turning it back on therefore mints a new one, and the returning user is
+ * deliberately a new user to the dashboard — continuity is the thing the
+ * opt-out was asked to break.
  */
 function setEnabled(enabled) {
   const value = enabled === true;
   userSettings.set(ENABLED_KEY, value);
+  installId = null;
+  identified = false;
+  distinctId();
   return value;
 }
 

@@ -8406,13 +8406,13 @@
       "title": "Delete the stored install ID in `setEnabled(false)` and mint a fresh one on re-enable, and extend the existing fail-closed tests in `test/telemetry.test.js` to assert no ID survives while telemetry is off",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T04",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:41:45Z",
+      "completedAt": "2026-09-21T13:41:45Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T05",

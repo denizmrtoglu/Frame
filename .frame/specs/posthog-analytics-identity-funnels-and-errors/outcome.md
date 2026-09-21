@@ -26,3 +26,11 @@ _Captured: 2026-09-21 · 2 file change(s)_
 
 ---
 
+## T04 — Opt-out destroys the install id
+
+Made `setEnabled` re-resolve the install id so the toggle lands on disk at once — off deletes the stored id, on mints a new one. Added four composition tests over `effectiveEnabled` + `resolveInstallId`; the fail-closed cases now assert not just that nothing is sent but that nothing is kept, which is the stronger claim PRIVACY.md will make. A returning user who opted out and back in is deliberately a new user to the dashboard. Files touched: `src/main/telemetry.js`, `test/telemetry.test.js`.
+
+_Captured: 2026-09-21 · 2 file change(s)_
+
+---
+

@@ -1,7 +1,7 @@
 /**
  * Telemetry
  *
- * Anonymous usage events via Aptabase. Default opt-out: telemetry runs
+ * Anonymous usage events via PostHog. Default opt-out: telemetry runs
  * unless the user disables it from Settings, and fails closed when the
  * settings file is unreadable. Every event must be declared in the
  * registry in telemetryEvents.js — event names plus low-cardinality enum
@@ -9,19 +9,35 @@
  * strings, no personally identifying information. The full event list is
  * documented in PRIVACY.md; keep the two in sync.
  *
- * The Aptabase app key below is a public identifier (not a secret). It
- * has write-only permissions and cannot read the dashboard or delete
- * data. Same model as Google Analytics tracking IDs.
+ * Events carry a stable install id (a random UUID, see resolveInstallId)
+ * so the dashboard can count unique users, follow the activation funnel
+ * and read retention cohorts. It identifies an install, never a person:
+ * nothing here can be joined to a name, an email or a machine.
+ *
+ * The PostHog project API key below is a public identifier (not a secret).
+ * It is write-only — it cannot read the dashboard or delete data. Same
+ * model as Google Analytics tracking IDs.
  */
 
-const aptabase = require('@aptabase/electron/main');
+const { PostHog } = require('posthog-node');
+const { app } = require('electron');
 const userSettings = require('./userSettings');
 const telemetryEvents = require('./telemetryEvents');
 
-const APTABASE_APP_KEY = 'A-EU-5590504973';
-const ENABLED_KEY = 'telemetryEnabled';
+// Replace with the project API key from PostHog → Settings → Project API key.
+// Until it is a real `phc_…` key, init() leaves the client unbuilt and every
+// track() call is a no-op — Frame works, nothing is sent.
+const POSTHOG_API_KEY = 'phc_REPLACE_WITH_PROJECT_API_KEY';
+// EU residency. PRIVACY.md promises the IP is not retained, so geo lookup is
+// off globally rather than per call.
+const POSTHOG_HOST = 'https://eu.i.posthog.com';
 
-let initialized = false;
+const ENABLED_KEY = 'telemetryEnabled';
+const INSTALL_ID_KEY = 'telemetryInstallId';
+
+let client = null;
+let installId = null;
+let identified = false;
 
 // Bounds what one run can spend of the analytics quota; see the limiter's
 // note in telemetryEvents.js for why an app that only sends user-driven
@@ -29,22 +45,61 @@ let initialized = false;
 const rateLimiter = telemetryEvents.createRateLimiter();
 
 /**
- * Initialize Aptabase. MUST be called before app.whenReady() because the
- * SDK uses protocol.registerSchemesAsPrivileged internally.
+ * Build the PostHog client.
  *
- * We always initialize (regardless of opt-out state) because the call has
- * no network side-effects on its own — events only go out when trackEvent
- * runs, and that path is gated by isEnabled(). Initializing eagerly avoids
- * the chicken-and-egg with userSettings (which loads after app.whenReady).
+ * Unlike Aptabase — which had to initialize before app.whenReady() because
+ * it registered a privileged protocol scheme — posthog-node has no such
+ * constraint. The call site is unchanged anyway: moving it buys nothing and
+ * only risks the boot order.
+ *
+ * We always build (regardless of opt-out state) because construction has no
+ * network side-effects — events only go out when capture runs, and that path
+ * is gated by isEnabled(). Building eagerly avoids the chicken-and-egg with
+ * userSettings, which loads after app.whenReady.
  */
 function init() {
-  if (initialized) return;
-  try {
-    aptabase.initialize(APTABASE_APP_KEY);
-    initialized = true;
-  } catch (err) {
-    console.error('Telemetry: Aptabase init failed', err);
+  if (client) return;
+  if (!POSTHOG_API_KEY.startsWith('phc_') || POSTHOG_API_KEY.includes('REPLACE')) {
+    console.warn('Telemetry: no PostHog project API key configured — nothing will be sent');
+    return;
   }
+  try {
+    client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST, disableGeoip: true });
+  } catch (err) {
+    console.error('Telemetry: PostHog init failed', err);
+  }
+}
+
+/**
+ * This install's distinct id, resolved on first use and cached for the run.
+ *
+ * Lazy because userSettings loads after init(): asking earlier would read an
+ * empty cache and mint an id for a user who had opted out. Returns null when
+ * telemetry is off, which is also the caller's signal to send nothing.
+ */
+function distinctId() {
+  if (installId) return installId;
+  const { id, write } = telemetryEvents.resolveInstallId({
+    stored: userSettings.get(INSTALL_ID_KEY),
+    enabled: isEnabled()
+  });
+  if (write === 'set') userSettings.set(INSTALL_ID_KEY, id);
+  else if (write === 'delete') userSettings.set(INSTALL_ID_KEY, null);
+  installId = id;
+  return id;
+}
+
+/**
+ * Person properties, sent once per run alongside the first event.
+ *
+ * Operating system and app version only — exactly the two fields Aptabase
+ * attached automatically and that PRIVACY.md already discloses, so the
+ * disclosure surface does not grow with the move.
+ */
+function personProperties() {
+  if (identified) return undefined;
+  identified = true;
+  return { $set: { $os: process.platform, $app_version: app.getVersion() } };
 }
 
 /**
@@ -55,16 +110,22 @@ function init() {
  * renderer via IPC) can ship content past the allowlist.
  */
 function track(name, props) {
-  if (!isEnabled() || !initialized) return;
+  if (!isEnabled() || !client) return;
   const validated = telemetryEvents.validateEvent(name, props);
   if (validated === null) return;
   const gate = rateLimiter.check(Date.now());
   if (gate.notice) console.warn('Telemetry:', gate.notice);
   if (!gate.allowed) return;
+  const id = distinctId();
+  if (!id) return;
   try {
-    aptabase.trackEvent(name, Object.keys(validated).length ? validated : undefined);
+    client.capture({
+      distinctId: id,
+      event: name,
+      properties: Object.assign({}, validated, personProperties())
+    });
   } catch (err) {
-    console.error('Telemetry: trackEvent failed', err);
+    console.error('Telemetry: capture failed', err);
   }
 }
 
@@ -76,8 +137,8 @@ function trackAppStarted() {
 }
 
 /**
- * Toggle telemetry from Settings. Persists the new state. Aptabase is
- * already initialized on boot; flipping this flag just gates trackEvent.
+ * Toggle telemetry from Settings. Persists the new state. The client is
+ * already built on boot; flipping this flag just gates capture.
  */
 function setEnabled(enabled) {
   const value = enabled === true;

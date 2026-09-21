@@ -4339,17 +4339,26 @@
         "enforceFailClosed"
       ],
       "depends": [
-        "@aptabase/electron/main",
+        "posthog-node",
+        "electron",
         "userSettings",
         "telemetryEvents"
       ],
       "functions": {
         "init": {
-          "line": 40,
-          "purpose": "Initialize Aptabase. MUST be called before app.whenReady() because the"
+          "line": 60,
+          "purpose": "Build the PostHog client."
+        },
+        "distinctId": {
+          "line": 80,
+          "purpose": "This install's distinct id, resolved on first use and cached for the run."
+        },
+        "personProperties": {
+          "line": 99,
+          "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 57,
+          "line": 112,
           "params": [
             "name",
             "props"
@@ -4357,22 +4366,22 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "trackAppStarted": {
-          "line": 74,
+          "line": 135,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 82,
+          "line": 143,
           "params": [
             "enabled"
           ],
-          "purpose": "Toggle telemetry from Settings. Persists the new state. Aptabase is"
+          "purpose": "Toggle telemetry from Settings. Persists the new state. The client is"
         },
         "enforceFailClosed": {
-          "line": 100,
+          "line": 161,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 111,
+          "line": 172,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         }
       }

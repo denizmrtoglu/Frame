@@ -8380,13 +8380,13 @@
       "title": "Replace `@aptabase/electron` with `posthog-node` in `package.json` and `src/main/telemetry.js` — client on `https://eu.i.posthog.com` with `disableGeoip: true`, `distinctId` on every `capture`, `$set` of OS and app version on the first capture of a launch, corrected module header — leaving `track()`'s gate order, `validateEvent` and the rate limiter untouched, autocapture off, and the SDK confined to the main process",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T02",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:39:07Z",
+      "completedAt": "2026-09-21T13:39:07Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T03",

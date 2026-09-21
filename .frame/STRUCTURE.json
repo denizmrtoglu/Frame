@@ -4400,24 +4400,26 @@
         "validateEvent",
         "effectiveEnabled",
         "resolveInstallId",
+        "sanitizeException",
         "createRateLimiter",
         "DEFAULT_RATE_LIMIT",
         "diffSpecLifecycle",
         "renameSpecLifecycle"
       ],
       "depends": [
-        "node:crypto"
+        "node:crypto",
+        "../scripts/redact"
       ],
       "functions": {
         "normalizeTool": {
-          "line": 65,
+          "line": 66,
           "params": [
             "id"
           ],
           "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
         },
         "validateEvent": {
-          "line": 80,
+          "line": 81,
           "params": [
             "name",
             "props"
@@ -4425,15 +4427,28 @@
           "purpose": "Validate an (event, props) pair against the registry."
         },
         "effectiveEnabled": {
-          "line": 104,
+          "line": 105,
           "params": [
             "{ value",
             "loadFailed }"
           ],
           "purpose": "Effective telemetry state from the persisted setting plus settings-load"
         },
+        "stripAbsolutePaths": {
+          "line": 130,
+          "params": [
+            "text"
+          ]
+        },
+        "sanitizeException": {
+          "line": 146,
+          "params": [
+            "err"
+          ],
+          "purpose": "Make an exception safe to send."
+        },
         "resolveInstallId": {
-          "line": 140,
+          "line": 187,
           "params": [
             "{ stored",
             "enabled }",
@@ -4442,21 +4457,21 @@
           "purpose": "Decide this launch's install id from what is stored and whether telemetry"
         },
         "createRateLimiter": {
-          "line": 171,
+          "line": 218,
           "params": [
             "options"
           ],
           "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
         },
         "stampedSince": {
-          "line": 231,
+          "line": 278,
           "params": [
             "stamp",
             "since"
           ]
         },
         "diffSpecLifecycle": {
-          "line": 250,
+          "line": 297,
           "params": [
             "previous",
             "specs",
@@ -4465,7 +4480,7 @@
           "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
         },
         "renameSpecLifecycle": {
-          "line": 289,
+          "line": 336,
           "params": [
             "state",
             "oldSlug",

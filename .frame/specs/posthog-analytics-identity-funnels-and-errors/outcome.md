@@ -34,3 +34,11 @@ _Captured: 2026-09-21 · 2 file change(s)_
 
 ---
 
+## T05 — sanitizeException in the pure policy module
+
+Added `sanitizeException` to the pure module: redact first, then strip absolute paths to basenames on both POSIX and Windows shapes. Two refinements the plan did not specify — the POSIX pattern requires two or more segments and a `(?<![:/])` lookbehind, so `https://eu.i.posthog.com/batch` in an error message survives intact instead of being rewritten to `batch`; and the function never throws and never returns undefined fields, because it runs on the error path where a second failure would lose the first. Files touched: `src/main/telemetryEvents.js`, `test/telemetry.test.js`.
+
+_Captured: 2026-09-21 · 2 file change(s)_
+
+---
+

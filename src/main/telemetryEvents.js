@@ -8,6 +8,7 @@
  */
 
 const { randomUUID } = require('node:crypto');
+const { redact } = require('../../scripts/redact');
 
 /**
  * The registry: every event Frame may ever send, with every allowed property
@@ -104,6 +105,52 @@ function validateEvent(name, props) {
 function effectiveEnabled({ value, loadFailed }) {
   if (loadFailed) return false;
   return value !== false;
+}
+
+// ─── Exception sanitization ───────────────────────────────
+//
+// Exception detail travels a channel of its own — a separate opt-in
+// setting, never the event registry — because the registry's whole value
+// is that it is mechanically enum-only. This function is what makes that
+// channel safe to open.
+//
+// The stack is the tame half: its frames point at Frame's own bundle. The
+// message is where a user's tree leaks, because Node writes the offending
+// path straight into it — `ENOENT: no such file or directory, open
+// '/Users/someone/their-project/src/thing.js'`. So both halves are
+// redacted for secret shapes and then stripped of absolute paths, keeping
+// the basename: `thing.js` still says which file, and says nothing about
+// who owns it or what they were working on.
+
+// Two or more segments, so a lone "/tmp" or a URL's "/batch" is left
+// alone; the lookbehind keeps "https://host/path" from being rewritten.
+const POSIX_PATH_RE = /(?<![:/])(?:\/[^\s/\\:;,()'"<>|]+){2,}/g;
+const WINDOWS_PATH_RE = /[A-Za-z]:\\(?:[^\s\\:;,()'"<>|]+\\)*[^\s\\:;,()'"<>|]*/g;
+
+function stripAbsolutePaths(text) {
+  if (typeof text !== 'string' || text.length === 0) return text;
+  return text
+    .replace(POSIX_PATH_RE, (m) => m.slice(m.lastIndexOf('/') + 1) || m)
+    .replace(WINDOWS_PATH_RE, (m) => m.slice(m.lastIndexOf('\\') + 1) || m);
+}
+
+/**
+ * Make an exception safe to send.
+ *
+ * @param {{ message?: string, stack?: string, name?: string }} err
+ * @returns {{ name: string, message: string, stack: string }}
+ *
+ * Never throws and never returns undefined fields: this runs on the error
+ * path, where a second failure would lose the first one.
+ */
+function sanitizeException(err) {
+  const src = err || {};
+  const clean = (v) => stripAbsolutePaths(redact(typeof v === 'string' ? v : ''));
+  return {
+    name: clean(src.name) || 'Error',
+    message: clean(src.message),
+    stack: clean(src.stack)
+  };
 }
 
 // ─── The install identifier ───────────────────────────────
@@ -302,6 +349,7 @@ module.exports = {
   validateEvent,
   effectiveEnabled,
   resolveInstallId,
+  sanitizeException,
   createRateLimiter,
   DEFAULT_RATE_LIMIT,
   diffSpecLifecycle,

@@ -8419,13 +8419,13 @@
       "title": "Add `sanitizeException({ message, stack })` to `src/main/telemetryEvents.js` — `scripts/redact.js` first, then absolute POSIX and Windows paths reduced to basenames — with tests covering a secret-bearing and a path-bearing input",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T05",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:43:24Z",
+      "completedAt": "2026-09-21T13:43:24Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T06",

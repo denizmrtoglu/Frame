@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
+const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, sanitizeException, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
 
 // ─── effectiveEnabled — the re-opt-in regression ──────────
 
@@ -116,6 +116,55 @@ test('a healthy default-on install keeps its id across launches', () => {
   const second = idFor({ value: null, loadFailed: false, stored: first.id });
   assert.equal(second.id, first.id);
   assert.equal(second.write, null);
+});
+
+// ─── sanitizeException — the opt-in channel's safety ──────
+
+test('an absolute POSIX path in a message is reduced to its basename', () => {
+  const r = sanitizeException(
+    new Error("ENOENT: no such file or directory, open '/Users/someone/their-startup/src/billing.js'")
+  );
+  assert.equal(r.message, "ENOENT: no such file or directory, open 'billing.js'");
+  assert.ok(!r.message.includes('someone'));
+  assert.ok(!r.message.includes('their-startup'));
+});
+
+test('a Windows path is reduced the same way', () => {
+  const r = sanitizeException({ message: String.raw`open 'C:\Users\someone\their-startup\billing.js'` });
+  assert.equal(r.message, "open 'billing.js'");
+});
+
+test('stack frames keep the file and line, lose the tree above it', () => {
+  const stack = [
+    'Error: boom',
+    '    at thing (/Users/someone/their-startup/src/thing.js:10:5)',
+    '    at run (/Applications/Frame.app/Contents/Resources/app/src/main/index.js:42:1)'
+  ].join('\n');
+  const r = sanitizeException({ message: 'boom', stack });
+  assert.ok(r.stack.includes('at thing (thing.js:10:5)'));
+  assert.ok(r.stack.includes('at run (index.js:42:1)'));
+  assert.ok(!r.stack.includes('their-startup'));
+});
+
+test('a URL survives — it is not somebody\'s filesystem', () => {
+  const r = sanitizeException({ message: 'POST https://eu.i.posthog.com/batch failed with 503' });
+  assert.equal(r.message, 'POST https://eu.i.posthog.com/batch failed with 503');
+});
+
+test('secret shapes are redacted before anything else happens', () => {
+  const r = sanitizeException({ message: 'auth failed token=abcdef123456 using sk-ant-abcdefghijklmno' });
+  assert.ok(!r.message.includes('abcdef123456'));
+  assert.ok(!r.message.includes('sk-ant-abcdefghijklmno'));
+  assert.ok(r.message.includes('[REDACTED]'));
+});
+
+test('sanitizeException never throws and never returns undefined fields', () => {
+  for (const input of [undefined, null, {}, { message: 42 }, new Error()]) {
+    const r = sanitizeException(input);
+    assert.equal(typeof r.name, 'string');
+    assert.equal(typeof r.message, 'string');
+    assert.equal(typeof r.stack, 'string');
+  }
 });
 
 // ─── The registry is enum-only ────────────────────────────

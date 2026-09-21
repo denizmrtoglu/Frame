@@ -2317,11 +2317,11 @@
           "purpose": "Setup all IPC handlers"
         },
         "init": {
-          "line": 281,
+          "line": 289,
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 327,
+          "line": 335,
           "params": [
             "window"
           ],
@@ -2334,6 +2334,7 @@
           "SET_USER_SETTING",
           "TELEMETRY_SET_ENABLED",
           "TELEMETRY_TRACK",
+          "TELEMETRY_EXCEPTION",
           "GET_LOG_INFO",
           "TERMINAL_INPUT",
           "RECONCILE_TERMINALS"
@@ -8300,6 +8301,13 @@
         "startAiSession": {
           "line": 991,
           "purpose": "Start the selected AI tool (Claude Code / Codex CLI / etc.) in a fresh"
+        },
+        "forwardException": {
+          "line": 1016,
+          "params": [
+            "err"
+          ],
+          "purpose": "Renderer exceptions reach the same opt-in channel the main process uses."
         }
       },
       "ipc": {
@@ -8310,7 +8318,8 @@
           "UPDATE_AVAILABLE"
         ],
         "emits": [
-          "REFRESH_GIT_STATUS"
+          "REFRESH_GIT_STATUS",
+          "TELEMETRY_EXCEPTION"
         ]
       }
     },
@@ -14415,6 +14424,11 @@
     "telemetry": {
       "TELEMETRY_TRACK": {
         "name": "telemetry-track",
+        "direction": "",
+        "description": ""
+      },
+      "TELEMETRY_EXCEPTION": {
+        "name": "telemetry-exception",
         "direction": "",
         "description": ""
       }

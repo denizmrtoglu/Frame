@@ -247,6 +247,14 @@ function setupAllIPC() {
     telemetry.track(name, props);
   });
 
+  // Telemetry — renderer exceptions. The renderer forwards the raw shape and
+  // captureException sanitizes here, for the same reason TELEMETRY_TRACK
+  // revalidates here: the main process is the only place the guarantee can
+  // be enforced, whatever a renderer module sends.
+  ipcMain.on(IPC.TELEMETRY_EXCEPTION, (event, err) => {
+    telemetry.captureException(err);
+  });
+
   // Diagnostics — Settings "Open Logs Folder"
   ipcMain.handle(IPC.GET_LOG_INFO, () => ({
     logPath: logger.getLogPath(),

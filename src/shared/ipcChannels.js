@@ -157,9 +157,10 @@ const IPC = {
   GIT_STATUS_DATA: 'git-status-data',
   GET_GIT_DIFF: 'get-git-diff',
 
-  // Telemetry (Aptabase, opt-out via Settings)
+  // Telemetry (PostHog, opt-out via Settings; exceptions are a separate opt-in)
   TELEMETRY_SET_ENABLED: 'telemetry-set-enabled',
   TELEMETRY_TRACK: 'telemetry-track',
+  TELEMETRY_EXCEPTION: 'telemetry-exception',
 
   // Health / crash recovery (main → renderer notices)
   MAIN_PROCESS_ERROR: 'main-process-error',

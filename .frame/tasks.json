@@ -8445,13 +8445,13 @@
       "title": "Add `TELEMETRY_EXCEPTION` to `src/shared/ipcChannels.js`, its `ipcMain.on` listener in `src/main/index.js` sanitizing in main, and `window.onerror` / `unhandledrejection` hooks in `src/renderer/index.js`",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T07",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:45:51Z",
+      "completedAt": "2026-09-21T13:45:51Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T08",

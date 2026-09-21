@@ -50,3 +50,11 @@ _Captured: 2026-09-21 · 2 file change(s)_
 
 ---
 
+## T07 — Renderer exceptions reach the same channel
+
+Added the `TELEMETRY_EXCEPTION` channel, its main-process listener, and `error` / `unhandledrejection` hooks in the renderer entry point. Used `window.addEventListener('error')` rather than `window.onerror` as the plan's prose said, because the assignment form would silently replace any handler another module had installed. Sanitization deliberately stays in main, matching how `TELEMETRY_TRACK` revalidates there. Files touched: `src/shared/ipcChannels.js`, `src/main/index.js`, `src/renderer/index.js`.
+
+_Captured: 2026-09-21 · 3 file change(s)_
+
+---
+

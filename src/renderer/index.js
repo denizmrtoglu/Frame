@@ -1009,6 +1009,31 @@ async function startAiSession() {
 /**
  * Start application when DOM is ready
  */
+// Renderer exceptions reach the same opt-in channel the main process uses.
+// Only the three fields are forwarded — an Error does not survive structured
+// cloning intact, and sending anything wider would hand the main process
+// fields nobody has sanitized. captureException does the stripping there.
+function forwardException(err) {
+  try {
+    const e = err instanceof Error ? err : new Error(String(err));
+    ipcRenderer.send(IPC.TELEMETRY_EXCEPTION, {
+      name: e.name,
+      message: e.message,
+      stack: e.stack
+    });
+  } catch (_) {
+    // Reporting a failure must never become one.
+  }
+}
+
+window.addEventListener('error', (event) => {
+  forwardException(event.error || event.message);
+});
+
+window.addEventListener('unhandledrejection', (event) => {
+  forwardException(event.reason);
+});
+
 window.addEventListener('load', () => {
   init();
 

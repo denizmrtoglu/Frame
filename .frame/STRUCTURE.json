@@ -4353,19 +4353,19 @@
       ],
       "functions": {
         "init": {
-          "line": 72,
+          "line": 74,
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 92,
+          "line": 94,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 111,
+          "line": 113,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 124,
+          "line": 126,
           "params": [
             "name",
             "props"
@@ -4373,41 +4373,41 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "isErrorReportingEnabled": {
-          "line": 152,
+          "line": 154,
           "purpose": "Whether exception detail may be sent."
         },
         "captureException": {
-          "line": 169,
+          "line": 171,
           "params": [
             "err"
           ],
           "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
         },
         "noticeState": {
-          "line": 196,
+          "line": 198,
           "purpose": "Whether the disclosure notice is due, and the version to store when it is"
         },
         "trackAppStarted": {
-          "line": 209,
+          "line": 211,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 223,
+          "line": 225,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle telemetry from Settings. Persists the new state, then re-resolves"
         },
         "enforceFailClosed": {
-          "line": 244,
+          "line": 246,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 255,
+          "line": 257,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 271,
+          "line": 273,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }

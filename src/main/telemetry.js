@@ -24,10 +24,12 @@ const { app } = require('electron');
 const userSettings = require('./userSettings');
 const telemetryEvents = require('./telemetryEvents');
 
-// Replace with the project API key from PostHog → Settings → Project API key.
-// Until it is a real `phc_…` key, init() leaves the client unbuilt and every
-// track() call is a no-op — Frame works, nothing is sent.
-const POSTHOG_API_KEY = 'phc_REPLACE_WITH_PROJECT_API_KEY';
+// PostHog project token (Settings → Project token & ID, project 280352, EU
+// Cloud). Write-only and safe in a public app — it can send events and
+// nothing else: it cannot read the dashboard, change settings or delete
+// data. The personal and project *secret* keys can do all three and must
+// never appear here.
+const POSTHOG_API_KEY = 'phc_w4KGHkLoGyutiNQVYoXnzXJmdUKXc7WhzvGXKKt2dzez';
 // EU residency. PRIVACY.md promises the IP is not retained, so geo lookup is
 // off globally rather than per call.
 const POSTHOG_HOST = 'https://eu.i.posthog.com';

@@ -8393,13 +8393,13 @@
       "title": "Call `posthog.shutdown()` from the existing `before-quit` handler in `src/main/index.js` so the batcher flushes a session's final events",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T03",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:40:40Z",
+      "completedAt": "2026-09-21T13:40:40Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T04",

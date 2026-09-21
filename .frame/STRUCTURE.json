@@ -2301,26 +2301,26 @@
       ],
       "functions": {
         "confirmQuitWithLiveAgents": {
-          "line": 53,
+          "line": 54,
           "purpose": "Quitting (or closing the window) tears down every PTY — killing running"
         },
         "createWindow": {
-          "line": 71,
+          "line": 72,
           "purpose": "Create main application window"
         },
         "probeCoreDeps": {
-          "line": 172
+          "line": 173
         },
         "setupAllIPC": {
-          "line": 202,
+          "line": 203,
           "purpose": "Setup all IPC handlers"
         },
         "init": {
-          "line": 280,
+          "line": 281,
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 326,
+          "line": 327,
           "params": [
             "window"
           ],
@@ -4336,7 +4336,8 @@
         "trackAppStarted",
         "setEnabled",
         "isEnabled",
-        "enforceFailClosed"
+        "enforceFailClosed",
+        "shutdown"
       ],
       "depends": [
         "posthog-node",
@@ -4346,19 +4347,19 @@
       ],
       "functions": {
         "init": {
-          "line": 60,
+          "line": 64,
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 80,
+          "line": 84,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 99,
+          "line": 103,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 112,
+          "line": 116,
           "params": [
             "name",
             "props"
@@ -4366,23 +4367,27 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "trackAppStarted": {
-          "line": 135,
+          "line": 139,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 143,
+          "line": 147,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle telemetry from Settings. Persists the new state. The client is"
         },
         "enforceFailClosed": {
-          "line": 161,
+          "line": 165,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 172,
+          "line": 176,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
+        },
+        "shutdown": {
+          "line": 192,
+          "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }
     },

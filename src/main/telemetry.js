@@ -32,6 +32,10 @@ const POSTHOG_API_KEY = 'phc_REPLACE_WITH_PROJECT_API_KEY';
 // off globally rather than per call.
 const POSTHOG_HOST = 'https://eu.i.posthog.com';
 
+// Bounds the quit path: a dead network must not be able to hold the app
+// open, so the flush gets this long and the quit proceeds regardless.
+const SHUTDOWN_TIMEOUT_MS = 2000;
+
 const ENABLED_KEY = 'telemetryEnabled';
 const INSTALL_ID_KEY = 'telemetryInstallId';
 
@@ -176,4 +180,24 @@ function isEnabled() {
   });
 }
 
-module.exports = { init, track, trackAppStarted, setEnabled, isEnabled, enforceFailClosed };
+/**
+ * Flush the batcher and close the client, for the quit path.
+ *
+ * posthog-node queues events and sends them on an interval, so a session's
+ * last events would otherwise die with the process — the very events that
+ * say what a user did just before leaving. Resolves either way: a flush
+ * that cannot reach the network must not be able to hold the app open, so
+ * the SDK's own timeout bounds it and a failure is logged, not thrown.
+ */
+async function shutdown() {
+  if (!client) return;
+  try {
+    await client.shutdown(SHUTDOWN_TIMEOUT_MS);
+  } catch (err) {
+    console.error('Telemetry: shutdown failed', err);
+  } finally {
+    client = null;
+  }
+}
+
+module.exports = { init, track, trackAppStarted, setEnabled, isEnabled, enforceFailClosed, shutdown };

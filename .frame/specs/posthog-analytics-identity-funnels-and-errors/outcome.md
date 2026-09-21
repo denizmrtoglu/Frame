@@ -18,3 +18,11 @@ _Captured: 2026-09-21 · 3 file change(s)_
 
 ---
 
+## T03 — Flush the batcher on the quit path
+
+Added `telemetry.shutdown()` (awaited `client.shutdown(2000)`, never throwing) and wired it into the existing `before-quit` handler. Went beyond plan.md's one line deliberately: a fire-and-forget call there does not flush, because Electron continues quitting and the process dies mid-request — so the handler now preventDefaults once, flushes, then re-quits, reusing the shape the live-agent confirmation already established. A `telemetryFlushed` latch keeps the second pass from looping. Files touched: `src/main/telemetry.js`, `src/main/index.js`.
+
+_Captured: 2026-09-21 · 2 file change(s)_
+
+---
+

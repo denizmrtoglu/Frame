@@ -44,6 +44,7 @@ const orchestrationManager = require('./orchestrationManager');
 
 let mainWindow = null;
 let quitConfirmed = false;
+let telemetryFlushed = false;
 
 /**
  * Quitting (or closing the window) tears down every PTY — killing running
@@ -312,8 +313,8 @@ function init() {
   crashGuard.init();
 
   // Send the launch event after userSettings is loaded so the opt-out
-  // check uses the correct state. Aptabase itself was initialized earlier
-  // (before app.whenReady) — see app lifecycle below.
+  // check uses the correct state, and so the install id resolves against
+  // the user's real choice rather than an empty cache.
   telemetry.trackAppStarted();
 
   // Setup IPC handlers
@@ -340,10 +341,10 @@ function initModulesWithWindow(window) {
   activityLog.attachWindow(window);
 }
 
-// Aptabase MUST be initialized before app.whenReady() because the SDK
-// internally calls protocol.registerSchemesAsPrivileged, which is only
-// allowed pre-ready. Initialization itself doesn't send anything; the
-// actual app_started event is fired from init() after userSettings loads.
+// Build the PostHog client. Construction sends nothing; the app_started
+// event is fired after userSettings loads, from app.whenReady below. The
+// call site predates posthog-node — Aptabase had to run pre-ready — and
+// stays here because moving it buys nothing and risks the boot order.
 telemetry.init();
 
 // App lifecycle
@@ -372,14 +373,24 @@ app.whenReady().then(() => {
   perfMonitor.mark('window-created');
 });
 
-// Confirm-on-quit: Cmd-Q / app menu / OS shutdown with live agents.
+// Confirm-on-quit: Cmd-Q / app menu / OS shutdown with live agents, then
+// flush telemetry. posthog-node batches, so a session's last events — the
+// ones that say what the user did just before leaving — would otherwise die
+// with the process. The flush borrows the same preventDefault-then-re-quit
+// shape the confirmation already uses, and telemetry.shutdown() carries its
+// own timeout so a dead network cannot hold the app open.
 app.on('before-quit', (e) => {
-  if (quitConfirmed) return;
-  if (!confirmQuitWithLiveAgents()) {
-    e.preventDefault();
-    return;
+  if (!quitConfirmed) {
+    if (!confirmQuitWithLiveAgents()) {
+      e.preventDefault();
+      return;
+    }
+    quitConfirmed = true;
   }
-  quitConfirmed = true;
+  if (telemetryFlushed) return;
+  telemetryFlushed = true;
+  e.preventDefault();
+  telemetry.shutdown().finally(() => app.quit());
 });
 
 app.on('window-all-closed', () => {

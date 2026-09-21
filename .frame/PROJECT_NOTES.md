@@ -425,6 +425,37 @@ mainWindow.webContents.openDevTools();
 
 ## Session Notes
 
+### [2026-09-21] IP-based location turned on, one day after turning it off
+
+**Context:** The PostHog migration shipped with `disableGeoip: true` and
+PRIVACY.md said, in two places, that location is never derived or stored. Asked
+the same day whether country was visible in the dashboard, the answer was no —
+by our own choice.
+
+**Decision:** Reverse it. Geo lookup is on; PostHog resolves the request IP to
+country/region on arrival and discards the IP. The alternative offered was
+device timezone (`Europe/Istanbul`), which answers the same question without
+touching a stated promise; it was declined in favour of the IP path.
+
+**What this cost, recorded so it is not forgotten:** a promise published in the
+morning was withdrawn in the afternoon. PRIVACY.md now has an **Approximate
+location** section stating what is derived rather than a line saying it is not —
+the doc is accurate again, but it is the second version of a claim about the same
+subject in one day. `NOTICE_VERSION` went to 3, so every user is interrupted a
+second time within days of the first card; the second card is what makes the
+change honest and also what makes the first one look provisional.
+
+**Rule reaffirmed (it held):** `NOTICE_VERSION` bumps when the disclosure
+changes. This is exactly that case, and bumping was not optional — collecting
+location under a card that says location is not collected would have been the
+real failure.
+
+**Open:** if location is ever narrowed or removed again, do not quietly drop the
+PRIVACY.md section — a third revision of the same claim needs to say what changed
+and why, or the document stops being read as a commitment.
+
+---
+
 ### [2026-09-21] Analytics moved to PostHog — reversing the Aptabase decision
 
 **Context:** `audit-q3-product-analytics` (July) chose Aptabase deliberately and

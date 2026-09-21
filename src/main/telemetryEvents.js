@@ -118,7 +118,7 @@ function effectiveEnabled({ value, loadFailed }) {
 // Bump NOTICE_VERSION only when the disclosure itself changes. It is not a
 // release counter, and a bump interrupts every user exactly once.
 
-const NOTICE_VERSION = 2;
+const NOTICE_VERSION = 3;
 
 /**
  * Whether the disclosure notice should be shown.

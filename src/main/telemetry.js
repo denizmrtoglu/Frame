@@ -30,8 +30,7 @@ const telemetryEvents = require('./telemetryEvents');
 // data. The personal and project *secret* keys can do all three and must
 // never appear here.
 const POSTHOG_API_KEY = 'phc_w4KGHkLoGyutiNQVYoXnzXJmdUKXc7WhzvGXKKt2dzez';
-// EU residency. PRIVACY.md promises the IP is not retained, so geo lookup is
-// off globally rather than per call.
+// EU residency.
 const POSTHOG_HOST = 'https://eu.i.posthog.com';
 
 // Bounds the quit path: a dead network must not be able to hold the app
@@ -78,7 +77,11 @@ function init() {
     return;
   }
   try {
-    client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST, disableGeoip: true });
+    // Geo lookup is ON: PostHog resolves the request IP to country/region and
+    // discards the IP itself. That is a deliberate reversal of this file's
+    // first version, which disabled it — see PRIVACY.md, which states what is
+    // derived, and PROJECT_NOTES for why the trade was re-taken.
+    client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST });
   } catch (err) {
     console.error('Telemetry: PostHog init failed', err);
   }

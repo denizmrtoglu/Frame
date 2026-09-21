@@ -1550,8 +1550,8 @@ function setupIPC(ipcMain) {
       }
 
       const config = await initializeFrameProject(projectPath, projectName, { gitSharing });
-      // Lazy require, same reason as aiToolManager below: telemetry pulls
-      // @aptabase/electron → electron, and CI runs the suite with no
+      // Lazy require, same reason as aiToolManager above: telemetry pulls
+      // posthog-node and electron, and CI runs the suite with no
       // node_modules. Keep this module's load graph Electron-free.
       require('./telemetry').track('project_initialized');
       event.sender.send(IPC.FRAME_PROJECT_INITIALIZED, {

@@ -1,7 +1,7 @@
 {
   "slug": "posthog-analytics-identity-funnels-and-errors",
   "title": "PostHog analytics — identity, funnels and errors",
-  "phase": "implementing",
+  "phase": "done",
   "generated_task_ids": [
     "task-spec-posthog-analytics-identity-funnels-and-errors-T01",
     "task-spec-posthog-analytics-identity-funnels-and-errors-T02",
@@ -16,7 +16,7 @@
   ],
   "ai_tool": "claude-code",
   "created_at": "2026-09-21T12:43:40Z",
-  "updated_at": "2026-09-21T13:36:43.547Z",
-  "last_phase_at": "2026-09-21T13:36:43.547Z",
+  "updated_at": "2026-09-21T13:52:51.532Z",
+  "last_phase_at": "2026-09-21T13:52:51.532Z",
   "implement_mode": "guided"
 }

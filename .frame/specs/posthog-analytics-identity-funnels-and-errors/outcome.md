@@ -74,3 +74,11 @@ _Captured: 2026-09-21 · 7 file change(s)_
 
 ---
 
+## T10 — PRIVACY.md and the recorded reversal
+
+Rewrote `PRIVACY.md` around PostHog, the install ID, and the opt-in error channel, and recorded the reversal of `audit-q3-product-analytics`'s vendor decision in `PROJECT_NOTES.md` with the four choices that shaped how the privacy cost is paid. Verified the event table against the live registry in both directions — nothing listed that Frame does not send, nothing sent that is not listed. Added geolocation and session replay to the never-collected list, since PostHog offers both and Frame uses neither. Files touched: `PRIVACY.md`, `.frame/PROJECT_NOTES.md`.
+
+_Captured: 2026-09-21 · 2 file change(s)_
+
+---
+

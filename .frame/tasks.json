@@ -8484,13 +8484,13 @@
       "title": "Rewrite `PRIVACY.md` for PostHog, EU residency, the install ID and what it is not, the registry's eleven events unchanged, and the error-reporting opt-in — and record the reversal of `audit-q3-product-analytics`'s vendor decision as a dated entry in `.frame/PROJECT_NOTES.md`",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T10",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:52:51Z",
+      "completedAt": "2026-09-21T13:52:51Z"
     }
   ],
   "metadata": {

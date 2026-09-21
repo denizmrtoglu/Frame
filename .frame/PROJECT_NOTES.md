@@ -425,6 +425,53 @@ mainWindow.webContents.openDevTools();
 
 ## Session Notes
 
+### [2026-09-21] Analytics moved to PostHog — reversing the Aptabase decision
+
+**Context:** `audit-q3-product-analytics` (July) chose Aptabase deliberately and
+recorded a rejection of PostHog: *"PostHog's funnels/identity features exceed the
+spec's out-of-scope line (no per-user tracking)"* (`plan.md:11`). It measured
+activation as unique-users-per-event and accepted the imprecision. Two months of
+using that dashboard showed the cost: Aptabase attaches no identifier at all, so
+`app_started` cannot distinguish one person launching forty times from forty
+people launching once, and there is no funnel, no retention and no per-user
+feature usage. Every question worth asking about the roadmap turned out to be
+user-level.
+
+**Decision:** Reverse it. PostHog EU cloud, with a random per-install UUID as the
+distinct id. The July constraint was right about the trade — identity is a real
+privacy cost — and wrong about which side of it to take, because the alternative
+was not "less data", it was "no answers".
+
+Four choices shaped how the cost gets paid rather than avoided:
+
+- **Default-on opt-out kept**, not switched to opt-in. On a developer tool opt-in
+  yields 5–15% participation, and none of the questions survive that sample. The
+  cost is paid by disclosure instead.
+- **Anonymous only.** No self-identify field, no email. The PRIVACY.md line "no
+  email addresses or any personally identifiable information" stays true as
+  written.
+- **The notice re-shows.** People acknowledged a system with no identifier;
+  `telemetryNoticeShown` became `telemetryNoticeVersion` so the changed text
+  reaches them once. Default-on is only honest if the change is surfaced.
+- **Error detail on a separate opt-in channel**, not a redacted `message`
+  property on `error_occurred`. A free-form property would end the registry's
+  mechanically enum-only guarantee, and nothing would stop the next widening.
+
+**What did not change:** the `telemetryEvents.js` registry and `validateEvent`
+gate, the fail-closed opt-out, and the renderer-revalidated-in-main rule. Only
+`track()`'s final send call moved. No event was added — the user-level views come
+entirely from attaching the install id to the eleven events that already existed.
+
+**Rules established:**
+- Opting out **deletes** the install id; re-enabling mints a new one. An opt-out
+  that leaves a resumable identifier is not an opt-out.
+- `NOTICE_VERSION` is bumped only when the disclosure itself changes — it is not
+  a release counter, and a bump interrupts every user once.
+- The error channel never becomes an event. If exception detail is ever wanted in
+  the registry, that is a decision to re-open here, not a property to add.
+
+---
+
 ### [2026-01-25] Project Navigation System
 
 **Context:** When Claude Code enters a project, it needs to quickly capture the context.

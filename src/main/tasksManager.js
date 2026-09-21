@@ -236,6 +236,13 @@ function updateTask(projectPath, taskId, updates) {
       task.completedAt = new Date().toISOString();
       tasksData.metadata = tasksData.metadata || {};
       tasksData.metadata.totalCompleted = (tasksData.metadata.totalCompleted || 0) + 1;
+      // Lazy require, same reason as frameProject: telemetry pulls
+      // posthog-node and electron, and CI runs the suite with no
+      // node_modules. Keep this module's load graph Electron-free.
+      // Nothing about the task is sent — not its title, not its id.
+      try {
+        require('./telemetry').track('task_completed');
+      } catch (_) { /* telemetry is never allowed to break a task write */ }
     }
   }
 

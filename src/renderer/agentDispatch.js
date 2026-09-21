@@ -528,6 +528,11 @@ async function _dispatchImplement({ slug, title, projectPath, assignment }) {
     return { success: false, terminalId: null, error: null };
   }
 
+  // Which mode people actually pick is a product question the spec flow
+  // cannot answer from the filesystem: autonomous runs are launched
+  // elsewhere, so status.json alone under-counts them.
+  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'implement_mode_selected', { mode: choice.mode });
+
   // Record the chosen mode *before* staging so the flags follow the choice.
   try {
     const res = await ipcRenderer.invoke(IPC.UPDATE_SPEC_STATUS, {

@@ -77,6 +77,9 @@ function init() {
     const enabled = toggleEl.checked;
     await ipcRenderer.invoke(IPC.SET_USER_SETTING, TELEMETRY_KEY, enabled);
     await ipcRenderer.invoke(IPC.TELEMETRY_SET_ENABLED, enabled);
+    // Only arrives when switching ON: track() is gated on the new state, so
+    // an opt-out sends nothing, which is the point of an opt-out.
+    ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'telemetry' });
     // Error reporting rides on analytics being on, so the row follows it
     // rather than sitting enabled over a switch that silences it.
     syncErrorReportingAvailability(enabled);
@@ -87,6 +90,7 @@ function init() {
   if (errorReportingToggleEl) {
     errorReportingToggleEl.addEventListener('change', async () => {
       await ipcRenderer.invoke(IPC.SET_USER_SETTING, ERROR_REPORTING_KEY, errorReportingToggleEl.checked);
+      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'error_reporting' });
     });
   }
 
@@ -95,6 +99,7 @@ function init() {
   if (crashDumpsToggleEl) {
     crashDumpsToggleEl.addEventListener('change', async () => {
       await ipcRenderer.invoke(IPC.SET_USER_SETTING, CRASH_DUMPS_KEY, crashDumpsToggleEl.checked);
+      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'crash_dumps' });
     });
   }
 
@@ -314,6 +319,10 @@ function initZoomSelect() {
     const step = uiZoom.clampStep(Number(zoomSelectEl.value));
     try {
       await ipcRenderer.invoke(IPC.UI_ZOOM_SET, step);
+      // From this control only. Zoom also changes by shortcut, menu, status
+      // bar and trackpad; counting those too would say "people zoom", not
+      // "people go to Settings to zoom", which is the question here.
+      ipcRenderer.send(IPC.TELEMETRY_TRACK, 'settings_changed', { setting: 'ui_zoom' });
     } catch (err) {
       console.error('Frame settings: could not set the interface size', err);
     }

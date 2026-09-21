@@ -21,6 +21,12 @@ The complete event list:
 | `orchestration_run_started` | — | a parallel orchestration run began |
 | `plugin_toggled` | `action`: `enabled` / `disabled` | the plugin system is being used (never which plugin) |
 | `ai_tool_selected` | `tool`: `claude` / `codex` / `gemini` / `custom` | the active AI tool was switched, and to which |
+| `panel_opened` | `panel`: `decisions` / `structure` / `prompts` / `activity` | which dock panels get used, and which are dead weight |
+| `implement_mode_selected` | `mode`: `step-by-step` / `guided` / `autonomous` / `custom` | how people prefer to run a spec's implementation |
+| `tour_finished` | `outcome`: `finished` / `skipped` | whether the first-run tour lands or gets dismissed |
+| `session_resumed` | — | the resume-a-session path was used (never which session) |
+| `task_completed` | — | a task was marked done (never its title, id, or project) |
+| `settings_changed` | `setting`: `telemetry` / `error_reporting` / `crash_dumps` / `ui_zoom` | which setting was touched — never the value it was set to |
 | `feedback_submitted` | `channel`: `github_issue` / `github_discussion` / `email` | which route carried an in-app feedback report — never its title, description, or the diagnostics shown in the form |
 | `error_occurred` | `category`: a fixed list of failure types (e.g. `agent_cli_not_found`, `orch_merge_failed`) | what breaks in the wild — counts only, never error messages, stack traces, or file paths |
 

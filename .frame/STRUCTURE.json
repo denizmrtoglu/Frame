@@ -4179,7 +4179,8 @@
         "frameStore",
         "activityLog",
         "shared/ipcChannels",
-        "shared/frameConstants"
+        "shared/frameConstants",
+        "telemetry"
       ],
       "functions": {
         "cacheKeyFor": {
@@ -4261,14 +4262,14 @@
           ]
         },
         "deleteTask": {
-          "line": 245,
+          "line": 252,
           "params": [
             "projectPath",
             "taskId"
           ]
         },
         "reorderTasks": {
-          "line": 264,
+          "line": 271,
           "params": [
             "projectPath",
             "order"
@@ -4276,42 +4277,42 @@
           "purpose": "Reorder tasks (used by the Kanban dashboard for drag-and-drop). The renderer"
         },
         "startWatching": {
-          "line": 322,
+          "line": 329,
           "params": [
             "projectPath"
           ]
         },
         "onMetaFileChange": {
-          "line": 371,
+          "line": 378,
           "params": [
             "listener"
           ]
         },
         "notifyMetaChange": {
-          "line": 375,
+          "line": 382,
           "params": [
             "projectPath",
             "filename"
           ]
         },
         "restartWatching": {
-          "line": 390,
+          "line": 397,
           "params": [
             "projectPath"
           ],
           "purpose": "Re-arm the watcher on the project's current meta directory. Migration moves"
         },
         "stopWatching": {
-          "line": 395
+          "line": 402
         },
         "setupIPC": {
-          "line": 405,
+          "line": 412,
           "params": [
             "ipcMain"
           ]
         },
         "getLastSelfWriteAt": {
-          "line": 465,
+          "line": 472,
           "purpose": "Timestamp of this module's last tasks.json write — exported so other"
         }
       },
@@ -4435,14 +4436,14 @@
       ],
       "functions": {
         "normalizeTool": {
-          "line": 66,
+          "line": 84,
           "params": [
             "id"
           ],
           "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
         },
         "validateEvent": {
-          "line": 81,
+          "line": 99,
           "params": [
             "name",
             "props"
@@ -4450,7 +4451,7 @@
           "purpose": "Validate an (event, props) pair against the registry."
         },
         "effectiveEnabled": {
-          "line": 105,
+          "line": 123,
           "params": [
             "{ value",
             "loadFailed }"
@@ -4458,7 +4459,7 @@
           "purpose": "Effective telemetry state from the persisted setting plus settings-load"
         },
         "shouldShowNotice": {
-          "line": 135,
+          "line": 153,
           "params": [
             "{ storedVersion",
             "legacyShown",
@@ -4467,20 +4468,20 @@
           "purpose": "Whether the disclosure notice should be shown."
         },
         "stripAbsolutePaths": {
-          "line": 163,
+          "line": 181,
           "params": [
             "text"
           ]
         },
         "sanitizeException": {
-          "line": 179,
+          "line": 197,
           "params": [
             "err"
           ],
           "purpose": "Make an exception safe to send."
         },
         "resolveInstallId": {
-          "line": 220,
+          "line": 238,
           "params": [
             "{ stored",
             "enabled }",
@@ -4489,21 +4490,21 @@
           "purpose": "Decide this launch's install id from what is stored and whether telemetry"
         },
         "createRateLimiter": {
-          "line": 251,
+          "line": 269,
           "params": [
             "options"
           ],
           "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
         },
         "stampedSince": {
-          "line": 311,
+          "line": 329,
           "params": [
             "stamp",
             "since"
           ]
         },
         "diffSpecLifecycle": {
-          "line": 330,
+          "line": 348,
           "params": [
             "previous",
             "specs",
@@ -4512,7 +4513,7 @@
           "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
         },
         "renameSpecLifecycle": {
-          "line": 369,
+          "line": 387,
           "params": [
             "state",
             "oldSlug",
@@ -4984,107 +4985,107 @@
           "purpose": "The spec.implement path: modal → record implement_mode → stage → dispatch."
         },
         "_isSpecCreatorLane": {
-          "line": 615,
+          "line": 620,
           "params": [
             "terminalId"
           ],
           "purpose": "Still open, and still carrying the transient name we gave it."
         },
         "_onSpecData": {
-          "line": 631,
+          "line": 636,
           "params": [
             "specs"
           ],
           "purpose": "A new slug appeared — attach it to the lane that produced it."
         },
         "_bindSpecCreatorLane": {
-          "line": 651,
+          "line": 656,
           "params": [
             "terminalId",
             "slug"
           ]
         },
         "dispatchSpecNew": {
-          "line": 687,
+          "line": 692,
           "params": [
             "description"
           ],
           "purpose": "Hand the user's free-form text to the standard `spec.new` flow."
         },
         "getSpecLaneInfo": {
-          "line": 775,
+          "line": 780,
           "params": [
             "slug"
           ],
           "purpose": "Live info about the lane a spec is assigned to, or null when unassigned"
         },
         "getTaskLaneInfo": {
-          "line": 799,
+          "line": 804,
           "params": [
             "taskId"
           ],
           "purpose": "Live info about the lane working on a task, or null. Unlike specs there"
         },
         "specStatusDotHtml": {
-          "line": 820,
+          "line": 825,
           "params": [
             "slug"
           ],
           "purpose": "Activity dot for spec/task rows and detail headers: pulsing while the"
         },
         "taskStatusDotHtml": {
-          "line": 824,
+          "line": 829,
           "params": [
             "taskId"
           ]
         },
         "_activityDotHtml": {
-          "line": 828,
+          "line": 833,
           "params": [
             "info"
           ]
         },
         "onSpecLaneActivity": {
-          "line": 845,
+          "line": 850,
           "params": [
             "callback"
           ],
           "purpose": "Subscribe to spec-lane activity. Callback: (slug) — consumers re-read"
         },
         "_notifySpecLane": {
-          "line": 853,
+          "line": 858,
           "params": [
             "slug"
           ]
         },
         "onTaskLaneActivity": {
-          "line": 876,
+          "line": 881,
           "params": [
             "callback"
           ],
           "purpose": "Subscribe to task-lane activity. Callback: (taskId|null) — null means"
         },
         "_notifyTaskLane": {
-          "line": 884,
+          "line": 889,
           "params": [
             "taskId"
           ]
         },
         "_assignedLane": {
-          "line": 902,
+          "line": 907,
           "params": [
             "slug"
           ],
           "purpose": "Assigned lane for a slug, validated against open terminals — a closed"
         },
         "_laneName": {
-          "line": 912,
+          "line": 917,
           "params": [
             "terminalId"
           ]
         },
         "_askContinueOrNew": {
-          "line": 921,
+          "line": 926,
           "params": [
             "frameName",
             "specName"
@@ -5092,14 +5093,14 @@
           "purpose": "\"Continue in <Frame> / Open a new Frame\" — always asked when the spec"
         },
         "_waitForAgentReady": {
-          "line": 962,
+          "line": 967,
           "params": [
             "terminalId"
           ],
           "purpose": "Cold-start readiness gate: resolves true once laneStatus sees a known"
         },
         "_fail": {
-          "line": 991,
+          "line": 996,
           "params": [
             "terminalId",
             "message"
@@ -5112,6 +5113,7 @@
           "TERMINAL_DESTROYED"
         ],
         "emits": [
+          "TELEMETRY_TRACK",
           "TELEMETRY_TRACK",
           "TELEMETRY_TRACK",
           "SPEC_AGENT_ACTIVITY"
@@ -5745,6 +5747,8 @@
         "lucideIcon"
       ],
       "depends": [
+        "electron",
+        "shared/ipcChannels",
         "dock/dockState",
         "dnd/sortable",
         "tooltip",
@@ -5760,7 +5764,7 @@
       ],
       "functions": {
         "lucideIcon": {
-          "line": 44,
+          "line": 46,
           "params": [
             "data",
             "size = 14"
@@ -5768,7 +5772,7 @@
           "purpose": "Inline SVG for a lucide icon's data (the shape sectionRail.js uses)."
         },
         "emptyState": {
-          "line": 53,
+          "line": 55,
           "params": [
             "title",
             "message"
@@ -5776,7 +5780,7 @@
           "purpose": "The dock's inline empty state — the shape decisionsView.renderEmpty uses."
         },
         "panelTab": {
-          "line": 72,
+          "line": 74,
           "params": [
             "{ label",
             "icon",
@@ -5786,114 +5790,120 @@
           "purpose": "A tab hosting one of the legacy side panels (D9). The element keeps its"
         },
         "loadState": {
-          "line": 190
+          "line": 192
         },
         "persist": {
-          "line": 198
+          "line": 200
         },
         "init": {
-          "line": 208
+          "line": 210
         },
         "available": {
-          "line": 280,
+          "line": 282,
           "params": [
             "position = state.position"
           ],
           "purpose": "The center's extent on the dock's axis, for the size ceiling."
         },
         "applySize": {
-          "line": 289
+          "line": 291
         },
         "apply": {
-          "line": 306,
+          "line": 308,
           "params": [
             "{ refit = false } = {}"
           ],
           "purpose": "Paint `state`: side class, size, open/closed, active tab, mounted"
         },
         "mountTab": {
-          "line": 344,
+          "line": 346,
           "params": [
             "tab"
           ]
         },
         "unmountTab": {
-          "line": 358
+          "line": 364
         },
         "refitCenter": {
-          "line": 373,
+          "line": 379,
           "purpose": "Terminals refit through the existing fit path (D13)."
         },
         "refitTab": {
-          "line": 380,
+          "line": 386,
           "purpose": "The active tab's own refit (Structure re-renders its graph to the new box)."
         },
         "emit": {
-          "line": 391
+          "line": 397
         },
         "snapshotState": {
-          "line": 402
+          "line": 408
         },
         "bindResize": {
-          "line": 408,
+          "line": 414,
           "params": [
             "handle"
           ]
         },
         "ensureReady": {
-          "line": 468
+          "line": 474
         },
         "open": {
-          "line": 477,
+          "line": 483,
           "params": [
             "tab"
           ],
           "purpose": "Open on `tab` (or the last tab). A tab switch on an open dock is not a size change."
         },
         "close": {
-          "line": 484
+          "line": 490
         },
         "toggle": {
-          "line": 492,
+          "line": 498,
           "purpose": "⌘J: open ↔ closed, reopening on the last tab at the last size."
         },
         "toggleTab": {
-          "line": 498,
+          "line": 504,
           "params": [
             "tab"
           ],
           "purpose": "Status-bar / menu semantics: on it → close; on another → switch; closed → open on it."
         },
         "setPosition": {
-          "line": 505,
+          "line": 511,
           "params": [
             "position"
           ]
         },
         "isOpen": {
-          "line": 513
+          "line": 519
         },
         "activeTab": {
-          "line": 517
+          "line": 523
         },
         "position": {
-          "line": 521
+          "line": 527
         },
         "remountActive": {
-          "line": 530,
+          "line": 536,
           "purpose": "Re-run the active tab's mount (the project changed under an open"
         },
         "tabOrder": {
-          "line": 538,
+          "line": 544,
           "purpose": "The strip's current order of tab ids (the user's arrangement)."
         },
         "onChange": {
-          "line": 543,
+          "line": 549,
           "params": [
             "fn"
           ],
           "purpose": "Follow the dock: fn({ open, position, tab, order }) after every change."
         }
+      },
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "TELEMETRY_TRACK"
+        ]
       }
     },
     "renderer/dock/dockState": {
@@ -6628,16 +6638,16 @@
           "line": 47
         },
         "initAboutSection": {
-          "line": 119
+          "line": 124
         },
         "runCheck": {
-          "line": 204,
+          "line": 209,
           "params": [
             "userInitiated"
           ]
         },
         "renderUpdateState": {
-          "line": 243,
+          "line": 248,
           "params": [
             "{ checked",
             "found",
@@ -6649,39 +6659,39 @@
           ]
         },
         "showUpdateBanner": {
-          "line": 267,
+          "line": 272,
           "params": [
             "info"
           ]
         },
         "hideUpdateBanner": {
-          "line": 278
+          "line": 283
         },
         "hideSidebarDot": {
-          "line": 282
+          "line": 287
         },
         "formatRelative": {
-          "line": 288,
+          "line": 293,
           "params": [
             "date"
           ]
         },
         "initZoomSelect": {
-          "line": 304,
+          "line": 309,
           "purpose": "Fill the Interface size select from the shared ladder — one option per"
         },
         "syncZoomFromMain": {
-          "line": 323
+          "line": 332
         },
         "syncErrorReportingAvailability": {
-          "line": 339,
+          "line": 348,
           "params": [
             "analyticsOn"
           ],
           "purpose": "Error reporting is gated on analytics in main (telemetry.captureException"
         },
         "syncToggleFromSettings": {
-          "line": 346
+          "line": 355
         }
       },
       "ipc": {
@@ -6690,7 +6700,12 @@
           "OPEN_SETTINGS",
           "UPDATE_AVAILABLE"
         ],
-        "emits": []
+        "emits": [
+          "TELEMETRY_TRACK",
+          "TELEMETRY_TRACK",
+          "TELEMETRY_TRACK",
+          "TELEMETRY_TRACK"
+        ]
       }
     },
     "renderer/gitChangesPanel": {
@@ -7643,30 +7658,30 @@
           "purpose": "End the tour and remember it. `outcome` is 'finished' or 'skipped'. A write"
         },
         "hasProject": {
-          "line": 152
+          "line": 155
         },
         "start": {
-          "line": 160,
+          "line": 163,
           "purpose": "Start (or restart) the tour from the first step that applies: step 1 with"
         },
         "close": {
-          "line": 179,
+          "line": 182,
           "purpose": "Leave the tour: remove the layer and every listener it bound."
         },
         "next": {
-          "line": 189
+          "line": 192
         },
         "ensureNodes": {
-          "line": 200
+          "line": 203
         },
         "isVisible": {
-          "line": 228,
+          "line": 231,
           "params": [
             "el"
           ]
         },
         "resolveTarget": {
-          "line": 242,
+          "line": 245,
           "params": [
             "step",
             "{ reveal = false } = {}"
@@ -7674,47 +7689,47 @@
           "purpose": "The step's first usable target, with its entry."
         },
         "isAvailable": {
-          "line": 255,
+          "line": 258,
           "params": [
             "step"
           ]
         },
         "revealNav": {
-          "line": 259,
+          "line": 262,
           "params": [
             "view"
           ]
         },
         "show": {
-          "line": 272,
+          "line": 275,
           "params": [
             "i"
           ]
         },
         "skipMissing": {
-          "line": 293,
+          "line": 296,
           "params": [
             "i"
           ],
           "purpose": "A step whose target is gone: log it once, move on, never end the tour on it."
         },
         "countedSteps": {
-          "line": 312,
+          "line": 315,
           "purpose": "The steps this run of the tour counts: step 1 only if it began without a project."
         },
         "renderCard": {
-          "line": 316,
+          "line": 319,
           "params": [
             "step",
             "i"
           ]
         },
         "focusCard": {
-          "line": 363,
+          "line": 366,
           "purpose": "Put focus on the card's primary control so Enter, → and Escape reach it."
         },
         "el": {
-          "line": 369,
+          "line": 372,
           "params": [
             "tag",
             "className",
@@ -7722,35 +7737,41 @@
           ]
         },
         "onCardClick": {
-          "line": 376,
+          "line": 379,
           "params": [
             "e"
           ]
         },
         "onCardKeydown": {
-          "line": 395,
+          "line": 398,
           "params": [
             "e"
           ],
           "purpose": "Bound on the card, not the document: the keys answer only while focus is in"
         },
         "position": {
-          "line": 412,
+          "line": 415,
           "purpose": "Measure the current target and move the cutout and the card to it."
         },
         "queueReposition": {
-          "line": 449,
+          "line": 452,
           "purpose": "Coalesce bursts (a sidebar drag, a scroll) into one measurement per frame."
         },
         "observeTarget": {
-          "line": 458,
+          "line": 461,
           "params": [
             "target"
           ]
         },
         "bindWhileOpen": {
-          "line": 465
+          "line": 468
         }
+      },
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "TELEMETRY_TRACK"
+        ]
       }
     },
     "renderer/healthNotice": {
@@ -9972,12 +9993,18 @@
           "purpose": "Resume a session in a terminal of its own."
         },
         "formatRelativeTime": {
-          "line": 209,
+          "line": 213,
           "params": [
             "dateString"
           ],
           "purpose": "Format a date string to relative time"
         }
+      },
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "TELEMETRY_TRACK"
+        ]
       }
     },
     "renderer/settingsOverlay": {

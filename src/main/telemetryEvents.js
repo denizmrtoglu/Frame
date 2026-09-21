@@ -38,6 +38,24 @@ const EVENTS = {
   // no title, no description, no diagnostic value, and validateEvent strips
   // anything outside the enum even if a call site tried.
   feedback_submitted: { channel: ['github_issue', 'github_discussion', 'email'] },
+  // ── Behaviour: which surfaces and flows people actually use ──
+  //
+  // Each of these sits on a chokepoint rather than on a button, so one
+  // event with an enum covers what would otherwise be a handful of
+  // near-identical events. `panel_opened` is mounted once in dock.js and
+  // covers every dock panel; adding a panel adds a value here, not an
+  // event. The same reasoning that keeps plugin ids out of
+  // `plugin_toggled` keeps command names out of this section entirely.
+  panel_opened: { panel: ['decisions', 'structure', 'prompts', 'activity'] },
+  implement_mode_selected: { mode: ['step-by-step', 'guided', 'autonomous', 'custom'] },
+  tour_finished: { outcome: ['finished', 'skipped'] },
+  session_resumed: {},
+  task_completed: {},
+  // Which setting was touched, never its value — the value of the one that
+  // matters most is already carried by the opt-out itself. Switching
+  // telemetry *off* deliberately never arrives: track() is gated on the new
+  // state, which is the correct behaviour for an opt-out.
+  settings_changed: { setting: ['telemetry', 'error_reporting', 'crash_dumps', 'ui_zoom'] },
   error_occurred: {
     category: [
       'agent_cli_not_found',

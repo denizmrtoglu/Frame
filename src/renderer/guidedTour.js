@@ -137,6 +137,9 @@ function noticesGone() {
 async function finish(outcome) {
   if (!isOpen) return;
   close();
+  // Finished vs skipped is the first honest activation signal Frame has:
+  // both mean the tour was reached, only one means it landed.
+  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'tour_finished', { outcome });
   try {
     const ok = await ipcRenderer.invoke(IPC.SET_USER_SETTING, tourSteps.SETTING_KEY, {
       outcome,

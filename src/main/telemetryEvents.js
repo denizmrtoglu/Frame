@@ -107,6 +107,39 @@ function effectiveEnabled({ value, loadFailed }) {
   return value !== false;
 }
 
+// ─── The disclosure notice ────────────────────────────────
+//
+// The notice used to be a boolean: shown once, dismissed forever. That was
+// honest while telemetry carried no identifier, but people acknowledged a
+// system that has since changed — a stable install id now rides along. So
+// the flag became a version, and bumping it shows the new text once to
+// everyone, including the users who dismissed the old one.
+//
+// Bump NOTICE_VERSION only when the disclosure itself changes. It is not a
+// release counter, and a bump interrupts every user exactly once.
+
+const NOTICE_VERSION = 2;
+
+/**
+ * Whether the disclosure notice should be shown.
+ *
+ * @param {{ storedVersion: any, legacyShown?: any, currentVersion?: number }} state
+ *   storedVersion — telemetryNoticeVersion, absent before this existed
+ *   legacyShown   — telemetryNoticeShown, the boolean this replaced
+ * @returns {boolean}
+ *
+ * A client that stored only the old boolean is treated as having seen
+ * version 1: it has read *a* disclosure, just not this one. A fresh install
+ * has neither and sees the current text once, like everyone else.
+ */
+function shouldShowNotice({ storedVersion, legacyShown, currentVersion }) {
+  const current = typeof currentVersion === 'number' ? currentVersion : NOTICE_VERSION;
+  const seen = Number.isInteger(storedVersion)
+    ? storedVersion
+    : (legacyShown === true ? 1 : 0);
+  return seen < current;
+}
+
 // ─── Exception sanitization ───────────────────────────────
 //
 // Exception detail travels a channel of its own — a separate opt-in
@@ -350,6 +383,8 @@ module.exports = {
   effectiveEnabled,
   resolveInstallId,
   sanitizeException,
+  NOTICE_VERSION,
+  shouldShowNotice,
   createRateLimiter,
   DEFAULT_RATE_LIMIT,
   diffSpecLifecycle,

@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, sanitizeException, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
+const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, sanitizeException, NOTICE_VERSION, shouldShowNotice, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/telemetryEvents');
 
 // ─── effectiveEnabled — the re-opt-in regression ──────────
 
@@ -164,6 +164,33 @@ test('sanitizeException never throws and never returns undefined fields', () => 
     assert.equal(typeof r.name, 'string');
     assert.equal(typeof r.message, 'string');
     assert.equal(typeof r.stack, 'string');
+  }
+});
+
+// ─── shouldShowNotice — a disclosure that can change ──────
+
+test('a fresh install sees the notice', () => {
+  assert.equal(shouldShowNotice({ storedVersion: undefined, legacyShown: undefined }), true);
+});
+
+test('a client that only stored the old boolean sees the new notice once', () => {
+  // It read *a* disclosure — the one without an install id — so it counts as
+  // version 1 and the current version is still ahead of it.
+  assert.equal(shouldShowNotice({ storedVersion: undefined, legacyShown: true }), true);
+  assert.equal(shouldShowNotice({ storedVersion: undefined, legacyShown: true, currentVersion: 1 }), false);
+});
+
+test('a client that has seen the current version is left alone', () => {
+  assert.equal(shouldShowNotice({ storedVersion: NOTICE_VERSION }), false);
+});
+
+test('a stored version ahead of the current one does not re-show', () => {
+  assert.equal(shouldShowNotice({ storedVersion: NOTICE_VERSION + 1 }), false);
+});
+
+test('a garbage stored version is treated as never seen', () => {
+  for (const junk of ['2', null, {}, NaN, 1.5]) {
+    assert.equal(shouldShowNotice({ storedVersion: junk }), true, `${String(junk)} should re-show`);
   }
 });
 

@@ -2317,11 +2317,11 @@
           "purpose": "Setup all IPC handlers"
         },
         "init": {
-          "line": 289,
+          "line": 293,
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 335,
+          "line": 339,
           "params": [
             "window"
           ],
@@ -2335,6 +2335,7 @@
           "TELEMETRY_SET_ENABLED",
           "TELEMETRY_TRACK",
           "TELEMETRY_EXCEPTION",
+          "TELEMETRY_NOTICE_STATE",
           "GET_LOG_INFO",
           "TERMINAL_INPUT",
           "RECONCILE_TERMINALS"
@@ -4337,6 +4338,7 @@
         "track",
         "trackAppStarted",
         "captureException",
+        "noticeState",
         "setEnabled",
         "isEnabled",
         "isErrorReportingEnabled",
@@ -4351,19 +4353,19 @@
       ],
       "functions": {
         "init": {
-          "line": 68,
+          "line": 72,
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 88,
+          "line": 92,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 107,
+          "line": 111,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 120,
+          "line": 124,
           "params": [
             "name",
             "props"
@@ -4371,37 +4373,41 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "isErrorReportingEnabled": {
-          "line": 148,
+          "line": 152,
           "purpose": "Whether exception detail may be sent."
         },
         "captureException": {
-          "line": 165,
+          "line": 169,
           "params": [
             "err"
           ],
           "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
         },
+        "noticeState": {
+          "line": 196,
+          "purpose": "Whether the disclosure notice is due, and the version to store when it is"
+        },
         "trackAppStarted": {
-          "line": 186,
+          "line": 209,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 200,
+          "line": 223,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle telemetry from Settings. Persists the new state, then re-resolves"
         },
         "enforceFailClosed": {
-          "line": 221,
+          "line": 244,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 232,
+          "line": 255,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 248,
+          "line": 271,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }
@@ -4416,6 +4422,8 @@
         "effectiveEnabled",
         "resolveInstallId",
         "sanitizeException",
+        "NOTICE_VERSION",
+        "shouldShowNotice",
         "createRateLimiter",
         "DEFAULT_RATE_LIMIT",
         "diffSpecLifecycle",
@@ -4449,21 +4457,30 @@
           ],
           "purpose": "Effective telemetry state from the persisted setting plus settings-load"
         },
+        "shouldShowNotice": {
+          "line": 135,
+          "params": [
+            "{ storedVersion",
+            "legacyShown",
+            "currentVersion }"
+          ],
+          "purpose": "Whether the disclosure notice should be shown."
+        },
         "stripAbsolutePaths": {
-          "line": 130,
+          "line": 163,
           "params": [
             "text"
           ]
         },
         "sanitizeException": {
-          "line": 146,
+          "line": 179,
           "params": [
             "err"
           ],
           "purpose": "Make an exception safe to send."
         },
         "resolveInstallId": {
-          "line": 187,
+          "line": 220,
           "params": [
             "{ stored",
             "enabled }",
@@ -4472,21 +4489,21 @@
           "purpose": "Decide this launch's install id from what is stored and whether telemetry"
         },
         "createRateLimiter": {
-          "line": 218,
+          "line": 251,
           "params": [
             "options"
           ],
           "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
         },
         "stampedSince": {
-          "line": 278,
+          "line": 311,
           "params": [
             "stamp",
             "since"
           ]
         },
         "diffSpecLifecycle": {
-          "line": 297,
+          "line": 330,
           "params": [
             "previous",
             "specs",
@@ -4495,7 +4512,7 @@
           "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
         },
         "renameSpecLifecycle": {
-          "line": 336,
+          "line": 369,
           "params": [
             "state",
             "oldSlug",
@@ -12210,13 +12227,13 @@
       ],
       "functions": {
         "init": {
-          "line": 21,
+          "line": 31,
           "params": [
             "openSettings"
           ]
         },
         "dismiss": {
-          "line": 48
+          "line": 60
         }
       }
     },
@@ -14436,6 +14453,11 @@
       },
       "TELEMETRY_EXCEPTION": {
         "name": "telemetry-exception",
+        "direction": "",
+        "description": ""
+      },
+      "TELEMETRY_NOTICE_STATE": {
+        "name": "telemetry-notice-state",
         "direction": "",
         "description": ""
       }

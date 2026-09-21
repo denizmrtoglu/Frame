@@ -8471,13 +8471,13 @@
       "title": "Add `NOTICE_VERSION` and `shouldShowNotice({ storedVersion, currentVersion })` to `src/main/telemetryEvents.js` with tests for fresh install, legacy boolean-only client and already-seen current version, and read the versioned key in `src/renderer/telemetryNotice.js` with copy that names the install ID",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T09",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:50:43Z",
+      "completedAt": "2026-09-21T13:50:43Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T10",

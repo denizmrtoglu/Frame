@@ -66,3 +66,11 @@ _Captured: 2026-09-21 · 3 file change(s)_
 
 ---
 
+## T09 — The disclosure notice becomes versioned
+
+Replaced the notice's `telemetryNoticeShown` boolean with a `telemetryNoticeVersion` number driven by `shouldShowNotice`, so the changed disclosure reaches the people who dismissed the old one — which is what D4 traded for keeping the default-on model. Corrected course mid-task: the first wiring had the renderer requiring `../main/telemetryEvents`, the only renderer→main require in the codebase, so the decision moved into `telemetry.noticeState()` behind a new `TELEMETRY_NOTICE_STATE` channel and the renderer now only draws and dismisses. Files touched: `src/main/telemetryEvents.js`, `src/main/telemetry.js`, `src/main/index.js`, `src/shared/ipcChannels.js`, `src/renderer/telemetryNotice.js`, `index.html`, `test/telemetry.test.js`.
+
+_Captured: 2026-09-21 · 7 file change(s)_
+
+---
+

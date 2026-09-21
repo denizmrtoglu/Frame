@@ -42,6 +42,10 @@ const INSTALL_ID_KEY = 'telemetryInstallId';
 // that any ability to *send* crash detail would be a separate opt-in
 // setting; absent means off, and only an explicit true turns it on.
 const ERROR_REPORTING_KEY = 'errorReportingEnabled';
+const NOTICE_VERSION_KEY = 'telemetryNoticeVersion';
+// Superseded by NOTICE_VERSION_KEY; still read so an existing install is not
+// mistaken for a fresh one. Never written again.
+const NOTICE_SHOWN_KEY = 'telemetryNoticeShown';
 
 let client = null;
 let installId = null;
@@ -181,6 +185,25 @@ function captureException(err) {
 }
 
 /**
+ * Whether the disclosure notice is due, and the version to store when it is
+ * acknowledged.
+ *
+ * Decided here rather than in the renderer: the policy lives in
+ * telemetryEvents.js next to everything else telemetry decides, and the
+ * renderer reaches main for it the way it reaches main for every other
+ * telemetry call.
+ */
+function noticeState() {
+  return {
+    show: telemetryEvents.shouldShowNotice({
+      storedVersion: userSettings.get(NOTICE_VERSION_KEY),
+      legacyShown: userSettings.get(NOTICE_SHOWN_KEY)
+    }),
+    version: telemetryEvents.NOTICE_VERSION
+  };
+}
+
+/**
  * Anonymous event marking this launch.
  */
 function trackAppStarted() {
@@ -261,6 +284,7 @@ module.exports = {
   track,
   trackAppStarted,
   captureException,
+  noticeState,
   setEnabled,
   isEnabled,
   isErrorReportingEnabled,

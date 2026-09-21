@@ -161,6 +161,7 @@ const IPC = {
   TELEMETRY_SET_ENABLED: 'telemetry-set-enabled',
   TELEMETRY_TRACK: 'telemetry-track',
   TELEMETRY_EXCEPTION: 'telemetry-exception',
+  TELEMETRY_NOTICE_STATE: 'telemetry-notice-state',
 
   // Health / crash recovery (main → renderer notices)
   MAIN_PROCESS_ERROR: 'main-process-error',

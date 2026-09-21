@@ -255,6 +255,10 @@ function setupAllIPC() {
     telemetry.captureException(err);
   });
 
+  // Telemetry — is the disclosure notice due? The renderer draws it; the
+  // decision stays here, beside the settings it reads.
+  ipcMain.handle(IPC.TELEMETRY_NOTICE_STATE, () => telemetry.noticeState());
+
   // Diagnostics — Settings "Open Logs Folder"
   ipcMain.handle(IPC.GET_LOG_INFO, () => ({
     logPath: logger.getLogPath(),

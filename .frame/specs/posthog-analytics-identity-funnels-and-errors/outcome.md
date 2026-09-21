@@ -42,3 +42,11 @@ _Captured: 2026-09-21 · 2 file change(s)_
 
 ---
 
+## T06 — The opt-in error channel
+
+Added `errorReportingEnabled` (opt-in, explicit `true` only), `captureException` and `isErrorReportingEnabled` to `telemetry.js`, and called the former from crashGuard's two existing handlers. Beyond the plan: the SDK receives a **reconstructed** Error carrying only the sanitized fields rather than the original, closing the path by which the raw message or stack could be read off the object downstream; and error reporting is gated on `isEnabled()` too, so one opt-out silences both channels. Files touched: `src/main/telemetry.js`, `src/main/crashGuard.js`.
+
+_Captured: 2026-09-21 · 2 file change(s)_
+
+---
+

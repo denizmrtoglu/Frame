@@ -4,7 +4,9 @@
  * Before this module, a single uncaught exception killed the whole main
  * process silently and renderer/child crashes went unobserved. Everything
  * here logs (rotating, redacted file via logger) and degrades instead of
- * dying: uncaught errors surface as a renderer health notice, a dead
+ * dying, and — only when the user has opted in to error reporting — also
+ * sends the exception, sanitized, via telemetry: uncaught errors surface
+ * as a renderer health notice, a dead
  * renderer offers reload, and Electron's built-in crashReporter collects
  * **local-only** minidumps (uploadToServer: false — nothing ever leaves the
  * machine; see PRIVACY.md). Dump collection is optional via the Settings
@@ -13,6 +15,7 @@
 
 const { app, dialog, crashReporter } = require('electron');
 const logger = require('./logger');
+const telemetry = require('./telemetry');
 const { IPC } = require('../shared/ipcChannels');
 const userSettings = require('./userSettings');
 
@@ -21,12 +24,16 @@ let mainWindow = null;
 function init() {
   process.on('uncaughtException', (err) => {
     logger.error('crash', 'uncaughtException:', err);
+    // Sanitized and gated on the opt-in setting; a no-op for everyone who
+    // has not turned error reporting on. See telemetry.captureException.
+    telemetry.captureException(err);
     notify('uncaught-exception', `Main process error: ${err.message}`);
   });
 
   process.on('unhandledRejection', (reason) => {
     const err = reason instanceof Error ? reason : new Error(String(reason));
     logger.error('crash', 'unhandledRejection:', err);
+    telemetry.captureException(err);
     notify('unhandled-rejection', `Unhandled rejection: ${err.message}`);
   });
 

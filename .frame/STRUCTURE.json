@@ -534,22 +534,23 @@
       "depends": [
         "electron",
         "logger",
+        "telemetry",
         "shared/ipcChannels",
         "userSettings"
       ],
       "functions": {
         "init": {
-          "line": 21
+          "line": 24
         },
         "attachWindow": {
-          "line": 71,
+          "line": 78,
           "params": [
             "window"
           ],
           "purpose": "Wire per-window signals; called from createWindow."
         },
         "notify": {
-          "line": 85,
+          "line": 92,
           "params": [
             "source",
             "message"
@@ -4334,8 +4335,10 @@
         "init",
         "track",
         "trackAppStarted",
+        "captureException",
         "setEnabled",
         "isEnabled",
+        "isErrorReportingEnabled",
         "enforceFailClosed",
         "shutdown"
       ],
@@ -4347,46 +4350,57 @@
       ],
       "functions": {
         "init": {
-          "line": 64,
+          "line": 68,
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 84,
+          "line": 88,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 103,
+          "line": 107,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 116,
+          "line": 120,
           "params": [
             "name",
             "props"
           ],
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
+        "isErrorReportingEnabled": {
+          "line": 148,
+          "purpose": "Whether exception detail may be sent."
+        },
+        "captureException": {
+          "line": 165,
+          "params": [
+            "err"
+          ],
+          "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
+        },
         "trackAppStarted": {
-          "line": 139,
+          "line": 186,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 153,
+          "line": 200,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle telemetry from Settings. Persists the new state, then re-resolves"
         },
         "enforceFailClosed": {
-          "line": 174,
+          "line": 221,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 185,
+          "line": 232,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 201,
+          "line": 248,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }

@@ -38,6 +38,10 @@ const SHUTDOWN_TIMEOUT_MS = 2000;
 
 const ENABLED_KEY = 'telemetryEnabled';
 const INSTALL_ID_KEY = 'telemetryInstallId';
+// Opt-IN, unlike ENABLED_KEY. PRIVACY.md committed, before this existed,
+// that any ability to *send* crash detail would be a separate opt-in
+// setting; absent means off, and only an explicit true turns it on.
+const ERROR_REPORTING_KEY = 'errorReportingEnabled';
 
 let client = null;
 let installId = null;
@@ -134,6 +138,49 @@ function track(name, props) {
 }
 
 /**
+ * Whether exception detail may be sent.
+ *
+ * Two gates, both required: analytics must be on at all (so a telemetry
+ * opt-out silences this too, and a corrupt settings file fails closed here
+ * as well), and this setting must be explicitly true. Anything else —
+ * absent, null, a stray string — reads as off.
+ */
+function isErrorReportingEnabled() {
+  return isEnabled() && userSettings.get(ERROR_REPORTING_KEY) === true;
+}
+
+/**
+ * Send one exception, sanitized. No-op unless error reporting is explicitly on.
+ *
+ * Deliberately not an event: this never touches the registry, so
+ * validateEvent stays mechanically enum-only and a reviewer does not have
+ * to trust a call site. It does share the event rate limiter, because an
+ * exception repeating inside a render loop is exactly the shape of bug that
+ * would otherwise spend a month's quota in an afternoon.
+ *
+ * The raw error is never handed to the SDK — a reconstructed one carries
+ * only the sanitized fields, so there is no path by which the original
+ * message or stack could be read off it later.
+ */
+function captureException(err) {
+  if (!isErrorReportingEnabled() || !client) return;
+  const gate = rateLimiter.check(Date.now());
+  if (gate.notice) console.warn('Telemetry:', gate.notice);
+  if (!gate.allowed) return;
+  const id = distinctId();
+  if (!id) return;
+  const safe = telemetryEvents.sanitizeException(err);
+  try {
+    const scrubbed = new Error(safe.message);
+    scrubbed.name = safe.name;
+    scrubbed.stack = safe.stack;
+    client.captureException(scrubbed, id);
+  } catch (e) {
+    console.error('Telemetry: captureException failed', e);
+  }
+}
+
+/**
  * Anonymous event marking this launch.
  */
 function trackAppStarted() {
@@ -209,4 +256,14 @@ async function shutdown() {
   }
 }
 
-module.exports = { init, track, trackAppStarted, setEnabled, isEnabled, enforceFailClosed, shutdown };
+module.exports = {
+  init,
+  track,
+  trackAppStarted,
+  captureException,
+  setEnabled,
+  isEnabled,
+  isErrorReportingEnabled,
+  enforceFailClosed,
+  shutdown
+};

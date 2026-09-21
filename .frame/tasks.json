@@ -8432,13 +8432,13 @@
       "title": "Add the `errorReportingEnabled` setting (default `false`) and `telemetry.captureException`, gated on that setting and on `isEnabled()` and passed through the same rate limiter instance as `track()`, then wire `src/main/crashGuard.js`'s `uncaughtException` and `unhandledRejection` handlers into it",
       "description": "",
       "source": "spec:posthog-analytics-identity-funnels-and-errors:T06",
-      "status": "pending",
+      "status": "completed",
       "priority": "medium",
       "category": "feature",
       "context": "From spec: posthog-analytics-identity-funnels-and-errors",
       "createdAt": "2026-09-21T13:24:03.022Z",
-      "updatedAt": "2026-09-21T13:24:03.022Z",
-      "completedAt": null
+      "updatedAt": "2026-09-21T13:44:39Z",
+      "completedAt": "2026-09-21T13:44:39Z"
     },
     {
       "id": "task-spec-posthog-analytics-identity-funnels-and-errors-T07",

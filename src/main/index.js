@@ -329,6 +329,7 @@ function init() {
   // check uses the correct state, and so the install id resolves against
   // the user's real choice rather than an empty cache.
   analytics.trackAppStarted();
+  analytics.startActiveTimer();
 
   // Setup IPC handlers
   setupAllIPC();

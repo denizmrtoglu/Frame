@@ -20,6 +20,7 @@
  */
 
 const { PostHog } = require('posthog-node');
+const { randomUUID } = require('node:crypto');
 const { app } = require('electron');
 const userSettings = require('./userSettings');
 const analyticsEvents = require('./analyticsEvents');
@@ -52,6 +53,12 @@ const NOTICE_SHOWN_KEY = 'telemetryNoticeShown';
 let client = null;
 let installId = null;
 let identified = false;
+// One per launch. PostHog groups events into sessions by this; posthog-node
+// forwards it but never invents one — it is a server-side SDK with no idea
+// what a session is. For Frame a launch is the session.
+const sessionId = randomUUID();
+const activeTimer = analyticsEvents.createActiveTimer();
+let activeTicker = null;
 
 // Bounds what one run can spend of the analytics quota; see the limiter's
 // note in analyticsEvents.js for why an app that only sends user-driven
@@ -146,7 +153,7 @@ function track(name, props) {
     client.capture({
       distinctId: id,
       event: name,
-      properties: Object.assign({}, validated, personProperties())
+      properties: Object.assign({ $session_id: sessionId }, validated, personProperties())
     });
   } catch (err) {
     console.error('Analytics: capture failed', err);
@@ -213,6 +220,27 @@ function noticeState() {
     }),
     version: analyticsEvents.NOTICE_VERSION
   };
+}
+
+/**
+ * Start counting active time.
+ *
+ * Driven by a visibility-gated interval, so it advances only while a window
+ * is actually on screen. Frame is a tool people leave open all day; counting
+ * wall-clock time from launch to quit would report a working day for someone
+ * who glanced at it twice.
+ *
+ * Called after the first window exists — gatedInterval judges visibility
+ * from the open windows, and there are none before app.whenReady.
+ */
+function startActiveTimer() {
+  if (activeTicker) return;
+  // Lazy: pollGate is wired during early boot and its own header asks that
+  // nothing drag it into a require order it did not choose.
+  const pollGate = require('./pollGate');
+  activeTicker = pollGate.gatedInterval(() => activeTimer.tick(), 60 * 1000, {
+    refreshOnShow: false
+  });
 }
 
 /**
@@ -304,6 +332,10 @@ function isEnabled() {
  */
 async function shutdown() {
   if (!client) return;
+  // Last event of the session, sent before the flush that carries it. Zero
+  // active seconds is a real answer — an app that was launched and never
+  // looked at — so it is sent rather than skipped.
+  track('app_session_ended', { active_seconds: activeTimer.seconds() });
   try {
     await client.shutdown(SHUTDOWN_TIMEOUT_MS);
   } catch (err) {
@@ -317,6 +349,7 @@ module.exports = {
   init,
   track,
   trackAppStarted,
+  startActiveTimer,
   captureException,
   noticeState,
   setEnabled,

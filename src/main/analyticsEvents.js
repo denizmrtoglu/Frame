@@ -56,6 +56,12 @@ const EVENTS = {
   // analytics *off* deliberately never arrives: track() is gated on the new
   // state, which is the correct behaviour for an opt-out.
   settings_changed: { setting: ['analytics', 'error_reporting', 'crash_dumps', 'ui_zoom'] },
+  // The one numeric property in the registry. `active_seconds` counts only
+  // the time a window was actually on screen — for a tool that sits open in
+  // the background all day, wall-clock "app was running" would report eight
+  // hours for ten minutes of work. Capped at a day: a larger number is a
+  // clock change or a bug, not a session.
+  app_session_ended: { active_seconds: { type: 'number', max: 86400 } },
   error_occurred: {
     category: [
       'agent_cli_not_found',
@@ -103,8 +109,22 @@ function validateEvent(name, props) {
   for (const key of Object.keys(schema)) {
     let value = props ? props[key] : undefined;
     if (value === undefined) continue;
-    if (key === 'tool') value = normalizeTool(value);
-    if (schema[key].includes(value)) out[key] = value;
+    const spec = schema[key];
+    if (Array.isArray(spec)) {
+      if (key === 'tool') value = normalizeTool(value);
+      if (spec.includes(value)) out[key] = value;
+      continue;
+    }
+    // A declared numeric property. The type check is the whole guarantee:
+    // a number cannot carry a file path, a project name or a prompt, so
+    // "no content leaves the machine" survives even though "enum only"
+    // no longer describes every property. Anything not a finite number in
+    // range is dropped, exactly as an out-of-enum string would be.
+    if (spec && spec.type === 'number') {
+      if (typeof value === 'number' && Number.isFinite(value) && value >= 0 && value <= spec.max) {
+        out[key] = Math.round(value);
+      }
+    }
   }
   return out;
 }
@@ -201,6 +221,35 @@ function sanitizeException(err) {
     name: clean(src.name) || 'Error',
     message: clean(src.message),
     stack: clean(src.stack)
+  };
+}
+
+// ─── Active time ──────────────────────────────────────────
+//
+// Counted by ticks, not by clock arithmetic. The caller drives this from a
+// visibility-gated interval, which stops while the app is hidden — so a
+// timestamp delta across a pause would silently bill the hidden hours as
+// active. A fixed increment per tick cannot: time only accrues when a tick
+// actually fires, which is only while a window is on screen.
+//
+// The cost is granularity: up to one tick of active time is lost when the
+// app quits mid-interval. For a number read in minutes, that is noise.
+
+/**
+ * @param {{ tickMs?: number }} [options]
+ * @returns {{ tick: () => number, seconds: () => number }}
+ */
+function createActiveTimer(options) {
+  const tickMs = (options && options.tickMs) || 60 * 1000;
+  let seconds = 0;
+  return {
+    tick() {
+      seconds += tickMs / 1000;
+      return seconds;
+    },
+    seconds() {
+      return seconds;
+    }
   };
 }
 
@@ -445,6 +494,7 @@ module.exports = {
   sanitizeException,
   NOTICE_VERSION,
   shouldShowNotice,
+  createActiveTimer,
   createRateLimiter,
   DEFAULT_RATE_LIMIT,
   diffSpecLifecycle,

@@ -9,7 +9,7 @@
 const { test } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, planLegacyMigration, LEGACY_SETTING_KEYS, sanitizeException, NOTICE_VERSION, shouldShowNotice, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/analyticsEvents');
+const { EVENTS, normalizeTool, validateEvent, effectiveEnabled, resolveInstallId, createActiveTimer, planLegacyMigration, LEGACY_SETTING_KEYS, sanitizeException, NOTICE_VERSION, shouldShowNotice, createRateLimiter, DEFAULT_RATE_LIMIT } = require('../src/main/analyticsEvents');
 
 // ─── effectiveEnabled — the re-opt-in regression ──────────
 
@@ -233,16 +233,50 @@ test('every legacy key maps to a distinct current key', () => {
 
 // ─── The registry is enum-only ────────────────────────────
 
-test('registry props are arrays of fixed strings — no free-form values possible', () => {
+test('every registry prop is a fixed enum or a declared number — never free-form', () => {
   for (const [event, schema] of Object.entries(EVENTS)) {
-    for (const [prop, allowed] of Object.entries(schema)) {
-      assert.ok(Array.isArray(allowed), `${event}.${prop} must be an enum array`);
-      assert.ok(allowed.length > 0, `${event}.${prop} enum must not be empty`);
-      for (const v of allowed) {
-        assert.equal(typeof v, 'string', `${event}.${prop} values must be strings`);
+    for (const [prop, spec] of Object.entries(schema)) {
+      if (Array.isArray(spec)) {
+        assert.ok(spec.length > 0, `${event}.${prop} enum must not be empty`);
+        for (const v of spec) {
+          assert.equal(typeof v, 'string', `${event}.${prop} values must be strings`);
+        }
+        continue;
       }
+      // The only other shape allowed. A number cannot carry a path, a
+      // project name or a prompt, which is what the enum rule protected.
+      assert.equal(typeof spec, 'object', `${event}.${prop} must be an enum array or a numeric spec`);
+      assert.equal(spec.type, 'number', `${event}.${prop} numeric spec needs type:'number'`);
+      assert.equal(typeof spec.max, 'number', `${event}.${prop} numeric spec needs a max`);
     }
   }
+});
+
+test('a numeric prop takes a number in range and refuses everything else', () => {
+  assert.deepEqual(validateEvent('app_session_ended', { active_seconds: 1830.7 }), { active_seconds: 1831 });
+  assert.deepEqual(validateEvent('app_session_ended', { active_seconds: 0 }), { active_seconds: 0 });
+  for (const junk of ['/Users/someone/project/a.js', '600', NaN, Infinity, -1, 86401, null, {}, true]) {
+    assert.deepEqual(
+      validateEvent('app_session_ended', { active_seconds: junk }),
+      {},
+      `${String(junk)} must be dropped`
+    );
+  }
+});
+
+test('createActiveTimer counts ticks, not elapsed clock time', () => {
+  // The distinction is the point: the caller's interval is paused while the
+  // app is hidden, so only fired ticks may become active seconds.
+  const t = createActiveTimer({ tickMs: 30000 });
+  assert.equal(t.seconds(), 0);
+  t.tick(); t.tick();
+  assert.equal(t.seconds(), 60);
+});
+
+test('an active timer that never ticks reports zero, not null', () => {
+  const t = createActiveTimer();
+  assert.equal(t.seconds(), 0);
+  assert.deepEqual(validateEvent('app_session_ended', { active_seconds: t.seconds() }), { active_seconds: 0 });
 });
 
 // ─── validateEvent ────────────────────────────────────────

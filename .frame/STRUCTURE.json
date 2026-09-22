@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Auto-generated module structure",
-  "lastUpdated": "2026-09-21",
+  "lastUpdated": "2026-09-22",
   "architecture": {},
   "modules": {
     "main/activityLog": {
@@ -292,6 +292,7 @@
         "init",
         "track",
         "trackAppStarted",
+        "startActiveTimer",
         "captureException",
         "noticeState",
         "setEnabled",
@@ -303,25 +304,27 @@
       ],
       "depends": [
         "posthog-node",
+        "node:crypto",
         "electron",
         "userSettings",
-        "analyticsEvents"
+        "analyticsEvents",
+        "pollGate"
       ],
       "functions": {
         "init": {
-          "line": 74,
+          "line": 81,
           "purpose": "Build the PostHog client."
         },
         "distinctId": {
-          "line": 104,
+          "line": 111,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 123,
+          "line": 130,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 136,
+          "line": 143,
           "params": [
             "name",
             "props"
@@ -329,45 +332,49 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "isErrorReportingEnabled": {
-          "line": 164,
+          "line": 171,
           "purpose": "Whether exception detail may be sent."
         },
         "captureException": {
-          "line": 181,
+          "line": 188,
           "params": [
             "err"
           ],
           "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
         },
         "noticeState": {
-          "line": 208,
+          "line": 215,
           "purpose": "Whether the disclosure notice is due, and the version to store when it is"
         },
+        "startActiveTimer": {
+          "line": 236,
+          "purpose": "Start counting active time."
+        },
         "trackAppStarted": {
-          "line": 221,
+          "line": 249,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 235,
+          "line": 263,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle analytics from Settings. Persists the new state, then re-resolves"
         },
         "migrateLegacySettings": {
-          "line": 254,
+          "line": 282,
           "purpose": "Copy settings forward from the names this feature used when it was called"
         },
         "enforceFailClosed": {
-          "line": 278,
+          "line": 306,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 289,
+          "line": 317,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 305,
+          "line": 333,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }
@@ -386,6 +393,7 @@
         "sanitizeException",
         "NOTICE_VERSION",
         "shouldShowNotice",
+        "createActiveTimer",
         "createRateLimiter",
         "DEFAULT_RATE_LIMIT",
         "diffSpecLifecycle",
@@ -397,14 +405,14 @@
       ],
       "functions": {
         "normalizeTool": {
-          "line": 84,
+          "line": 90,
           "params": [
             "id"
           ],
           "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
         },
         "validateEvent": {
-          "line": 99,
+          "line": 105,
           "params": [
             "name",
             "props"
@@ -412,7 +420,7 @@
           "purpose": "Validate an (event, props) pair against the registry."
         },
         "effectiveEnabled": {
-          "line": 123,
+          "line": 143,
           "params": [
             "{ value",
             "loadFailed }"
@@ -420,7 +428,7 @@
           "purpose": "Effective analytics state from the persisted setting plus settings-load"
         },
         "shouldShowNotice": {
-          "line": 153,
+          "line": 173,
           "params": [
             "{ storedVersion",
             "legacyShown",
@@ -429,27 +437,33 @@
           "purpose": "Whether the disclosure notice should be shown."
         },
         "stripAbsolutePaths": {
-          "line": 181,
+          "line": 201,
           "params": [
             "text"
           ]
         },
         "sanitizeException": {
-          "line": 197,
+          "line": 217,
           "params": [
             "err"
           ],
           "purpose": "Make an exception safe to send."
         },
+        "createActiveTimer": {
+          "line": 242,
+          "params": [
+            "options"
+          ]
+        },
         "planLegacyMigration": {
-          "line": 236,
+          "line": 285,
           "params": [
             "snapshot"
           ],
           "purpose": "What the rename owes this install."
         },
         "resolveInstallId": {
-          "line": 278,
+          "line": 327,
           "params": [
             "{ stored",
             "enabled }",
@@ -458,21 +472,21 @@
           "purpose": "Decide this launch's install id from what is stored and whether analytics"
         },
         "createRateLimiter": {
-          "line": 309,
+          "line": 358,
           "params": [
             "options"
           ],
           "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
         },
         "stampedSince": {
-          "line": 369,
+          "line": 418,
           "params": [
             "stamp",
             "since"
           ]
         },
         "diffSpecLifecycle": {
-          "line": 388,
+          "line": 437,
           "params": [
             "previous",
             "specs",
@@ -481,7 +495,7 @@
           "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
         },
         "renameSpecLifecycle": {
-          "line": 427,
+          "line": 476,
           "params": [
             "state",
             "oldSlug",
@@ -2527,7 +2541,7 @@
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 340,
+          "line": 341,
           "params": [
             "window"
           ],

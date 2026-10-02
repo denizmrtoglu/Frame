@@ -218,12 +218,14 @@
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  border-radius: 99px;
   white-space: nowrap;
 }
 
-/* iOS-style switch */
+/* Switch, shadcn-style: a borderless muted track that fills with the accent
+   when on, and a thumb in the scheme's ink (the deep surface once on). The
+   1px border stays, transparent, so the thumb's geometry is unchanged. */
 .settings-switch {
   position: relative;
   display: inline-block;
@@ -242,11 +244,22 @@
 .settings-switch-slider {
   position: absolute;
   inset: 0;
-  background: var(--bg-elevated);
-  border: 1px solid var(--border-default);
+  background: var(--border-strong);
+  border: 1px solid transparent;
   border-radius: 20px;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s;
+  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
+}
+
+/* The input is invisible, so the track wears its focus ring. */
+.settings-switch input:focus-visible + .settings-switch-slider {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+
+.settings-switch input:disabled + .settings-switch-slider {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .settings-switch-slider::before {
@@ -256,7 +269,7 @@
   height: 14px;
   left: 2px;
   top: 2px;
-  background: var(--text-secondary);
+  background: var(--text-primary);
   border-radius: 50%;
   transition: transform 0.18s, background 0.18s;
 }
@@ -268,7 +281,7 @@
 
 .settings-switch input:checked + .settings-switch-slider::before {
   transform: translateX(16px);
-  background: var(--bg-secondary);
+  background: var(--bg-deep);
 }
 
 /* About section */

@@ -459,8 +459,8 @@
   color: var(--accent-primary);
   background: var(--accent-subtle);
   border: 1px solid var(--accent-border, rgba(143, 240, 174, 0.25));
-  padding: 1px 6px;
-  border-radius: 4px;
+  padding: 1px 8px;
+  border-radius: 99px;
   font-family: var(--font-mono);
   letter-spacing: 0.2px;
   cursor: default;
@@ -1023,17 +1023,17 @@
 .toggle-track {
   width: 44px;
   height: 24px;
-  background: var(--bg-hover);
+  background: var(--border-strong);
   border-radius: 12px;
   position: relative;
   transition: all var(--transition-fast);
-  border: 1px solid var(--border-default);
+  border: 1px solid transparent;
 }
 
 .toggle-thumb {
   width: 18px;
   height: 18px;
-  background: var(--text-tertiary);
+  background: var(--text-primary);
   border-radius: 50%;
   position: absolute;
   top: 2px;
@@ -1041,22 +1041,28 @@
   transition: all var(--transition-fast);
 }
 
+/* Same switch as the settings one (.settings-switch): accent-filled track,
+   deep-surface thumb when on. */
 .plugin-toggle-btn.enabled .toggle-track {
-  background: var(--success-subtle);
-  border-color: var(--success);
+  background: var(--accent-primary);
 }
 
 .plugin-toggle-btn.enabled .toggle-thumb {
-  background: var(--success);
+  background: var(--bg-deep);
   transform: translateX(20px);
 }
 
 .plugin-toggle-btn:hover .toggle-track {
-  border-color: var(--text-tertiary);
+  filter: brightness(1.08);
 }
 
-.plugin-toggle-btn.enabled:hover .toggle-track {
-  border-color: var(--success);
+.plugin-toggle-btn:focus-visible {
+  outline: none;
+}
+
+.plugin-toggle-btn:focus-visible .toggle-track {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
 }
 
 /* Plugins Empty State */
@@ -1249,7 +1255,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.6);
+  background: rgba(0, 0, 0, 0.5);
   display: none;
   align-items: center;
   justify-content: center;
@@ -1263,21 +1269,22 @@
 
 .modal-container {
   background: var(--bg-secondary);
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   width: min(var(--modal-width), 92vw);
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+  box-shadow: var(--shadow-lg);
   animation: modalSlideIn 0.2s ease-out;
 }
 
+/* Fade + zoom in place (no slide), the shadcn dialog entrance. */
 @keyframes modalSlideIn {
   from {
     opacity: 0;
-    transform: translateY(-20px) scale(0.95);
+    transform: scale(0.95);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: scale(1);
   }
 }
 
@@ -1526,8 +1533,8 @@
 }
 
 .modal-close:hover {
-  color: var(--error);
-  background: rgba(212, 116, 116, 0.1);
+  color: var(--text-primary);
+  background: var(--bg-hover);
 }
 
 .modal-body {
@@ -1545,18 +1552,24 @@
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 12px;
   font-family: var(--font-mono);
   outline: none;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
 }
 
 .modal-body input:focus {
-  border-color: var(--success);
-  box-shadow: 0 0 0 2px rgba(155, 220, 168, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+
+.modal-body input:disabled,
+.modal-body select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .modal-body input::placeholder {
@@ -1575,14 +1588,14 @@
   width: 100%;
   padding: var(--space-sm) var(--space-md);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-md);
   color: var(--text-primary);
   font-size: 12px;
   font-family: var(--font-mono);
   outline: none;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   appearance: none;
   background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23888' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
@@ -1591,8 +1604,8 @@
 }
 
 .modal-body select:focus {
-  border-color: var(--success);
-  box-shadow: 0 0 0 2px rgba(155, 220, 168, 0.2);
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
 }
 
 .modal-body select option {
@@ -1624,15 +1637,15 @@
   width: 16px;
   height: 16px;
   border: 1px solid var(--border-strong);
-  border-radius: 3px;
+  border-radius: var(--radius-sm);
   background: var(--bg-tertiary);
   position: relative;
   transition: all var(--transition-fast);
 }
 
 .modal-checkbox-label input[type="checkbox"]:checked + .checkbox-custom {
-  background: var(--success);
-  border-color: var(--success);
+  background: var(--accent-primary);
+  border-color: var(--accent-primary);
 }
 
 .modal-checkbox-label input[type="checkbox"]:checked + .checkbox-custom::after {
@@ -1642,13 +1655,13 @@
   top: 2px;
   width: 4px;
   height: 8px;
-  border: solid white;
+  border: solid var(--bg-deep);
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
 
 .modal-checkbox-label:hover .checkbox-custom {
-  border-color: var(--success);
+  border-color: var(--accent-primary);
 }
 
 .modal-footer {
@@ -1657,39 +1670,50 @@
   gap: var(--space-sm);
   padding: var(--space-md) var(--space-lg);
   border-top: 1px solid var(--border-subtle);
-  background: var(--bg-tertiary);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 
 .modal-btn {
   padding: var(--space-sm) var(--space-lg);
-  border-radius: var(--radius-sm);
+  border-radius: var(--radius-md);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
+}
+
+.modal-btn:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+
+.modal-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .modal-btn-cancel {
   background: transparent;
-  border: 1px solid var(--border-subtle);
+  border: 1px solid var(--border-default);
   color: var(--text-secondary);
 }
 
-.modal-btn-cancel:hover {
+.modal-btn-cancel:hover:where(:not(:disabled)) {
   background: var(--bg-hover);
-  border-color: var(--border-strong);
+  color: var(--text-primary);
 }
 
+/* Same accent fill as .primary-btn — one primary across the app. */
 .modal-btn-primary {
-  background: var(--success);
-  border: 1px solid var(--success);
-  color: #fff;
+  background: var(--accent-primary);
+  border: 1px solid var(--accent-primary);
+  color: var(--bg-deep);
 }
 
-.modal-btn-primary:hover {
-  background: #6aa372;
-  border-color: #6aa372;
+.modal-btn-primary:hover:where(:not(:disabled)) {
+  filter: brightness(1.08);
 }
 
 /* ==================== STRUCTURE MAP ==================== */
@@ -2382,8 +2406,8 @@
 
 .info-card {
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -2935,8 +2959,8 @@
 
 .prompt-card {
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   padding: var(--space-md);
   position: relative;
   transition: border-color var(--transition-fast), background var(--transition-fast);
@@ -2950,7 +2974,7 @@
   bottom: 0;
   width: 3px;
   background: var(--accent-primary);
-  border-radius: var(--radius-md) 0 0 var(--radius-md);
+  border-radius: var(--radius-lg) 0 0 var(--radius-lg);
   opacity: 0.4;
   transition: opacity var(--transition-fast);
 }
@@ -3318,8 +3342,8 @@
 .spec-phase-badge {
   font-size: 9px;
   font-weight: 700;
-  padding: 2px 6px;
-  border-radius: 3px;
+  padding: 2px 8px;
+  border-radius: 99px;
   text-transform: uppercase;
   letter-spacing: 0.4px;
   white-space: nowrap;
@@ -3581,7 +3605,7 @@
 }
 
 .spec-tab-btn.active {
-  color: var(--accent-primary);
+  color: var(--text-primary);
   border-bottom-color: var(--accent-primary);
 }
 
@@ -4634,8 +4658,8 @@
   gap: var(--space-sm);
   padding: var(--space-md);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-md);
+  border: 1px solid var(--border-default);
+  border-radius: var(--radius-lg);
   cursor: pointer;
   transition: all var(--transition-fast);
 }
@@ -4653,7 +4677,7 @@
   padding: var(--space-md);
   background: transparent;
   border: 1px dashed var(--border-default);
-  border-radius: var(--radius-md);
+  border-radius: var(--radius-lg);
   color: var(--text-tertiary);
   font-family: inherit;
   cursor: pointer;

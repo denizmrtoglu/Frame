@@ -3569,3 +3569,50 @@ Same pass: `onboarding.js` stopped binding `#onboarding-open-folder` and
 Left alone: `healthNotice` still uses a top strip; the separate
 `status-bar-notice-tray` spec (specified the same day) moves it into the
 status bar.
+
+### [2026-10-02] shadcn/ui look adopted as CSS only — no React, palette unchanged
+
+The request was to replace Frame's components with shadcn/ui components.
+shadcn/ui needs React + Tailwind + Radix; Frame's renderer is vanilla JS with
+plain CSS (85 renderer modules, ~18,500 lines of CSS, stylesheets linked
+straight from `index.html`). Three routes were weighed: a full React
+migration (weeks, spec-scale), React islands for isolated surfaces only, or
+porting shadcn's visual language onto the existing classes. The user first
+picked the islands route, then asked for "an easier UI change that fits what
+is already defined" and approved the CSS-only port. Basecoat UI (shadcn for
+plain HTML) was rejected because it needs Tailwind, whose global reset would
+fight the existing CSS; Shoelace / Web Awesome because they do not look like
+shadcn and would mean rewriting markup into custom elements.
+
+What was done, in four passes, CSS only — no class names, markup or JS
+changed, and every colour still comes from `variables.css` so all four themes
+keep working:
+
+- Buttons (`.btn`, `.btn-secondary`, `.btn-success`, `.modal-btn*`): flat
+  fills, no gradient / hover lift / glow; disabled is 50% opacity.
+- Focus ring on buttons, fields and switches: accent border plus a 3px
+  `color-mix(accent 35%)` halo, replacing the per-rule outlines.
+- Fields in modals and the task form: one border and radius; focus shows the
+  ring only.
+- Modals and the command palette: fade + zoom entrance instead of a slide,
+  no tinted footer band, neutral close button.
+- Tooltip: inverted (ink fill, deep-surface text). This deliberately
+  overturns the earlier "elevated-surface language like the other popovers"
+  choice recorded in `tooltip.css`.
+- Tabs: active label is `--text-primary` with the accent underline, matching
+  the dock tabs. Badges/chips became pills. Cards moved to `--radius-lg` and
+  `--border-default`. Menus use neutral hover and the shared shadow tokens.
+- Switches (settings and plugins): borderless muted track, accent when on.
+
+Colour changes made along the way, flagged to the user as reversible: the
+modal primary button, the modal checkbox and the plugin switch moved from
+`--success` to `--accent-primary`, so the app has one primary colour and
+their text/mark is dark instead of white.
+
+Not verified on screen: `node`/`npm` were unavailable in the session, so the
+app was never launched. The user was asked to check the light themes, the
+narrow right rail (wider pills) and the command palette spacing.
+
+Same session, separate request: the left rail icons went from 40px to 32px
+(button 48px to 40px, 4px inset kept) with `stroke-width: 1.5` so the stroke
+still renders at 2px.

@@ -231,7 +231,7 @@ body.sidebar-resizing * {
 }
 
 .sidebar-tab-btn.active {
-  color: var(--accent-primary);
+  color: var(--text-primary);
   border-bottom-color: var(--accent-primary);
 }
 
@@ -268,12 +268,13 @@ body.sidebar-resizing * {
    semantics (view switching, the active state). */
 .sidebar-rail-btn {
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  /* 40px target with a 4px inset, leaving the icon 32px. */
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 4px;
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
@@ -286,6 +287,11 @@ body.sidebar-resizing * {
 
 .sidebar-rail-btn svg {
   display: block;
+  width: 32px;
+  height: 32px;
+  /* The icons are drawn on a 24-unit viewBox; at 32px a stroke of 1.5 units
+     renders as 2px (2 × 24 / 32). Overrides the markup's stroke-width="2". */
+  stroke-width: 1.5;
 }
 
 .sidebar-rail-btn:hover {

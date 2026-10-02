@@ -91,10 +91,25 @@ body {
   transform: scale(0.97);
 }
 
-.primary-btn:focus-visible {
-  outline: 2px solid var(--accent-primary);
-  outline-offset: 2px;
+/* Focus ring, shadcn-style: the control's own border takes the accent and a
+   soft 3px halo sits outside it. Shared by every button and field below. */
+.primary-btn:focus-visible,
+.btn:focus-visible {
+  outline: none;
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
 }
+
+.primary-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+/* The outline button: flat fill, 1px border, no lift, no gradient. Hover is
+   a surface change only. The :where() keeps the hover rules at their plain
+   specificity while leaving a disabled button inert. */
 .btn {
   background: var(--bg-elevated);
   color: var(--text-primary);
@@ -105,71 +120,44 @@ body {
   font-family: var(--font-mono);
   font-size: 12px;
   font-weight: 500;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), border-color var(--transition-fast),
+    color var(--transition-fast), box-shadow var(--transition-fast), filter var(--transition-fast);
   position: relative;
   overflow: hidden;
 }
 
-.btn::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, transparent 100%);
-  opacity: 0;
-  transition: opacity var(--transition-fast);
-}
-
-.btn:hover {
+.btn:hover:where(:not(:disabled)) {
   background: var(--bg-hover);
   border-color: var(--border-strong);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-.btn:hover::before {
-  opacity: 1;
-}
-
-.btn:active {
-  transform: translateY(0);
-  box-shadow: none;
 }
 
 .btn-secondary {
   background: transparent;
-  border-color: var(--border-subtle);
+  border-color: var(--border-default);
   color: var(--text-secondary);
 }
 
-.btn-secondary:hover {
-  background: var(--bg-tertiary);
+.btn-secondary:hover:where(:not(:disabled)) {
+  background: var(--bg-hover);
   color: var(--text-primary);
 }
 
 .btn-success {
-  background: linear-gradient(180deg, var(--success) 0%, #7dbd8b 100%);
-  border: none;
-  color: #07130b;
+  background: var(--success);
+  border-color: var(--success);
+  color: var(--bg-deep);
   font-weight: 600;
-  box-shadow: 0 2px 8px rgba(155, 220, 168, 0.3);
 }
 
-.btn-success:hover {
-  background: linear-gradient(180deg, #b4e8bf 0%, var(--success) 100%);
-  box-shadow: 0 4px 16px rgba(155, 220, 168, 0.4);
+.btn-success:hover:where(:not(:disabled)) {
+  background: var(--success);
+  border-color: var(--success);
+  filter: brightness(1.08);
 }
 
 .btn:disabled {
-  background: var(--bg-tertiary);
-  border-color: var(--border-subtle);
-  color: var(--text-muted);
+  opacity: 0.5;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
-}
-
-.btn:disabled::before {
-  display: none;
 }
 
 .btn-icon {
@@ -634,6 +622,7 @@ select:focus-visible {
 .task-modal-container {
   width: min(var(--modal-width), 92vw);
   background: var(--bg-secondary);
+  border: 1px solid var(--border-default);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-lg);
   animation: slideUp var(--transition-normal) ease-out;
@@ -696,7 +685,12 @@ select:focus-visible {
   color: var(--text-primary);
   font-family: var(--font-mono);
   font-size: 12px;
-  transition: all var(--transition-fast);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.task-form-group input::placeholder,
+.task-form-group textarea::placeholder {
+  color: var(--text-muted);
 }
 
 .task-form-group input:focus,
@@ -704,7 +698,14 @@ select:focus-visible {
 .task-form-group select:focus {
   outline: none;
   border-color: var(--accent-primary);
-  background: var(--bg-elevated);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
+}
+
+.task-form-group input:disabled,
+.task-form-group textarea:disabled,
+.task-form-group select:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .task-form-group textarea {
@@ -724,7 +725,6 @@ select:focus-visible {
   gap: var(--space-sm);
   padding: var(--space-lg) var(--space-xl);
   border-top: 1px solid var(--border-subtle);
-  background: var(--bg-tertiary);
   border-radius: 0 0 var(--radius-lg) var(--radius-lg);
 }
 

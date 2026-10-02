@@ -364,8 +364,8 @@
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
-  border-radius: var(--radius-sm);
-  padding: 1px 7px;
+  border-radius: 999px;
+  padding: 1px 8px;
   white-space: nowrap;
 }
 .orch-worker-time {

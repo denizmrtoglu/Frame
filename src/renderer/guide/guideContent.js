@@ -164,7 +164,7 @@ const CHAPTERS = [
           { p: 'The thin rail on the far left switches the sidebar between Projects, Files, Changes and GitHub {kbd:sidebar.github}.' },
           { p: 'Projects is the project\'s own navigation, in two groups:' },
           { list: [
-            'Work — Terminals, and Orchestration (beta).',
+            'Work — Terminals.',
             'Context — Specs and Tasks with their counts, and Sessions.'
           ] },
           { p: 'Project Settings sits at the foot of that list. {kbd:panel.toggleSidebar} collapses the sidebar to the rail when you want the room back.' }
@@ -280,7 +280,7 @@ const CHAPTERS = [
         blocks: [
           { p: 'An agent works best when it knows exactly what to build, how, and in what order — and when the next session can still read why. That is what a spec is: a short folder of documents that carries a piece of work from idea to done.' },
           { p: 'Spec-driven development is on for new projects. When you describe sizable work in a session, the agent offers to start a spec instead of diving into code; it never insists, and small fixes just get done.' },
-          { note: 'Specs are also what Orchestration runs, so a project without specs has nothing to orchestrate. You can switch spec-driven development off per project in Project Settings › Workflow; existing specs stay on disk.' }
+          { note: 'You can switch spec-driven development off per project in Project Settings › Workflow; existing specs stay on disk.' }
         ]
       },
       {
@@ -354,55 +354,6 @@ const CHAPTERS = [
         actions: [
           { id: 'panel.toggleSpecsDashboard', label: 'Specs Dashboard' },
           { id: 'panel.toggleTasksDashboard', label: 'Tasks Dashboard' }
-        ]
-      }
-    ]
-  },
-  {
-    id: 'orchestration',
-    title: 'Orchestration (Beta)',
-    pages: [
-      {
-        id: 'orch.what',
-        title: 'What it does',
-        sketch: { kind: 'orchestrator', focus: 'conductor,workers' },
-        blocks: [
-          { p: 'Orchestration runs several specs in parallel. A conductor agent schedules the work; each assigned spec gets its own worker agent, in its own git worktree under `.frame/worktrees/`, on its own branch.' },
-          { list: [
-            'Two specs that would touch the same files are not run at the same time — Frame reads each plan\'s footprint and holds back the collision.',
-            'Workers never push and never merge. You approve each worker\'s changes.',
-            'Your main branch is never touched. Promoting the result is up to you.'
-          ] },
-          { note: 'Orchestration is in beta: guardrailed, human-steered parallelism rather than fire-and-forget automation.' }
-        ]
-      },
-      {
-        id: 'orch.needs',
-        title: 'It needs specs',
-        sketch: { kind: 'specFlow', focus: 'tasks,implement,gate' },
-        blocks: [
-          { p: 'Orchestration has nothing to work on without specs. A spec can be assigned once it has tasks — after Break into Tasks — because a worker implements exactly that task list.' },
-          { p: 'The plan matters too: its footprint, the list of files the spec will touch, is what keeps parallel workers from colliding.' },
-          { p: 'So the path is always the same: write specs, plan them, break them into tasks — then orchestrate.' }
-        ],
-        actions: [
-          { id: 'panel.toggleSpecsDashboard', label: 'Open the Specs Dashboard' }
-        ]
-      },
-      {
-        id: 'orch.run',
-        title: 'Run it',
-        sketch: { kind: 'orchestrator', focus: 'specs,pipeline' },
-        blocks: [
-          { p: 'Open it from Work › Orchestration in the sidebar, or {kbd:orchestrator.open}.' },
-          { list: [
-            'Start Orchestrator opens the conductor\'s terminal.',
-            'Assign the specs you want run from the list on the right.',
-            'Each worker moves through Queued → Running → Done → Approved. Open a worker to watch it, Approve to collect its branch, or Remove it — an un-merged branch is kept.'
-          ] }
-        ],
-        actions: [
-          { id: 'orchestrator.open', label: 'Open Orchestration' }
         ]
       }
     ]

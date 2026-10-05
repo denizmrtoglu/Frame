@@ -32,22 +32,19 @@ test('the shipped steps validate clean', () => {
   assert.deepEqual(validate(), []);
 });
 
-test('eight steps, in the tour order', () => {
+test('seven steps, in the tour order', () => {
   assert.deepEqual(STEPS.map((s) => s.id), [
-    'project', 'switcher', 'agent', 'terminals', 'specs', 'tasks', 'settings', 'orchestration'
+    'project', 'switcher', 'agent', 'terminals', 'specs', 'tasks', 'settings'
   ]);
   assert.equal(SETTING_KEY, 'guidedTourDone');
 });
 
-test('the terminal-first message and the orchestration caveat are in the copy', () => {
+test('the terminal-first message and the closing line are in the copy', () => {
   const agent = STEPS[indexOf('agent')].body;
   assert.match(agent, /Claude Code/);
   assert.match(agent, /Codex/);
   assert.match(STEPS[indexOf('terminals')].body, /terminal-first/);
-  const orch = STEPS[indexOf('orchestration')];
-  assert.match(orch.body, /beta/);
-  assert.match(orch.body, /more than one spec/);
-  assert.ok(orch.closing, 'the last step carries the closing line');
+  assert.ok(STEPS[STEPS.length - 1].closing, 'the last step carries the closing line');
 });
 
 test('only step 1 advances on a project, and only it needs no project', () => {
@@ -135,9 +132,9 @@ test('no available step left gives -1', () => {
   assert.equal(firstStepIndex({ hasProject: true, isAvailable: () => false }), -1);
 });
 
-test('orchestration is the last step', () => {
-  assert.equal(isLastStep(indexOf('orchestration'), { hasProject: true }), true);
-  assert.equal(isLastStep(indexOf('settings'), { hasProject: true }), false);
+test('settings is the last step', () => {
+  assert.equal(isLastStep(indexOf('settings'), { hasProject: true }), true);
+  assert.equal(isLastStep(indexOf('tasks'), { hasProject: true }), false);
   assert.equal(isLastStep(-1, { hasProject: true }), false);
 });
 

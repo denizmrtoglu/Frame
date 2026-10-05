@@ -62,5 +62,107 @@
       "expectedFiles": ["scripts/update-structure.js"],
       "successCheck": "grep -q 'test\\.js' scripts/update-structure.js && node -e \"const fs=require('fs');fs.mkdirSync('src/tmp-eval',{recursive:true});fs.writeFileSync('src/tmp-eval/foo.test.js','function fooBarEval(){}\\n');\" && node scripts/update-structure.js >/dev/null 2>&1 && node -e \"const s=JSON.parse(require('fs').readFileSync('STRUCTURE.json','utf-8'));process.exit(s.modules && s.modules['tmp-eval/foo.test'] ? 1 : 0)\""
     }
-  ]
+  ],
+  "retrievalSuite": {
+    "_comment": "STR-03 matched-agent navigation suite (run-eval.js --retrieval-arms). Each prompt describes a file's behavior, never its name; the task is done when the marker line lands in that file and nowhere else. Arms differ only in the search hook (none / legacy / v2). Pinned to the retrieval corpus commit.",
+    "pinnedCommit": "262f91bbc584e21fe464fd9adceba7a686ba6160",
+    "tasks": [
+      {
+        "id": "nav-01",
+        "prompt": "Find the file that implements the sample project's Google sign-in: the Passport strategy that finds or creates the user and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-01. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/templates/sample-project/src/auth/oauth.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-01' src/templates/sample-project/src/auth/oauth.js && [ \"$(git grep -l 'eval-nav: nav-01' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-02",
+        "prompt": "Find the file that implements the shared rule that decides whether a string is a name Git accepts for a branch and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-02. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/shared/gitRefNames.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-02' src/shared/gitRefNames.js && [ \"$(git grep -l 'eval-nav: nav-02' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-03",
+        "prompt": "Find the file that implements the main-process helper that writes state files atomically and recovers a corrupted JSON state file and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-03. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/main/fsSafe.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-03' src/main/fsSafe.js && [ \"$(git grep -l 'eval-nav: nav-03' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-04",
+        "prompt": "Find the file that implements the pure module that defines the interface zoom steps and the factor and label of each and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-04. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/shared/uiZoom.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-04' src/shared/uiZoom.js && [ \"$(git grep -l 'eval-nav: nav-04' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-05",
+        "prompt": "Find the file that implements the module that works out which PATH a child process should run with, by asking the user's login shell and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-05. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/main/envPath.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-05' src/main/envPath.js && [ \"$(git grep -l 'eval-nav: nav-05' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-06",
+        "prompt": "Find the file that implements the script that builds the module map for a commit from Git's staged snapshot and publishes it into the index and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-06. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "scripts/structure-commit.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-06' scripts/structure-commit.js && [ \"$(git grep -l 'eval-nav: nav-06' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-07",
+        "prompt": "Find the file that implements the shared helper that masks secrets before the app logs or records anything and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-07. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "scripts/redact.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-07' scripts/redact.js && [ \"$(git grep -l 'eval-nav: nav-07' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-08",
+        "prompt": "Find the file that implements the pure list model behind the status bar's branch picker (sorting, matching, worktree rows) and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-08. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/renderer/statusBar/branchPickerModel.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-08' src/renderer/statusBar/branchPickerModel.js && [ \"$(git grep -l 'eval-nav: nav-08' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-09",
+        "prompt": "Find the file that implements the main-process module that checks whether a newer version of the app has been released and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-09. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/main/updateChecker.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-09' src/main/updateChecker.js && [ \"$(git grep -l 'eval-nav: nav-09' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-10",
+        "prompt": "Find the file that implements the renderer module that supplies projects, terminals and specs as items to the command palette and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-10. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/renderer/paletteSources.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-10' src/renderer/paletteSources.js && [ \"$(git grep -l 'eval-nav: nav-10' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-11",
+        "prompt": "Find the file that implements the module that decides which widgets the Home board shows and in what order and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-11. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/renderer/home/registry.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-11' src/renderer/home/registry.js && [ \"$(git grep -l 'eval-nav: nav-11' | wc -l | tr -d ' ')\" = 1 ]"
+      },
+      {
+        "id": "nav-12",
+        "prompt": "Find the file that implements the pure module that checks whether Frame's own documentation still describes the project correctly and add this exact line as a comment near the top of that file (after any shebang or opening block comment is fine): // eval-nav: nav-12. Change nothing else and edit no other file.",
+        "expectedFiles": [
+          "src/shared/docsHealth.js"
+        ],
+        "successCheck": "grep -q 'eval-nav: nav-12' src/shared/docsHealth.js && [ \"$(git grep -l 'eval-nav: nav-12' | wc -l | tr -d ' ')\" = 1 ]"
+      }
+    ]
+  }
 }

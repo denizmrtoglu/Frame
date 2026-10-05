@@ -189,9 +189,11 @@ function getMenuTemplate() {
     label: 'Project',
     submenu: [
       cmd('Project Settings…', 'settings.openProject'),
-      cmd('Initialize as Frame Project', 'project.initializeFrame'),
-      SEP,
-      cmd('Open Orchestrator (Beta)', 'orchestrator.open', 'CmdOrCtrl+Shift+O')
+      cmd('Initialize as Frame Project', 'project.initializeFrame')
+      // Orchestrator hidden from the menu for now (see WORKSPACE_NAV_GROUPS in
+      // projectListUI.js); the feature stays reachable from the command palette.
+      // SEP,
+      // cmd('Open Orchestrator (Beta)', 'orchestrator.open', 'CmdOrCtrl+Shift+O')
     ]
   });
 

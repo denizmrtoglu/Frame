@@ -177,6 +177,20 @@ test('typed read/write round-trips', () => {
   assert.equal(frameStore.readConfig(projectDir).settings.gitSharing, 'repo');
 });
 
+test('getStructure prefers the working view and falls back to the tracked map', () => {
+  writeConfig({ version: '1.0', name: 'demo' });
+  frameStore.saveStructure(projectDir, { project: 'committed', modules: {} });
+  assert.equal(frameStore.getStructure(projectDir).project, 'committed');
+
+  const working = path.join(projectDir, FRAME_DIR, 'runtime', 'structure', 'working.json');
+  fs.mkdirSync(path.dirname(working), { recursive: true });
+  fs.writeFileSync(working, JSON.stringify({ project: 'live', modules: {} }));
+  assert.equal(frameStore.getStructure(projectDir).project, 'live');
+
+  fs.writeFileSync(working, '{ not json');
+  assert.equal(frameStore.getStructure(projectDir).project, 'committed', 'an unreadable working view falls back');
+});
+
 test('missing files read as null, not as a throw', () => {
   assert.equal(frameStore.readNotes(projectDir), null);
   assert.equal(frameStore.readAgents(projectDir), null);

@@ -380,7 +380,9 @@ implemented without approval.
 
 **Read these at the start of each session:**
 
-1. **\`.frame/STRUCTURE.json\`** — module map, which file is where
+1. **\`.frame/STRUCTURE.json\`** — module map, which file is where (as of the
+   last commit, plus your prose edits; \`find-module.js\` and hints use Frame's
+   live view of the working tree)
 2. **\`.frame/PROJECT_NOTES.md\`** — project vision, past decisions, session notes
 3. **\`.frame/tasks.json\`** — pending tasks
 
@@ -576,25 +578,116 @@ No problem, continue. The user can also say what they consider important themsel
 
 ## STRUCTURE.json Rules
 
-**This file is the map of the codebase.**
+**This file is the map of the codebase.** Frame generates it; you enrich it.
 
-### When to Update?
-- When a new file/folder is created
-- When a file/folder is deleted or moved
-- When module dependencies change
-- When an important architectural pattern is discovered (architectureNotes)
+### How It Is Generated
+- There are two views. STRUCTURE.json (tracked) is the map as of
+  the last commit plus your prose edits. The live view of the working tree —
+  uncommitted files included — is \`working.json\` in
+  \`.frame/runtime/structure/\` (never committed); \`find-module.js\`, hints
+  and the app read it first.
+  Where the map is not tracked by Git, both files hold the live view.
+- \`update-structure.js --full\` (shipped in \`.frame/bin/\`; run it with
+  \`node\` from the project root) rebuilds the live view — it is also the
+  repair command. The pre-commit hook runs \`--staged\` (see below).
+- Every project-owned text file gets an entry: source, configuration,
+  documentation, and languages Frame cannot parse (those carry path and size
+  with \`extraction.status: "unsupported"\`). Layout does not matter — root
+  files, several source folders and any number of workspace packages are all
+  scanned.
+- Excluded: \`.git/\`, \`.frame/\`, dependency and output folders
+  (\`node_modules\`, \`dist\`, \`build\`, …), binary files, symlinks, and whatever
+  the repository's own \`.gitignore\` files exclude (nested files and \`!\`
+  negations included). Machine-global git excludes and \`.git/info/exclude\` are
+  not applied, so the result is reproducible from the repository alone.
+- Tune it in \`.frame/config.json\` → \`project.structure\`:
+  \`ignoredDirectories\` (replaces the default folder list), \`exclude\`
+  (gitignore-style rules, applied last) and \`limits\` (\`maxEntries\` 100000,
+  \`maxFiles\` 50000, \`maxDepth\` 128, \`timeoutMs\` 30000, \`maxParseBytes\`
+  2 MiB). An invalid setting is an error, never silently ignored.
+
+### Reading the Result
+- \`generation.inventory.coverage\` — \`complete\`: every eligible file is listed;
+  \`partial\`: a limit, timeout or unreadable path stopped the scan
+  (\`reasons\` says which); \`unknown\`: last written by a partial update.
+- \`generation.extraction.coverage\` — \`partial\` when some files could not be
+  parsed; they keep their basic metadata.
+- Empty \`modules\` with \`complete\` coverage means there are no eligible files
+  yet — not a failure.
+- The latest scan attempt is recorded as \`scan.json\` in
+  \`.frame/runtime/structure/\` (never committed). An incomplete scan keeps
+  the previous map; a failed one never replaces it.
+- Hand-written content a rebuild could not keep, and malformed maps, are
+  preserved in \`.frame/runtime/structure/recovery/\`.
+
+### Staying Current
+- While Frame has the project open, a background worker keeps the live view
+  in step with the working tree — including files that are not committed yet:
+  edits land within a few seconds, and a full check every minute catches
+  anything the file notifications missed. With Frame closed, run
+  \`structure-lifecycle.js --watch\` from \`.frame/bin/\` (stop it with
+  Ctrl-C), or \`--once\` for a single check.
+- How current the map is: \`fresh\` (verified against the working tree
+  within the last minute or so), \`dirty\` (changes seen, update pending),
+  \`stale\` (not verified recently, or the last scan was incomplete),
+  \`unknown\` (no record — a fresh clone, or Frame has not run here). The
+  lookup and freshness scripts report it; it is never guessed from dates.
+- Commits get their own map. The pre-commit hook builds it from what is
+  staged — never from unstaged edits or untracked files — stages it and
+  writes the same map to STRUCTURE.json, so \`git status\` stays clean and
+  checkout, switch and pull never conflict with it. A STRUCTURE.json with
+  unstaged hand edits is left alone (the freshness check says so).
+  \`git commit --no-verify\` skips the hook and keeps the previous map.
+- With Husky, lefthook or your own hook, call \`update-structure.js
+  --staged\` from it (the script is in \`.frame/bin/\`). An older snippet that
+  runs \`--changed\` and then \`git add\`s the map does the same. Frame keeps
+  its own unedited hook up to date.
+
+### Looking Files Up
+- \`find-module.js\` (in \`.frame/bin/\`) answers a concept, a synonym, a file
+  name, a path or a function/IPC name. Each result says which of those
+  matched; several files of equal standing are listed as candidates. Add
+  \`--json\` for one machine-readable result and \`--limit N\` (at most 20).
+- The search hint that appears next to a grep uses the same lookup with
+  stricter evidence, and stays quiet while the map is being updated.
+- Two engines: \`legacy\` (the default — concepts and synonyms first, then a
+  text search) and \`v2\` (also file names, paths and symbols, with a compact
+  index kept in \`.frame/runtime/structure/\`). v2 becomes the default once
+  it passes Frame's retrieval benchmark. Opt in now with
+  \`"project": { "retrieval": { "engine": "v2" } }\` in \`.frame/config.json\`,
+  or per call with \`--retrieval=v2\`.
+
+### What to Edit
+- Enrich entries in place in the tracked STRUCTURE.json (never in the live
+  view): \`description\`, function \`purpose\`, fields of your own, and
+  \`architectureNotes\`. They survive rebuilds, matched by the entry's
+  \`file\`, reach the live view on its next update, and reach commits once
+  you \`git add\` the file.
+- Do not rename module keys: curated concepts in \`intent-map.json\`
+  (\`.frame/bin/\`) refer to them.
+
+### When to Rebuild
+- After large moves or renames, after changing \`.gitignore\` or
+  \`project.structure\`, and whenever the map reports partial or unverified
+  coverage.
 
 ### Format
 \`\`\`json
 {
+  "version": "1.1",
   "modules": {
-    "moduleName": {
-      "path": "src/module",
-      "purpose": "What this module does",
-      "depends": ["otherModule"]
+    "main/widget": {
+      "file": "src/main/widget.js",
+      "description": "What this module does",
+      "exports": ["createWidget"],
+      "depends": ["shared/config"],
+      "functions": { "createWidget": { "line": 12, "purpose": "Build a widget" } },
+      "sizeBytes": 2048,
+      "extraction": { "status": "parsed" }
     }
   },
-  "architectureNotes": {}
+  "architectureNotes": {},
+  "generation": { "inventory": { "coverage": "complete", "reasons": [] } }
 }
 \`\`\`
 
@@ -635,7 +728,7 @@ function getStructureTemplate(projectName, project) {
       lastUpdated: getDateString(),
       generatedBy: "Frame"
     },
-    version: "1.0",
+    version: "1.1",
     description: `${projectName} - update this description`,
     architecture: {
       languages: p.languages || [],
@@ -644,7 +737,10 @@ function getStructureTemplate(projectName, project) {
       notes: ""
     },
     modules: {},
-    intentIndex: {}
+    intentIndex: {},
+    // No scan has run yet: an empty `modules` here is not an empty project.
+    // The first full scan replaces this block with its real result.
+    generation: { schema: 1, state: "pending" }
   };
 }
 
@@ -770,7 +866,7 @@ ${cmds.test || todo}
 
 | File | Purpose |
 |------|---------|
-| \`.frame/STRUCTURE.json\` | Module map and architecture |
+| \`.frame/STRUCTURE.json\` | Module map and architecture as of the last commit (live view: \`node .frame/bin/find-module.js\`; rebuild: \`node .frame/bin/update-structure.js --full\`) |
 | \`.frame/PROJECT_NOTES.md\` | Decisions and context |
 | \`.frame/tasks.json\` | Task tracking |
 | \`.frame/QUICKSTART.md\` | This file |
@@ -783,7 +879,9 @@ ${tree}
 
 ## For AI Assistants
 
-1. **First**: Read \`.frame/STRUCTURE.json\` for architecture overview
+1. **First**: Read \`.frame/STRUCTURE.json\` for architecture overview — if its
+   \`generation.inventory.coverage\` is not \`complete\`, the map is missing files;
+   rebuild it with \`node .frame/bin/update-structure.js --full\`
 2. **Then**: Check \`.frame/PROJECT_NOTES.md\` for current context and decisions
 3. **Check**: \`.frame/tasks.json\` for pending tasks
 4. **Follow**: Existing code patterns and conventions
@@ -1057,14 +1155,17 @@ const FRAME_HOOK_MARKER_END = '# <<< frame:structure (managed) <<<';
 
 function getStructureHookSnippet() {
   return `${FRAME_HOOK_MARKER_START}
-# Keep STRUCTURE.json in sync with staged JS changes. Safe to remove if you
-# don't want Frame to manage your STRUCTURE.json file.
+# Stage the commit's STRUCTURE.json, built from what is staged — never from
+# unstaged edits or untracked files — and write the same map to the file
+# unless it holds unstaged edits.
+# Never blocks the commit. Safe to remove if you don't want Frame to manage
+# your STRUCTURE.json file.
 if command -v node >/dev/null 2>&1; then
   FRAME_ROOT="$(git rev-parse --show-toplevel 2>/dev/null)"
   FRAME_PARSER="$FRAME_ROOT/.frame/bin/update-structure.js"
   if [ -n "$FRAME_ROOT" ] && [ ! -f "$FRAME_PARSER" ]; then
     # Linked worktree (or any checkout without its own .frame/bin): borrow the
-    # main worktree's parser, still writing this checkout's STRUCTURE.json.
+    # main worktree's parser, still building this checkout's commit map.
     FRAME_COMMON="$(git rev-parse --git-common-dir 2>/dev/null)"
     case "$FRAME_COMMON" in
       /*) ;;
@@ -1075,14 +1176,7 @@ if command -v node >/dev/null 2>&1; then
     fi
   fi
   if [ -n "$FRAME_ROOT" ] && [ -f "$FRAME_PARSER" ]; then
-    FRAME_PROJECT_ROOT="$FRAME_ROOT" node "$FRAME_PARSER" --changed || true
-    # .frame/STRUCTURE.json is where the parser writes; the root copy only
-    # exists in a project that has not migrated yet.
-    if [ -f "$FRAME_ROOT/.frame/STRUCTURE.json" ]; then
-      git add "$FRAME_ROOT/.frame/STRUCTURE.json" || true
-    elif [ -f "$FRAME_ROOT/STRUCTURE.json" ]; then
-      git add "$FRAME_ROOT/STRUCTURE.json" || true
-    fi
+    FRAME_PROJECT_ROOT="$FRAME_ROOT" node "$FRAME_PARSER" --staged || true
   fi
 fi
 ${FRAME_HOOK_MARKER_END}
@@ -1092,17 +1186,44 @@ ${FRAME_HOOK_MARKER_END}
 /**
  * Full pre-commit hook file content for the "no existing hook" case.
  * Husky/lefthook/existing hooks are the user's files: Frame writes nothing
- * there, it only hands back the snippet for them to paste.
+ * there, it only hands back the snippet for them to paste. An installed copy
+ * that is still byte-identical to one of Frame's templates is Frame's to
+ * keep current (STR-02b); an edited one is the user's.
  */
 function getStructurePreCommitHookTemplate() {
   return `#!/bin/sh
 # Frame pre-commit hook
-# Auto-installed by Frame on project initialization. You can edit or delete
-# this file freely — Frame will not overwrite it on subsequent inits.
+# Installed by Frame. While this file is unmodified, Frame keeps it up to
+# date; once you edit it, Frame leaves it alone.
 
 ${getStructureHookSnippet()}
 exit 0
 `;
+}
+
+/**
+ * SHA-256 of every earlier `getStructurePreCommitHookTemplate()` output,
+ * recovered from history (d3b098d, fa17c93, a8c1c8c, 2291b13). A hook file equal to
+ * one of them byte for byte was installed by Frame and never edited — the
+ * only kind Frame may replace. Append the old hash whenever the template
+ * changes; never remove one.
+ */
+const PREVIOUS_STRUCTURE_HOOK_TEMPLATE_SHA256 = Object.freeze([
+  'df6b8a6b586a71782e5bbaa8afaf542b49dedf60bdfdff8375cb2d257ee8d8fc',
+  '306349fe4ac44c2f91ce3cdc44adc0f4f19ebeb06717603259a59d5bba528e91',
+  '405e7315a5ba4a9c60dfcc818aa1dfc3884b74492a146151195828f842136502',
+  '03595a78608139d5074c972c0a96ae63b754e5e5124d7a4e16ecd676231eda8d'
+]);
+
+/**
+ * 'current' when `text` is today's template, 'previous' when it is an
+ * unmodified earlier one (safe to replace), null for anything else.
+ */
+function classifyStructureHook(text) {
+  if (typeof text !== 'string') return null;
+  if (text === getStructurePreCommitHookTemplate()) return 'current';
+  const hash = crypto.createHash('sha256').update(text).digest('hex');
+  return PREVIOUS_STRUCTURE_HOOK_TEMPLATE_SHA256.includes(hash) ? 'previous' : null;
 }
 
 /**
@@ -1206,5 +1327,7 @@ module.exports = {
   getStructurePreCommitHookTemplate,
   getOrchBinScripts,
   FRAME_HOOK_MARKER_START,
+  PREVIOUS_STRUCTURE_HOOK_TEMPLATE_SHA256,
+  classifyStructureHook,
   FRAME_HOOK_MARKER_END
 };

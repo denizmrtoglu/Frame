@@ -165,15 +165,33 @@ function saveTasks(projectPath, data) {
   writeText(projectPath, FRAME_FILES.TASKS, JSON.stringify(data, null, 2));
 }
 
-/** STRUCTURE.json parsed, or null when it is missing or unparseable. */
+/**
+ * The project's module map parsed, or null when it is missing or
+ * unparseable. The live working-tree view (STR-02c,
+ * `.frame/runtime/structure/working.json`) wins; the tracked STRUCTURE.json
+ * — the map as of the last commit plus prose edits — is the fallback.
+ */
 function getStructure(projectPath) {
-  const raw = readText(projectPath, FRAME_FILES.STRUCTURE);
-  if (raw === null) return null;
+  const parse = (raw) => {
+    if (raw === null) return null;
+    try {
+      return JSON.parse(raw);
+    } catch (err) {
+      return null;
+    }
+  };
+  let working = null;
   try {
-    return JSON.parse(raw);
+    working = fs.readFileSync(workingViewPath(projectPath), 'utf8');
   } catch (err) {
-    return null;
+    working = null;
   }
+  return parse(working) || parse(readText(projectPath, FRAME_FILES.STRUCTURE));
+}
+
+/** Where the structure lifecycle keeps the working-tree view (STR-02c). */
+function workingViewPath(projectPath) {
+  return path.join(projectPath, FRAME_DIR, 'runtime', 'structure', 'working.json');
 }
 
 function saveStructure(projectPath, structure) {

@@ -1,27 +1,11 @@
 #!/bin/bash
 #
-# Pre-commit hook: Update STRUCTURE.json if JS files changed
+# Pre-commit hook: stage the commit's STRUCTURE.json, built from what is
+# staged (never from unstaged edits or untracked files). The working copy of
+# .frame/STRUCTURE.json is left as it is. Never blocks the commit.
 #
 
-# Check if any JS files in src/ are staged
-STAGED_JS=$(git diff --cached --name-only --diff-filter=ACMRD | grep '^src/.*\.js$' || true)
-
-if [ -n "$STAGED_JS" ]; then
-    echo "JS files changed, updating STRUCTURE.json..."
-
-    # Run the structure update script
-    npm run structure:changed --silent
-
-    # Stage the updated STRUCTURE.json — .frame/ once this repo has migrated,
-    # the root copy until then
-    if [ -f .frame/STRUCTURE.json ]; then
-        git add .frame/STRUCTURE.json
-    else
-        git add STRUCTURE.json
-    fi
-
-    echo "STRUCTURE.json updated and staged."
-fi
+node scripts/update-structure.js --staged || true
 
 # Freshness report — warn-only, never blocks the commit
 node scripts/check-freshness.js || true

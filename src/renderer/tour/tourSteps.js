@@ -86,17 +86,8 @@ const STEPS = [
     id: 'settings',
     title: 'Settings',
     body: 'The gear opens Frame Settings: interface size, privacy and updates. Project Settings sits at the foot of the project\'s navigation.',
-    targets: [{ selector: '#frame-settings-btn', placement: 'right' }],
-    advance: 'next',
-    requiresProject: true,
-    requiresNoProject: false
-  },
-  {
-    id: 'orchestration',
-    title: 'Orchestration (Beta)',
-    body: 'Orchestration runs several specs in parallel, each in its own git worktree. It is in beta, and it needs more than one spec with tasks to be useful.',
     closing: 'That is the tour. Frame keeps the context; your agent does the work, in the terminal.',
-    targets: [{ selector: '.workspace-nav-item[data-view="orchestrator"]', placement: 'right', needsNav: 'orchestrator' }],
+    targets: [{ selector: '#frame-settings-btn', placement: 'right' }],
     advance: 'next',
     requiresProject: true,
     requiresNoProject: false

@@ -4,7 +4,7 @@
 
 <h1 align="center">Frame</h1>
 
-<p align="center"><strong>Spec-driven development that becomes durable, structural context — built on Claude Code.</strong></p>
+<p align="center"><strong>Spec-driven development that becomes durable, structural context built on Claude Code and Codex.</strong></p>
 
 <p align="center">
   <a href="https://frame.cool"><img src="https://img.shields.io/badge/website-frame.cool-d4a574" alt="Website"></a>
@@ -16,16 +16,15 @@
   <a href="https://github.com/kaanozhan/Frame/stargazers"><img src="https://img.shields.io/github/stars/kaanozhan/Frame?style=social" alt="Stars"></a>
 </p>
 
-The shape of software development changed — agents write the code now — but
+The shape of software development changed, agents write the code now, but
 the foundation didn't: good results still come from good planning. Frame puts
 planning back at the center. You write a spec once, and that single spec
-becomes three things at once: the plan your agents follow, a clean unit of work
-you can run in parallel without collisions, and the durable, shared context
-your project keeps across every session. Every future agent arrives knowing
-what was done and why — no more re-explaining your architecture every time you
-open a terminal.
+becomes two things at once: the plan your agents follow, and the durable,
+shared context your project keeps across every session. Every future agent
+arrives knowing what was done and why no more re-explaining your
+architecture every time you open a terminal.
 
-Built on Claude Code. Codex CLI and Gemini CLI work too — and because your
+Built on Claude Code. Codex CLI work too, and because your
 context lives in plain, git-versioned files, it stays yours and stays readable
 by any tool.
 
@@ -123,37 +122,6 @@ Two principles shaped this:
 - **Files over databases.** Markdown is canonical. Any AI tool can read it without Frame, any teammate can grep it, git versions it, PRs review it.
 - **On, but never forced.** New projects start with spec-driven dev enabled, so the specs your AI writes show up in the Specs panel from the first session. It isn't every project's shape — one switch in Settings → Workflow turns it off (your specs stay on disk). Existing `tasks.json` workflows are untouched either way.
 
-### Agent Orchestration
-
-Running agents in parallel is easy — every tool does it now. Landing their
-work into `main` without chaos is the hard part. That's what Frame's
-orchestration is built for: specs make features durable, orchestration makes
-them **parallel and safe to land.**
-
-Open the Orchestrator and hand a **conductor** agent several ready specs. It runs them at the same time — each spec in its own **git worktree**, worked by its own agent, fully isolated. No two agents fighting over the same files, no half-finished work bleeding into your working tree.
-
-The conductor doesn't guess at safety. Before running anything it reads each spec's declared **footprint** (the files it will touch) and only parallelizes specs that don't overlap; the rest are serialized. That guard is enforced in Frame's code, not left to the model — a spec whose footprint collides with in-flight work is refused, not merged into chaos.
-
-The unit of parallelism is the **spec**, not the task. A spec's own tasks are interdependent, so one agent runs them in order; *different* specs are the independent units that fan out. Need more parallelism? Split the work into more specs.
-
-When you dispatch a spec, Frame sets up its sandbox automatically — you don't run a single git command:
-
-- a fresh **git worktree** at `.frame/worktrees/<slug>`, branched from current `HEAD` (so serialized specs build on already-merged work),
-- a dedicated **work branch** `frame/<slug>/work`,
-- a worker **frame** (terminal) launched in that worktree, with the agent started and the spec's prompt injected.
-
-Every worker carries a live **state** you watch on the pipeline rail: `queued → running → done → approved`, with `blocked` (footprint conflict — held until its predecessor merges), `idle`, and `failed` surfaced too. Each worker is a real frame — click it to drop into its terminal, answer an approval prompt, or take over by hand. When you tear a session down, Frame removes the worktrees and prunes merged branches but **keeps un-merged work** on its branch, so nothing is lost.
-
-You stay in control of what lands:
-
-- Workers commit only to their own branch — they never push, never merge, never touch shared files (`.frame/tasks.json`, `.frame/STRUCTURE.json`, …).
-- When a worker finishes, the conductor reviews it and tells you it's ready — it does **not** merge on its own.
-- You review (you can test right in the worktree), then **Approve**. Frame runs a **drift check** — what the agent *actually* changed vs. what it *declared* — and merges locally into a per-spec integration branch. `main` is never touched; promoting it or opening a PR stays your call.
-
-It all lives on one screen: the **conductor's terminal** (talk to it directly), the **pipeline rail** across the top, your **worker lanes**, and the **spec rail** to assign more — a cockpit, not a black box. Because no real task finishes in one shot and an agent may need your approval mid-run, you can always step into any frame and keep working by hand.
-
-> **Honest framing:** this is *guardrailed, human-steered* parallelism — not fire-and-forget automation. The conductor proposes and isolates; you decide what merges. That's the point.
-
 ### Fast File Lookup
 
 Instead of scanning the entire codebase, Frame's `intentIndex` maps concepts to files:
@@ -194,12 +162,6 @@ the context your work produces outlives any single tool, including Frame.
 - **GitHub Panel** — issues, PRs, branches, and labels directly in the sidebar
 - **Git Branches** — view, switch, create, and manage branches and worktrees
 - **Plugins Panel** — browse, enable/disable, and install Claude Code plugins
-
-### Orchestration
-- **Parallel spec execution** — a conductor agent runs multiple ready specs at once, each worker in its own git worktree
-- **Code-enforced isolation** — footprint conflict guard, per-spec branches, drift-checked local merges; `main` is never touched
-- **Live cockpit** — pipeline rail + worker lanes with per-worker **Open / Approve / Remove**
-- **You approve** — the conductor reviews and reports; nothing merges without your review
 
 ### Context & Architecture
 - **`.frame/STRUCTURE.json`** — auto-updated on every commit via pre-commit hooks
@@ -317,7 +279,6 @@ Pre-built binaries available on the [releases page](https://github.com/kaanozhan
 - [x] Overview / structure map panel
 - [x] Pre-commit hooks for automatic structure updates
 - [x] Spec-driven development — spec / plan / tasks / outcome markdown workflow with auto-import to tasks.json
-- [x] Agent orchestration — conductor-led parallel spec execution, each agent isolated in its own git worktree
 - [x] Light / dark theme
 
 ### In Progress

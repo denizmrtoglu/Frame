@@ -1,0 +1,2353 @@
+{
+  "_comment": "STR-03 retrieval corpus. Frozen before tuning: each split carries the SHA-256 of JSON.stringify(cases); test/retrievalEval.test.js verifies it. Splits are disjoint by family (negatives aside). expect = acceptable files at pinnedCommit; [] = nothing should be returned. Run: node scripts/eval/run-retrieval.js",
+  "version": 1,
+  "pinnedCommit": "262f91bbc584e21fe464fd9adceba7a686ba6160",
+  "splits": {
+    "development": {
+      "sha256": "3259c37b4b6fc2b9ea9a8d741dca67a494e899aa93764a6a9c50ec6335b66b4a",
+      "cases": [
+        {
+          "id": "dev-001",
+          "family": "github",
+          "query": "github",
+          "expect": [
+            "src/main/githubManager.js",
+            "src/renderer/githubPanel.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "dev-002",
+          "family": "github",
+          "query": "pull-requests",
+          "expect": [
+            "src/main/githubManager.js",
+            "src/renderer/githubPanel.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "dev-003",
+          "family": "github",
+          "query": "githubPanel",
+          "expect": [
+            "src/renderer/githubPanel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-004",
+          "family": "github",
+          "query": "rowModels",
+          "expect": [
+            "src/renderer/github/rowModels.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-005",
+          "family": "github",
+          "query": "issueBranchName",
+          "expect": [
+            "src/renderer/github/rowModels.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-006",
+          "family": "github",
+          "query": "checkGhAuth",
+          "expect": [
+            "src/main/githubManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-007",
+          "family": "github",
+          "query": "GitHub paneli",
+          "expect": [
+            "src/main/githubManager.js",
+            "src/renderer/githubPanel.js"
+          ],
+          "tags": [
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-008",
+          "family": "github",
+          "query": "githubManager modülü",
+          "expect": [
+            "src/main/githubManager.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-009",
+          "family": "github",
+          "query": "GİTHUB",
+          "expect": [
+            "src/main/githubManager.js",
+            "src/renderer/githubPanel.js"
+          ],
+          "tags": [
+            "casing",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-010",
+          "family": "terminal",
+          "query": "terminal",
+          "expect": [
+            "src/main/pty.js",
+            "src/main/ptyManager.js",
+            "src/renderer/multiTerminalUI.js",
+            "src/renderer/terminal.js",
+            "src/renderer/terminalManager.js",
+            "src/renderer/terminalTabBar.js",
+            "src/renderer/terminalsView.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "dev-011",
+          "family": "terminal",
+          "query": "xterm",
+          "expect": [
+            "src/main/pty.js",
+            "src/main/ptyManager.js",
+            "src/renderer/multiTerminalUI.js",
+            "src/renderer/terminal.js",
+            "src/renderer/terminalManager.js",
+            "src/renderer/terminalTabBar.js",
+            "src/renderer/terminalsView.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "dev-012",
+          "family": "terminal",
+          "query": "ptyManager.js",
+          "expect": [
+            "src/main/ptyManager.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-013",
+          "family": "terminal",
+          "query": "getForegroundCommand",
+          "expect": [
+            "src/main/ptyManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-014",
+          "family": "terminal",
+          "query": "terminalInput",
+          "expect": [
+            "src/renderer/terminalInput.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-015",
+          "family": "terminal",
+          "query": "terminalChipNotice",
+          "expect": [
+            "src/renderer/terminalChipNotice.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-016",
+          "family": "terminal",
+          "query": "terminal yöneticisi",
+          "expect": [
+            "src/main/pty.js",
+            "src/main/ptyManager.js",
+            "src/renderer/multiTerminalUI.js",
+            "src/renderer/terminal.js",
+            "src/renderer/terminalManager.js",
+            "src/renderer/terminalTabBar.js",
+            "src/renderer/terminalsView.js"
+          ],
+          "tags": [
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-017",
+          "family": "terminal",
+          "query": "TERMİNAL",
+          "expect": [
+            "src/main/pty.js",
+            "src/main/ptyManager.js",
+            "src/renderer/multiTerminalUI.js",
+            "src/renderer/terminal.js",
+            "src/renderer/terminalManager.js",
+            "src/renderer/terminalTabBar.js",
+            "src/renderer/terminalsView.js"
+          ],
+          "tags": [
+            "casing",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-018",
+          "family": "terminal",
+          "query": "ptyManager dosyasında",
+          "expect": [
+            "src/main/ptyManager.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-019",
+          "family": "terminal",
+          "query": "escapePathForShell",
+          "expect": [
+            "src/renderer/terminalManager.js"
+          ],
+          "tags": [
+            "shell",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"escapePathForShell\" src/"
+          }
+        },
+        {
+          "id": "dev-020",
+          "family": "terminal",
+          "query": "envPath",
+          "expect": [
+            "src/main/envPath.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-021",
+          "family": "activity",
+          "query": "activity",
+          "expect": [
+            "scripts/activity-log.js",
+            "src/main/activityLog.js",
+            "src/renderer/activityPanel.js",
+            "src/shared/activityEvents.js"
+          ],
+          "tags": [
+            "concept"
+          ]
+        },
+        {
+          "id": "dev-022",
+          "family": "activity",
+          "query": "activityPanel",
+          "expect": [
+            "src/renderer/activityPanel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-023",
+          "family": "activity",
+          "query": "activity-log.js",
+          "expect": [
+            "scripts/activity-log.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-024",
+          "family": "activity",
+          "query": "projectKey",
+          "expect": [
+            "scripts/activity-log.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-025",
+          "family": "activity",
+          "query": "aktivite günlüğü",
+          "expect": [
+            "scripts/activity-log.js",
+            "src/main/activityLog.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "dev-026",
+          "family": "activity",
+          "query": "redact",
+          "expect": [
+            "scripts/redact.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-027",
+          "family": "activity",
+          "query": "redactValue",
+          "expect": [
+            "scripts/redact.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-028",
+          "family": "git",
+          "query": "git-branches",
+          "expect": [
+            "src/main/gitBranchRefs.js",
+            "src/main/gitBranchesManager.js",
+            "src/renderer/statusBar/branchPicker.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "dev-029",
+          "family": "git",
+          "query": "worktree",
+          "expect": [
+            "src/main/gitBranchRefs.js",
+            "src/main/gitBranchesManager.js",
+            "src/renderer/statusBar/branchPicker.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "dev-030",
+          "family": "git",
+          "query": "diff",
+          "expect": [
+            "src/main/gitDiffManager.js",
+            "src/main/gitStatusManager.js",
+            "src/renderer/diffSection.js",
+            "src/renderer/diffViewer.js",
+            "src/renderer/gitChangesPanel.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "dev-031",
+          "family": "git",
+          "query": "gitExclude",
+          "expect": [
+            "src/main/gitExclude.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-032",
+          "family": "git",
+          "query": "isValidBranchName",
+          "expect": [
+            "src/shared/gitRefNames.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-033",
+          "family": "git",
+          "query": "branchPickerModel",
+          "expect": [
+            "src/renderer/statusBar/branchPickerModel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-034",
+          "family": "git",
+          "query": "git dalı değiştirme",
+          "expect": [
+            "src/main/gitBranchRefs.js",
+            "src/main/gitBranchesManager.js",
+            "src/main/gitExclude.js",
+            "src/main/gitSharing.js",
+            "src/renderer/statusBar/branchPicker.js",
+            "src/shared/gitRefNames.js"
+          ],
+          "tags": [
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-035",
+          "family": "git",
+          "query": "gitSharing.js",
+          "expect": [
+            "src/main/gitSharing.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-036",
+          "family": "git",
+          "query": "parseBranchLine",
+          "expect": [
+            "src/main/gitBranchRefs.js"
+          ],
+          "tags": [
+            "shell",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"parseBranchLine\" src"
+          }
+        },
+        {
+          "id": "dev-037",
+          "family": "logging",
+          "query": "logger.js",
+          "expect": [
+            "src/main/logger.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-038",
+          "family": "logging",
+          "query": "rotateArchives",
+          "expect": [
+            "src/main/logger.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-039",
+          "family": "logging",
+          "query": "promptLogger",
+          "expect": [
+            "src/main/promptLogger.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-040",
+          "family": "logging",
+          "query": "perfMonitor",
+          "expect": [
+            "src/main/perfMonitor.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-041",
+          "family": "logging",
+          "query": "opStart",
+          "expect": [
+            "src/main/perfMonitor.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-042",
+          "family": "fs",
+          "query": "fsSafe",
+          "expect": [
+            "src/main/fsSafe.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-043",
+          "family": "fs",
+          "query": "writeFileAtomic",
+          "expect": [
+            "src/main/fsSafe.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-044",
+          "family": "fs",
+          "query": "frameStore",
+          "expect": [
+            "src/main/frameStore.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-045",
+          "family": "fs",
+          "query": "src/main/frameStore.js",
+          "expect": [
+            "src/main/frameStore.js"
+          ],
+          "tags": [
+            "path"
+          ]
+        },
+        {
+          "id": "dev-046",
+          "family": "fs",
+          "query": "frameStore dosyası",
+          "expect": [
+            "src/main/frameStore.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-047",
+          "family": "fs",
+          "query": "readJsonWithRecovery",
+          "expect": [
+            "src/main/fsSafe.js"
+          ],
+          "tags": [
+            "shell",
+            "singleton",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"readJsonWithRecovery\" src/"
+          }
+        },
+        {
+          "id": "dev-048",
+          "family": "lang",
+          "query": "rust extractor",
+          "expect": [
+            "scripts/lang/rust.js"
+          ],
+          "tags": [
+            "description",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-049",
+          "family": "lang",
+          "query": "lang/python.js",
+          "expect": [
+            "scripts/lang/python.js"
+          ],
+          "tags": [
+            "path",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-050",
+          "family": "lang",
+          "query": "extractFunctions",
+          "expect": [
+            "scripts/lang/go.js",
+            "scripts/lang/javascript.js",
+            "scripts/lang/markdown.js",
+            "scripts/lang/python.js",
+            "scripts/lang/rust.js"
+          ],
+          "tags": [
+            "ambiguous",
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-051",
+          "family": "lang",
+          "query": "markdown çıkarıcı",
+          "expect": [
+            "scripts/lang/markdown.js"
+          ],
+          "tags": [
+            "singleton",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-052",
+          "family": "sample",
+          "query": "requireAuth",
+          "expect": [
+            "src/templates/sample-project/src/auth/session.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-053",
+          "family": "sample",
+          "query": "googleStrategy",
+          "expect": [
+            "src/templates/sample-project/src/auth/oauth.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-054",
+          "family": "sample",
+          "query": "TaskList",
+          "expect": [
+            "src/templates/sample-project/src/ui/components/TaskList.jsx"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-055",
+          "family": "telemetry",
+          "query": "telemetry",
+          "expect": [
+            "src/main/telemetry.js",
+            "src/main/telemetryEvents.js",
+            "src/renderer/telemetryNotice.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "dev-056",
+          "family": "telemetry",
+          "query": "analytics",
+          "expect": [
+            "src/main/telemetry.js",
+            "src/main/telemetryEvents.js",
+            "src/renderer/telemetryNotice.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "dev-057",
+          "family": "telemetry",
+          "query": "telemetryEvents",
+          "expect": [
+            "src/main/telemetryEvents.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "dev-058",
+          "family": "telemetry",
+          "query": "createRateLimiter",
+          "expect": [
+            "src/main/telemetryEvents.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-059",
+          "family": "telemetry",
+          "query": "telemetri bildirimi",
+          "expect": [
+            "src/renderer/telemetryNotice.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "dev-060",
+          "family": "eval",
+          "query": "run-eval",
+          "expect": [
+            "scripts/eval/run-eval.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "dev-061",
+          "family": "eval",
+          "query": "scoreTranscript",
+          "expect": [
+            "scripts/eval/score.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "dev-062",
+          "family": "negative",
+          "query": "kubernetes",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-063",
+          "family": "negative",
+          "query": "graphql resolver",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-064",
+          "family": "negative",
+          "query": "stripe",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-065",
+          "family": "negative",
+          "query": "ödeme sayfası",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-066",
+          "family": "negative",
+          "query": "redux store",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-067",
+          "family": "negative",
+          "query": "webpack config",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-068",
+          "family": "negative",
+          "query": "mongodb",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-069",
+          "family": "negative",
+          "query": "fatura",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "dev-070",
+          "family": "negative",
+          "query": "useEffect",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "dev-071",
+          "family": "negative",
+          "query": "console.log",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"console.log\" src/"
+          }
+        },
+        {
+          "id": "dev-072",
+          "family": "negative",
+          "query": "foo|bar",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise"
+          ]
+        }
+      ]
+    },
+    "heldOut": {
+      "sha256": "39285f9aebf35af4e4f2f912718a6a1a691ca60ceb420c418444072cca12d23b",
+      "cases": [
+        {
+          "id": "ho-001",
+          "family": "tasks",
+          "query": "tasks",
+          "expect": [
+            "src/main/tasksManager.js",
+            "src/renderer/taskConfirmModal.js",
+            "src/renderer/taskInfoModal.js",
+            "src/renderer/taskRunModal.js",
+            "src/renderer/taskSection.js",
+            "src/renderer/tasksDashboard.js",
+            "src/renderer/tasksPanel.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho-002",
+          "family": "tasks",
+          "query": "todo",
+          "expect": [
+            "src/main/tasksManager.js",
+            "src/renderer/taskConfirmModal.js",
+            "src/renderer/taskInfoModal.js",
+            "src/renderer/taskRunModal.js",
+            "src/renderer/taskSection.js",
+            "src/renderer/tasksDashboard.js",
+            "src/renderer/tasksPanel.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho-003",
+          "family": "tasks",
+          "query": "tasksManager",
+          "expect": [
+            "src/main/tasksManager.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-004",
+          "family": "tasks",
+          "query": "flattenLegacyTasks",
+          "expect": [
+            "src/main/tasksManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-005",
+          "family": "tasks",
+          "query": "taskConfirmModal.js",
+          "expect": [
+            "src/renderer/taskConfirmModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-006",
+          "family": "tasks",
+          "query": "taskRunModal",
+          "expect": [
+            "src/renderer/taskRunModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-007",
+          "family": "tasks",
+          "query": "görev paneli",
+          "expect": [
+            "src/renderer/tasksPanel.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-008",
+          "family": "tasks",
+          "query": "görev çalıştırma modalı",
+          "expect": [
+            "src/renderer/taskRunModal.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-009",
+          "family": "specs",
+          "query": "specs",
+          "expect": [
+            "src/main/specManager.js",
+            "src/renderer/specPanel.js",
+            "src/renderer/specPanelResize.js",
+            "src/renderer/specSection.js",
+            "src/renderer/specsDashboard.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho-010",
+          "family": "specs",
+          "query": "spec-driven",
+          "expect": [
+            "src/main/specManager.js",
+            "src/renderer/specPanel.js",
+            "src/renderer/specPanelResize.js",
+            "src/renderer/specSection.js",
+            "src/renderer/specsDashboard.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho-011",
+          "family": "specs",
+          "query": "specNextAction",
+          "expect": [
+            "src/renderer/specNextAction.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-012",
+          "family": "specs",
+          "query": "repairSpecStatus",
+          "expect": [
+            "src/main/specManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-013",
+          "family": "specs",
+          "query": "renderNextActionBar",
+          "expect": [
+            "src/renderer/specNextAction.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-014",
+          "family": "specs",
+          "query": "spec-index.js",
+          "expect": [
+            "scripts/spec-index.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-015",
+          "family": "specs",
+          "query": "parseFootprint",
+          "expect": [
+            "scripts/spec-index.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-016",
+          "family": "specs",
+          "query": "spec planı",
+          "expect": [
+            "src/main/specManager.js",
+            "src/renderer/specPanel.js",
+            "src/renderer/specPanelResize.js",
+            "src/renderer/specSection.js",
+            "src/renderer/specsDashboard.js"
+          ],
+          "tags": [
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-017",
+          "family": "specs",
+          "query": "spec-context",
+          "expect": [
+            "scripts/spec-context.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-018",
+          "family": "specs",
+          "query": "parseFrontMatter",
+          "expect": [
+            "scripts/spec-index.js"
+          ],
+          "tags": [
+            "shell",
+            "singleton",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "rg -n \"parseFrontMatter\" scripts/"
+          }
+        },
+        {
+          "id": "ho-019",
+          "family": "specs",
+          "query": "specManager içinde repairSpecStatus",
+          "expect": [
+            "src/main/specManager.js"
+          ],
+          "tags": [
+            "symbol",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-020",
+          "family": "structure",
+          "query": "structure",
+          "expect": [
+            "src/main/structureBootstrap.js",
+            "src/main/structureLifecycle.js",
+            "src/renderer/structureMap.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho-021",
+          "family": "structure",
+          "query": "codebase-map",
+          "expect": [
+            "src/main/structureBootstrap.js",
+            "src/main/structureLifecycle.js",
+            "src/renderer/structureMap.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho-022",
+          "family": "structure",
+          "query": "structure-commit.js",
+          "expect": [
+            "scripts/structure-commit.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-023",
+          "family": "structure",
+          "query": "publishStaged",
+          "expect": [
+            "scripts/structure-commit.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-024",
+          "family": "structure",
+          "query": "resolveReadPath",
+          "expect": [
+            "scripts/structure-read.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-025",
+          "family": "structure",
+          "query": "scripts/structure-state.js",
+          "expect": [
+            "scripts/structure-state.js"
+          ],
+          "tags": [
+            "path",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-026",
+          "family": "structure",
+          "query": "structureLifecycle",
+          "expect": [
+            "scripts/structure-lifecycle.js",
+            "src/main/structureLifecycle.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-027",
+          "family": "structure",
+          "query": "update-structure",
+          "expect": [
+            "scripts/update-structure.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-028",
+          "family": "structure",
+          "query": "yapı haritası",
+          "expect": [
+            "src/renderer/structureMap.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-029",
+          "family": "structure",
+          "query": "structure-ignore",
+          "expect": [
+            "scripts/structure-ignore.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-030",
+          "family": "structure",
+          "query": "artifactSignature",
+          "expect": [
+            "scripts/structure-read.js"
+          ],
+          "tags": [
+            "shell",
+            "singleton",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"artifactSignature\" scripts"
+          }
+        },
+        {
+          "id": "ho-031",
+          "family": "structure",
+          "query": "createScheduler",
+          "expect": [
+            "scripts/structure-lifecycle.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-032",
+          "family": "structure",
+          "query": "structureBootstrap nerede",
+          "expect": [
+            "src/main/structureBootstrap.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-033",
+          "family": "structure",
+          "query": "**/structure-read.js",
+          "expect": [
+            "scripts/structure-read.js"
+          ],
+          "tags": [
+            "glob",
+            "path",
+            "singleton"
+          ],
+          "hook": {
+            "tool": "Glob",
+            "pattern": "**/structure-read.js"
+          }
+        },
+        {
+          "id": "ho-034",
+          "family": "settings",
+          "query": "settings",
+          "expect": [
+            "src/main/userSettings.js",
+            "src/renderer/frameSettingsModal.js",
+            "src/renderer/projectSettingsModal.js",
+            "src/renderer/settingsOverlay.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho-035",
+          "family": "settings",
+          "query": "preferences",
+          "expect": [
+            "src/main/userSettings.js",
+            "src/renderer/frameSettingsModal.js",
+            "src/renderer/projectSettingsModal.js",
+            "src/renderer/settingsOverlay.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho-036",
+          "family": "settings",
+          "query": "settingsOverlay",
+          "expect": [
+            "src/renderer/settingsOverlay.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-037",
+          "family": "settings",
+          "query": "userSettings",
+          "expect": [
+            "src/main/userSettings.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-038",
+          "family": "settings",
+          "query": "ayarlar",
+          "expect": [
+            "src/main/userSettings.js",
+            "src/renderer/frameSettingsModal.js",
+            "src/renderer/projectSettingsModal.js",
+            "src/renderer/settingsOverlay.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-039",
+          "family": "settings",
+          "query": "projectSettingsModal dosyası",
+          "expect": [
+            "src/renderer/projectSettingsModal.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-040",
+          "family": "ui",
+          "query": "uiZoom",
+          "expect": [
+            "src/main/uiZoom.js",
+            "src/shared/uiZoom.js"
+          ],
+          "tags": [
+            "ambiguous",
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-041",
+          "family": "ui",
+          "query": "factorFor",
+          "expect": [
+            "src/shared/uiZoom.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-042",
+          "family": "ui",
+          "query": "zoom",
+          "expect": [
+            "src/main/uiZoom.js",
+            "src/shared/uiZoom.js"
+          ],
+          "tags": [
+            "concept"
+          ]
+        },
+        {
+          "id": "ho-043",
+          "family": "ui",
+          "query": "tooltip",
+          "expect": [
+            "src/renderer/tooltip.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-044",
+          "family": "ui",
+          "query": "themes",
+          "expect": [
+            "src/renderer/themes.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-045",
+          "family": "ui",
+          "query": "terminalTheme",
+          "expect": [
+            "src/renderer/terminalManager.js",
+            "src/renderer/themes.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-046",
+          "family": "ui",
+          "query": "uiZoom ayarı",
+          "expect": [
+            "src/main/uiZoom.js",
+            "src/shared/uiZoom.js"
+          ],
+          "tags": [
+            "basename",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-047",
+          "family": "home",
+          "query": "homeData",
+          "expect": [
+            "src/renderer/home/homeData.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-048",
+          "family": "home",
+          "query": "widgetShell",
+          "expect": [
+            "src/renderer/home/widgetShell.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-049",
+          "family": "home",
+          "query": "agentRows",
+          "expect": [
+            "src/renderer/home/agentRows.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-050",
+          "family": "home",
+          "query": "sessionRows",
+          "expect": [
+            "src/renderer/home/sessionRows.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-051",
+          "family": "home",
+          "query": "registry.js",
+          "expect": [
+            "src/renderer/home/registry.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-052",
+          "family": "home",
+          "query": "resolveLayout",
+          "expect": [
+            "src/renderer/home/registry.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-053",
+          "family": "home",
+          "query": "ana sayfa widget kaydı",
+          "expect": [
+            "src/renderer/home/registry.js",
+            "src/renderer/home/widgetShell.js"
+          ],
+          "tags": [
+            "singleton",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-054",
+          "family": "onboarding",
+          "query": "onboardingGate",
+          "expect": [
+            "src/renderer/onboarding/onboardingGate.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-055",
+          "family": "onboarding",
+          "query": "tourSteps",
+          "expect": [
+            "src/renderer/tour/tourSteps.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-056",
+          "family": "onboarding",
+          "query": "shouldAutoStart",
+          "expect": [
+            "src/renderer/tour/tourSteps.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-057",
+          "family": "onboarding",
+          "query": "guidedTour",
+          "expect": [
+            "src/renderer/guidedTour.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-058",
+          "family": "onboarding",
+          "query": "rehberli tur",
+          "expect": [
+            "src/renderer/guidedTour.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-059",
+          "family": "onboarding",
+          "query": "sampleBanner",
+          "expect": [
+            "src/renderer/sampleBanner.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-060",
+          "family": "update",
+          "query": "updateChecker",
+          "expect": [
+            "src/main/updateChecker.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-061",
+          "family": "update",
+          "query": "isNewerVersion",
+          "expect": [
+            "src/main/updateChecker.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-062",
+          "family": "update",
+          "query": "güncelleme kontrolü",
+          "expect": [
+            "src/main/updateChecker.js"
+          ],
+          "tags": [
+            "singleton",
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-063",
+          "family": "project",
+          "query": "frameProject",
+          "expect": [
+            "src/main/frameProject.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-064",
+          "family": "project",
+          "query": "workspace",
+          "expect": [
+            "src/main/workspace.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-065",
+          "family": "project",
+          "query": "dialogs.js",
+          "expect": [
+            "src/main/dialogs.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-066",
+          "family": "project",
+          "query": "cloneGithubRepo",
+          "expect": [
+            "src/main/dialogs.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-067",
+          "family": "project",
+          "query": "projectStart",
+          "expect": [
+            "src/renderer/projectStart.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-068",
+          "family": "project",
+          "query": "openProjectModal",
+          "expect": [
+            "src/renderer/openProjectModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-069",
+          "family": "project",
+          "query": "proje başlatma",
+          "expect": [
+            "src/renderer/projectStart.js"
+          ],
+          "tags": [
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-070",
+          "family": "project",
+          "query": "detect-project",
+          "expect": [
+            "scripts/detect-project.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-071",
+          "family": "project",
+          "query": "detectJavaScript",
+          "expect": [
+            "scripts/detect-project.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-072",
+          "family": "app",
+          "query": "menu.js",
+          "expect": [
+            "src/main/menu.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-073",
+          "family": "app",
+          "query": "buildThemeSubmenu",
+          "expect": [
+            "src/main/menu.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-074",
+          "family": "app",
+          "query": "appHeader",
+          "expect": [
+            "src/renderer/appHeader.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-075",
+          "family": "app",
+          "query": "appLoader",
+          "expect": [
+            "src/renderer/appLoader.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-076",
+          "family": "app",
+          "query": "armFailsafe",
+          "expect": [
+            "src/renderer/appLoader.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-077",
+          "family": "app",
+          "query": "index.js",
+          "expect": [
+            "src/main/index.js",
+            "src/renderer/index.js",
+            "src/templates/sample-project/src/index.js",
+            "test/fixtures/js-src-app/src/index.js",
+            "test/fixtures/pnpm-monorepo/packages/core/index.js"
+          ],
+          "tags": [
+            "ambiguous",
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-078",
+          "family": "app",
+          "query": "main.js",
+          "expect": [
+            "main.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-079",
+          "family": "app",
+          "query": "renderer.js",
+          "expect": [
+            "renderer.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-080",
+          "family": "hints",
+          "query": "docs-hint",
+          "expect": [
+            "scripts/docs-hint.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-081",
+          "family": "hints",
+          "query": "module-hint",
+          "expect": [
+            "scripts/module-hint.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-082",
+          "family": "hints",
+          "query": "spec-command-hint",
+          "expect": [
+            "scripts/spec-command-hint.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-083",
+          "family": "hints",
+          "query": "docsHealth",
+          "expect": [
+            "src/shared/docsHealth.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-084",
+          "family": "hints",
+          "query": "namedPaths",
+          "expect": [
+            "src/shared/docsHealth.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-085",
+          "family": "hints",
+          "query": "docsManagedBlock",
+          "expect": [
+            "src/shared/docsManagedBlock.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-086",
+          "family": "hints",
+          "query": "ipucu betiği",
+          "expect": [
+            "scripts/docs-hint.js",
+            "scripts/module-hint.js",
+            "scripts/spec-command-hint.js",
+            "scripts/spec-hint.js"
+          ],
+          "tags": [
+            "singleton",
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-087",
+          "family": "hints",
+          "query": "İPC kanalları",
+          "expect": [
+            "src/shared/ipcChannels.js"
+          ],
+          "tags": [
+            "casing",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-088",
+          "family": "commands",
+          "query": "palette",
+          "expect": [
+            "src/renderer/cheatSheet.js",
+            "src/renderer/commandPalette.js",
+            "src/renderer/commandRegistry.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho-089",
+          "family": "commands",
+          "query": "commandRegistry",
+          "expect": [
+            "src/renderer/commandRegistry.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho-090",
+          "family": "commands",
+          "query": "paletteSources",
+          "expect": [
+            "src/renderer/paletteSources.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-091",
+          "family": "commands",
+          "query": "runById",
+          "expect": [
+            "src/renderer/commandRegistry.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-092",
+          "family": "commands",
+          "query": "komut paleti",
+          "expect": [
+            "src/renderer/commandPalette.js"
+          ],
+          "tags": [
+            "turkish",
+            "turkish-pure"
+          ]
+        },
+        {
+          "id": "ho-093",
+          "family": "commands",
+          "query": "commandStaging",
+          "expect": [
+            "src/main/commandStaging.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho-094",
+          "family": "commands",
+          "query": "stageCommandFiles",
+          "expect": [
+            "src/main/commandStaging.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho-095",
+          "family": "mutation",
+          "query": "updateChecker",
+          "expect": [],
+          "tags": [
+            "negative",
+            "removed"
+          ],
+          "mutate": {
+            "remove": "src/main/updateChecker.js"
+          }
+        },
+        {
+          "id": "ho-096",
+          "family": "mutation",
+          "query": "perfMonitor",
+          "expect": [],
+          "tags": [
+            "negative",
+            "renamed"
+          ],
+          "mutate": {
+            "rename": [
+              "src/main/perfMonitor.js",
+              "src/main/perfMonitorNext.js"
+            ]
+          }
+        },
+        {
+          "id": "ho-097",
+          "family": "mutation",
+          "query": "brandNewWidget",
+          "expect": [],
+          "tags": [
+            "negative",
+            "stale-map"
+          ],
+          "mutate": {
+            "add": [
+              "src/main/brandNewWidget.js",
+              "// Brand new widget\n"
+            ]
+          }
+        },
+        {
+          "id": "ho-098",
+          "family": "negative",
+          "query": "payment gateway",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-099",
+          "family": "negative",
+          "query": "veritabanı göçü",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-100",
+          "family": "negative",
+          "query": "jwt refresh token",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-101",
+          "family": "negative",
+          "query": "docker compose",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-102",
+          "family": "negative",
+          "query": "TODO",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-103",
+          "family": "negative",
+          "query": "kullanıcı profili",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-104",
+          "family": "negative",
+          "query": "e-posta doğrulama",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-105",
+          "family": "negative",
+          "query": "i18n çeviri",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-106",
+          "family": "negative",
+          "query": "lorem ipsum",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-107",
+          "family": "negative",
+          "query": "xyzzy",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-108",
+          "family": "negative",
+          "query": "elasticsearch index",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-109",
+          "family": "negative",
+          "query": "swagger openapi",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-110",
+          "family": "negative",
+          "query": "tailwind",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-111",
+          "family": "negative",
+          "query": "sentry dsn",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-112",
+          "family": "negative",
+          "query": "sepet",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-113",
+          "family": "negative",
+          "query": "prisma schema",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-114",
+          "family": "negative",
+          "query": "grpc proto",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-115",
+          "family": "negative",
+          "query": "android manifest",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-116",
+          "family": "negative",
+          "query": "kafka consumer",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-117",
+          "family": "negative",
+          "query": "vue router",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho-118",
+          "family": "negative",
+          "query": "fatura kesme",
+          "expect": [],
+          "tags": [
+            "negative",
+            "turkish"
+          ]
+        },
+        {
+          "id": "ho-119",
+          "family": "negative",
+          "query": "pyc",
+          "expect": [],
+          "tags": [
+            "negative",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "find . -name '*.pyc'"
+          }
+        },
+        {
+          "id": "ho-120",
+          "family": "negative",
+          "query": "password",
+          "expect": [],
+          "tags": [
+            "negative",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"password\" ."
+          }
+        },
+        {
+          "id": "ho-121",
+          "family": "negative",
+          "query": "async function",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "rg \"async function\""
+          }
+        },
+        {
+          "id": "ho-122",
+          "family": "negative",
+          "query": "\\bfunction\\s+\\w+",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise"
+          ]
+        }
+      ]
+    }
+  }
+}

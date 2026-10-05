@@ -153,7 +153,6 @@ const KINDS = {
     const sidebar = region('sidebar-nav', focused, 'gs-sidebar', `
       <div class="gs-nav-group">${label('WORK', 'gs-eyebrow')}</div>
       ${navRow('Terminals')}
-      ${navRow('Orchestration', chip('Beta', { cls: 'gs-chip-tiny' }))}
       <div class="gs-nav-group">${label('CONTEXT', 'gs-eyebrow')}</div>
       ${navRow('Specs')}
       ${navRow('Tasks')}

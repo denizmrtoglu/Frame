@@ -282,8 +282,11 @@ const WORKSPACE_NAV_GROUPS = [
     key: 'work',
     label: 'Work',
     items: [
-      { view: 'terminals', icon: '›_', label: 'Terminals', open: ui => ui.showTerminals(), surfaces: ['terminals'] },
-      { view: 'orchestrator', icon: '⚙', label: 'Orchestration', beta: true, open: () => require('./orchestrator').open(), surfaces: ['section:orchestrator'] }
+      { view: 'terminals', icon: '›_', label: 'Terminals', open: ui => ui.showTerminals(), surfaces: ['terminals'] }
+      // Orchestration is hidden from navigation for now — new users landed on
+      // it first, and it is not where Frame's value is. The feature and its
+      // palette command (orchestrator.open) stay; restore this row to re-expose it:
+      // { view: 'orchestrator', icon: '⚙', label: 'Orchestration', beta: true, open: () => require('./orchestrator').open(), surfaces: ['section:orchestrator'] }
     ]
   },
   {

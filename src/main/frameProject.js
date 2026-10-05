@@ -16,6 +16,7 @@ const { normalizeDoneWindow, WINDOW_OPTIONS, BOARDS } = require('../shared/doneW
 const layoutMigration = require('./layoutMigration');
 const workspace = require('./workspace');
 const structureBootstrap = require('./structureBootstrap');
+const structureLifecycle = require('./structureLifecycle');
 const commandStaging = require('./commandStaging');
 const docsManagedBlock = require('../shared/docsManagedBlock');
 const docsHealth = require('../shared/docsHealth');
@@ -173,11 +174,48 @@ async function doInitializeFrameProject(projectPath, projectName, options = {}) 
   }
 }
 
+/**
+ * Config for (re-)init: the template's defaults *underneath* whatever the
+ * project already has. Identity, creation metadata, settings, feature flags,
+ * unknown keys, `project.structure` and custom project fields such as
+ * `ipcChannelsFile` all survive, and so does a legacy `files` record (the
+ * migration fingerprint, cleared only by the migration itself). Only explicit
+ * caller options and detector-owned facts replace their own values.
+ */
+function mergeInitConfig(defaults, existing, { name, sharingMode, detectedProject }) {
+  const isPlain = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  const under = (base, over) => {
+    if (!isPlain(base) || !isPlain(over)) return over === undefined ? base : over;
+    const out = { ...base };
+    for (const key of Object.keys(over)) out[key] = key in base ? under(base[key], over[key]) : over[key];
+    return out;
+  };
+  const config = isPlain(existing) ? under(defaults, existing) : defaults;
+  if (name) config.name = name;
+  config.settings = { ...(isPlain(config.settings) ? config.settings : {}), gitSharing: sharingMode };
+  if (detectedProject) {
+    config.project = { ...(isPlain(config.project) ? config.project : {}), ...detectedProject };
+  }
+  return config;
+}
+
 async function runProjectInit(projectPath, projectName, options = {}) {
   const name = projectName || path.basename(projectPath);
   // Re-init must not reset what the project already decided: identity and
   // sharing mode are carried over unless the caller explicitly picks one.
   const existingConfig = frameStore.readConfig(projectPath);
+
+  // Same guard as openProjectLayout: a legacy project with an unmerged meta
+  // file gets nothing written — no config, no staging, no scan state, no map.
+  if (existingConfig && frameStore.isLegacyLayout(projectPath)) {
+    const migrationPlan = layoutMigration.plan(projectPath);
+    if (migrationPlan && !migrationPlan.canRun) {
+      const err = new Error(`Re-initialization is blocked until the merge is resolved: ${migrationPlan.unmerged.join(', ')}`);
+      err.code = 'E_LAYOUT_UNMERGED';
+      err.unmerged = migrationPlan.unmerged;
+      throw err;
+    }
+  }
   const previousSharing = existingConfig && existingConfig.settings && existingConfig.settings.gitSharing;
   // Never name this `gitSharing`: the module of that name is required at the
   // top of this file and a local would shadow it for the whole function.
@@ -197,20 +235,14 @@ async function runProjectInit(projectPath, projectName, options = {}) {
     console.warn('[frame] project detection failed (non-fatal):', err.message);
   }
 
-  // Create .frame/config.json (carrying the detected project block)
-  const config = templates.getFrameConfigTemplate(name);
-  config.settings.gitSharing = sharingMode;
-  if (existingConfig && existingConfig.projectId) {
-    config.projectId = existingConfig.projectId;
-  }
-  if (detectedProject) {
-    config.project = detectedProject;
-  }
-  await fsp.writeFile(
-    path.join(frameDirPath, FRAME_CONFIG_FILE),
-    JSON.stringify(config, null, 2),
-    'utf8'
-  );
+  // Create or refresh .frame/config.json (carrying the detected project
+  // block) through the storage seam's atomic writer.
+  const config = mergeInitConfig(templates.getFrameConfigTemplate(name), existingConfig, {
+    name: projectName || (existingConfig && existingConfig.name) || name,
+    sharingMode,
+    detectedProject
+  });
+  frameStore.writeConfig(projectPath, config);
   // Re-init of a project written before projectId existed: stamp it now, so
   // every Frame project has a stable identity from here on.
   frameStore.ensureProjectId(projectPath);
@@ -284,7 +316,27 @@ async function runProjectInit(projectPath, projectName, options = {}) {
     );
     console.log('[frame] structure bootstrap:', JSON.stringify(structureBootstrapSummary, null, 2));
   } catch (err) {
+    // Non-fatal for init, but never silent: the renderer reads this summary.
     console.warn('[frame] structure bootstrap failed (non-fatal):', err.message);
+    structureBootstrapSummary = {
+      copied: [],
+      hook: null,
+      initialScan: {
+        status: 'error',
+        reason: 'bootstrap-exception',
+        message: `STRUCTURE bootstrap failed: ${err.message}`,
+        repairCommand: 'node .frame/bin/update-structure.js --full'
+      }
+    };
+  }
+
+  // Keep the map current from here on (STR-02). Only after the bootstrap
+  // above has finished, so the initial scan and the worker's first
+  // reconciliation never run at the same time. Non-fatal.
+  try {
+    structureLifecycle.attach(projectPath);
+  } catch (err) {
+    console.warn('[frame] structure lifecycle attach failed (non-fatal):', err.message);
   }
 
   // Stage the spec command templates, report assets and launch helper so a
@@ -1267,6 +1319,19 @@ function recordDocsActivity(written, appended, report) {
  * an AGENTS.md they wrote, not their own hooks. What Frame did not write, it
  * does not remove.
  */
+/**
+ * Remove Frame after its lifecycle worker has stopped, so no child is still
+ * writing under `.frame/runtime/` while the directory is deleted.
+ */
+async function detachThenRemoveFrame(projectPath) {
+  try {
+    await structureLifecycle.detach(projectPath);
+  } catch (err) {
+    console.warn('[frame] could not stop the structure lifecycle worker:', err.message);
+  }
+  return removeFrame(projectPath);
+}
+
 function removeFrame(projectPath) {
   const removed = [];
   const errors = [];
@@ -1456,6 +1521,14 @@ async function openProjectLayout(projectPath, hooks = {}) {
   } catch (err) {
     console.warn('[frame] could not refresh .frame/bin (non-fatal):', err.message);
   }
+  // An unmodified earlier Frame pre-commit hook still stages the working
+  // map, untracked files included; replace it with the current template.
+  // Edited, Husky, lefthook and core.hooksPath hooks are never touched.
+  try {
+    await structureBootstrap.upgradeStructureHook(projectPath);
+  } catch (err) {
+    console.warn('[frame] could not check the pre-commit hook (non-fatal):', err.message);
+  }
   try {
     commandStaging.stageCommandFiles(projectPath);
   } catch (err) {
@@ -1483,6 +1556,15 @@ async function openProjectLayout(projectPath, hooks = {}) {
   // The copy Claude Code reads follows .frame/AGENTS.md, which anything
   // may have edited since this project was last open.
   syncClaudeRule(projectPath);
+
+  // Offline edits, branch switches while Frame was closed: ask the lifecycle
+  // worker (STR-02) to reconcile — starting it if needed. The open itself
+  // scans nothing; the blocked-layout return above never gets here.
+  try {
+    structureLifecycle.requestReconcile(projectPath, 'reopen');
+  } catch (err) {
+    console.warn('[frame] structure lifecycle reconcile request failed (non-fatal):', err.message);
+  }
 
   if (migration && migration.ran) await rearmAfterMigration(projectPath, hooks);
 
@@ -1619,9 +1701,9 @@ function setupIPC(ipcMain) {
     return setDoneWindow(projectPath, board, days);
   });
 
-  ipcMain.handle(IPC.REMOVE_FRAME_FROM_PROJECT, (event, projectPath) => {
+  ipcMain.handle(IPC.REMOVE_FRAME_FROM_PROJECT, async (event, projectPath) => {
     if (!projectPath) return { removed: [], errors: ['no project'] };
-    const result = removeFrame(projectPath);
+    const result = await detachThenRemoveFrame(projectPath);
     event.sender.send(IPC.WORKSPACE_UPDATED, workspace.getProjects());
     return result;
   });
@@ -1650,6 +1732,7 @@ function setupIPC(ipcMain) {
 
 module.exports = {
   init,
+  detachThenRemoveFrame,
   isFrameProject,
   getDoneWindow,
   setDoneWindow,

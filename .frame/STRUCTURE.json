@@ -1,7 +1,7 @@
 {
   "version": "1.0",
   "description": "Auto-generated module structure",
-  "lastUpdated": "2026-09-22",
+  "lastUpdated": "2026-10-05",
   "architecture": {},
   "modules": {
     "main/activityLog": {
@@ -304,6 +304,7 @@
       ],
       "depends": [
         "posthog-node",
+        "@aptabase/electron/main",
         "node:crypto",
         "electron",
         "userSettings",
@@ -312,19 +313,22 @@
       ],
       "functions": {
         "init": {
-          "line": 81,
-          "purpose": "Build the PostHog client."
+          "line": 88,
+          "purpose": "Initialize Aptabase and build the PostHog client."
+        },
+        "initAptabase": {
+          "line": 112
         },
         "distinctId": {
-          "line": 111,
+          "line": 129,
           "purpose": "This install's distinct id, resolved on first use and cached for the run."
         },
         "personProperties": {
-          "line": 130,
+          "line": 148,
           "purpose": "Person properties, sent once per run alongside the first event."
         },
         "track": {
-          "line": 143,
+          "line": 161,
           "params": [
             "name",
             "props"
@@ -332,49 +336,49 @@
           "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
         },
         "isErrorReportingEnabled": {
-          "line": 171,
+          "line": 197,
           "purpose": "Whether exception detail may be sent."
         },
         "captureException": {
-          "line": 188,
+          "line": 214,
           "params": [
             "err"
           ],
           "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
         },
         "noticeState": {
-          "line": 215,
+          "line": 241,
           "purpose": "Whether the disclosure notice is due, and the version to store when it is"
         },
         "startActiveTimer": {
-          "line": 236,
+          "line": 262,
           "purpose": "Start counting active time."
         },
         "trackAppStarted": {
-          "line": 249,
+          "line": 275,
           "purpose": "Anonymous event marking this launch."
         },
         "setEnabled": {
-          "line": 263,
+          "line": 289,
           "params": [
             "enabled"
           ],
           "purpose": "Toggle analytics from Settings. Persists the new state, then re-resolves"
         },
         "migrateLegacySettings": {
-          "line": 282,
+          "line": 308,
           "purpose": "Copy settings forward from the names this feature used when it was called"
         },
         "enforceFailClosed": {
-          "line": 306,
+          "line": 332,
           "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
         },
         "isEnabled": {
-          "line": 317,
+          "line": 343,
           "purpose": "Effective enabled state. Default ON when the setting has never been"
         },
         "shutdown": {
-          "line": 333,
+          "line": 359,
           "purpose": "Flush the batcher and close the client, for the quit path."
         }
       }

@@ -355,10 +355,10 @@ function initModulesWithWindow(window) {
   activityLog.attachWindow(window);
 }
 
-// Build the PostHog client. Construction sends nothing; the app_started
-// event is fired after userSettings loads, from app.whenReady below. The
-// call site predates posthog-node — Aptabase had to run pre-ready — and
-// stays here because moving it buys nothing and risks the boot order.
+// Initialize Aptabase and build the PostHog client. Aptabase MUST run before
+// app.whenReady() because its SDK registers a privileged protocol scheme.
+// Neither sends anything here; the app_started event is fired after
+// userSettings loads, from app.whenReady below.
 analytics.init();
 
 // App lifecycle

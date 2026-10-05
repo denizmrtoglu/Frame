@@ -1,7 +1,7 @@
 /**
  * Analytics
  *
- * Anonymous usage events via PostHog. Default opt-out: analytics runs
+ * Anonymous usage events, sent to both PostHog and Aptabase. Default opt-out: analytics runs
  * unless the user disables it from Settings, and fails closed when the
  * settings file is unreadable. Every event must be declared in the
  * registry in analyticsEvents.js — event names plus low-cardinality enum
@@ -14,12 +14,17 @@
  * and read retention cohorts. It identifies an install, never a person:
  * nothing here can be joined to a name, an email or a machine.
  *
- * The PostHog project API key below is a public identifier (not a secret).
- * It is write-only — it cannot read the dashboard or delete data. Same
- * model as Google Analytics tracking IDs.
+ * Aptabase receives the same validated events without the install id, the
+ * session id or the person properties — it only ever reports event counts.
+ * Exception detail goes to PostHog only.
+ *
+ * The PostHog project API key and the Aptabase app key below are public
+ * identifiers (not secrets). Both are write-only — they cannot read the
+ * dashboard or delete data. Same model as Google Analytics tracking IDs.
  */
 
 const { PostHog } = require('posthog-node');
+const aptabase = require('@aptabase/electron/main');
 const { randomUUID } = require('node:crypto');
 const { app } = require('electron');
 const userSettings = require('./userSettings');
@@ -33,6 +38,7 @@ const analyticsEvents = require('./analyticsEvents');
 const POSTHOG_API_KEY = 'phc_w4KGHkLoGyutiNQVYoXnzXJmdUKXc7WhzvGXKKt2dzez';
 // EU residency.
 const POSTHOG_HOST = 'https://eu.i.posthog.com';
+const APTABASE_APP_KEY = 'A-EU-5590504973';
 
 // Bounds the quit path: a dead network must not be able to hold the app
 // open, so the flush gets this long and the quit proceeds regardless.
@@ -51,6 +57,7 @@ const NOTICE_VERSION_KEY = 'analyticsNoticeVersion';
 const NOTICE_SHOWN_KEY = 'telemetryNoticeShown';
 
 let client = null;
+let aptabaseInitialized = false;
 let installId = null;
 let identified = false;
 // One per launch. PostHog groups events into sessions by this; posthog-node
@@ -66,12 +73,12 @@ let activeTicker = null;
 const rateLimiter = analyticsEvents.createRateLimiter();
 
 /**
- * Build the PostHog client.
+ * Initialize Aptabase and build the PostHog client.
  *
- * Unlike Aptabase — which had to initialize before app.whenReady() because
- * it registered a privileged protocol scheme — posthog-node has no such
- * constraint. The call site is unchanged anyway: moving it buys nothing and
- * only risks the boot order.
+ * MUST be called before app.whenReady(): the Aptabase SDK uses
+ * protocol.registerSchemesAsPrivileged internally. posthog-node has no such
+ * constraint. Each is set up independently, so one failing (or PostHog's key
+ * being unset) leaves the other sending.
  *
  * We always build (regardless of opt-out state) because construction has no
  * network side-effects — events only go out when capture runs, and that path
@@ -79,6 +86,7 @@ const rateLimiter = analyticsEvents.createRateLimiter();
  * userSettings, which loads after app.whenReady.
  */
 function init() {
+  initAptabase();
   if (client) return;
   if (!POSTHOG_API_KEY.startsWith('phc_') || POSTHOG_API_KEY.includes('REPLACE')) {
     console.warn('Analytics: no PostHog project API key configured — nothing will be sent');
@@ -98,6 +106,16 @@ function init() {
     client = new PostHog(POSTHOG_API_KEY, { host: POSTHOG_HOST, disableGeoip: false });
   } catch (err) {
     console.error('Analytics: PostHog init failed', err);
+  }
+}
+
+function initAptabase() {
+  if (aptabaseInitialized) return;
+  try {
+    aptabase.initialize(APTABASE_APP_KEY);
+    aptabaseInitialized = true;
+  } catch (err) {
+    console.error('Analytics: Aptabase init failed', err);
   }
 }
 
@@ -141,12 +159,20 @@ function personProperties() {
  * renderer via IPC) can ship content past the allowlist.
  */
 function track(name, props) {
-  if (!isEnabled() || !client) return;
+  if (!isEnabled() || (!client && !aptabaseInitialized)) return;
   const validated = analyticsEvents.validateEvent(name, props);
   if (validated === null) return;
   const gate = rateLimiter.check(Date.now());
   if (gate.notice) console.warn('Analytics:', gate.notice);
   if (!gate.allowed) return;
+  if (aptabaseInitialized) {
+    try {
+      aptabase.trackEvent(name, Object.keys(validated).length ? validated : undefined);
+    } catch (err) {
+      console.error('Analytics: Aptabase trackEvent failed', err);
+    }
+  }
+  if (!client) return;
   const id = distinctId();
   if (!id) return;
   try {
@@ -156,7 +182,7 @@ function track(name, props) {
       properties: Object.assign({ $session_id: sessionId }, validated, personProperties())
     });
   } catch (err) {
-    console.error('Analytics: capture failed', err);
+    console.error('Analytics: PostHog capture failed', err);
   }
 }
 
@@ -331,11 +357,11 @@ function isEnabled() {
  * the SDK's own timeout bounds it and a failure is logged, not thrown.
  */
 async function shutdown() {
-  if (!client) return;
   // Last event of the session, sent before the flush that carries it. Zero
   // active seconds is a real answer — an app that was launched and never
   // looked at — so it is sent rather than skipped.
   track('app_session_ended', { active_seconds: activeTimer.seconds() });
+  if (!client) return;
   try {
     await client.shutdown(SHUTDOWN_TIMEOUT_MS);
   } catch (err) {

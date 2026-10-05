@@ -90,6 +90,8 @@ This channel never touches the event list above, and nothing on it is sent while
 
 Analytics is sent to [PostHog](https://posthog.com), an open-source product analytics service, on their **EU cloud** (`eu.i.posthog.com`). PostHog derives country and region from the request IP and discards the IP itself — see **Approximate location** above. PostHog is [self-hostable](https://posthog.com/docs/self-host) and their platform is open source, so what happens to the data is auditable rather than taken on trust.
 
+The same usage events are also sent to [Aptabase](https://aptabase.com), an open-source, privacy-focused analytics service on their EU region. Aptabase receives only the event name, its fixed-list property, the app version and the operating system — **not** the install ID, and never error reports. Aptabase does not retain IP addresses and does not share data with third parties.
+
 ## Local logging
 
 Frame keeps a **local** log file to make bugs debuggable — it never leaves your machine and is not part of analytics.

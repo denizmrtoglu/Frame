@@ -24,6 +24,7 @@ const { execFileSync } = require('child_process');
 const Module = require('node:module');
 const EXTERNAL_STUBS = {
   '@aptabase/electron/main': { initialize() {}, trackEvent() {} },
+  'posthog-node': { PostHog: class { capture() {} captureException() {} identify() {} shutdown() { return Promise.resolve(); } } },
   electron: {
     app: { getPath: () => os.tmpdir(), getVersion: () => '0.0.0-test' },
     ipcMain: { handle() {}, on() {} },

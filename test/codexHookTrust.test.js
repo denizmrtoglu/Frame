@@ -25,6 +25,7 @@ const Module = require('node:module');
 const ACTIVE = { id: 'codex' };
 const EXTERNAL_STUBS = {
   '@aptabase/electron/main': { initialize() {}, trackEvent() {} },
+  'posthog-node': { PostHog: class { capture() {} captureException() {} identify() {} shutdown() { return Promise.resolve(); } } },
   electron: { app: {}, ipcMain: { handle() {}, on() {} } }
 };
 const loadOriginal = Module._load;

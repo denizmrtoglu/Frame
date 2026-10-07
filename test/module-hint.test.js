@@ -439,3 +439,62 @@ test('the default engine (legacy) keeps today\'s output until the gates promote 
   const root = mkProject();
   assert.match(ctxOf(runHook(bash(root, 'grep -rn "github" src/', 'lg'))), /already answers "github" \(STRUCTURE\.json intentIndex\)/);
 });
+
+// ─── STR-03b: find-module awareness and lines ─────────────
+
+function runHookEnv(input, env) {
+  const stdout = execFileSync('node', [HOOK, 'search'], { input: JSON.stringify(input), encoding: 'utf8', env: { ...process.env, ...env } });
+  return stdout.trim() ? JSON.parse(stdout) : null;
+}
+
+test('v2: a search right after find-module for the same thing stays quiet, and says why', () => {
+  const root = v2Project();
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'frame-act-'));
+  const env = { FRAME_ACTIVITY_HOME: home };
+  const grep = (session, pattern = 'issueBranchName') => runHookEnv({ session_id: session, cwd: root, tool_name: 'Grep', tool_input: { pattern } }, env);
+  const fm = (session, command) => runHookEnv({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } }, env);
+  try {
+    assert.equal(fm('a1', 'node .frame/bin/find-module.js issueBranchName --json'), null, 'find-module itself is never answered');
+    assert.equal(grep('a1'), null);
+    const records = fs.readdirSync(home, { recursive: true }).filter((f) => String(f).endsWith('.jsonl'))
+      .flatMap((f) => fs.readFileSync(path.join(home, String(f)), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)));
+    assert.ok(records.some((r) => r.ev === 'hint.quiet' && r.reason === 'already-looked-up'));
+
+    assert.ok(grep('a2'), 'another session still gets the hint');
+    assert.ok(grep('a1', 'github'), 'a different query still gets the hint');
+
+    // a new map revision makes the earlier lookup old news
+    withReceipt(root);
+    assert.ok(grep('a1'), 'revision changed since the lookup');
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('v2: find-module calls are parsed with quotes, flags and compound commands; --list records nothing', () => {
+  const root = v2Project();
+  const run = (session, command) => runHook({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } });
+  const grep = (session, pattern) => runHook({ session_id: session, cwd: root, tool_name: 'Grep', tool_input: { pattern } });
+  run('p1', 'cd x && node "scripts/find-module.js" --limit 3 --retrieval=v2 writeFileAtomic | head');
+  assert.equal(grep('p1', 'writeFileAtomic'), null);
+  run('p2', 'node scripts/find-module.js --list');
+  assert.ok(grep('p2', 'github'), '--list is not a lookup');
+  assert.equal(run('p3', 'node scripts/find-module.js github && grep -rn "github" src/'), null, 'the grep in the same command is the same lookup');
+});
+
+test('legacy: find-module calls change nothing', () => {
+  const root = mkProject();
+  runHook({ session_id: 'l1', cwd: root, tool_name: 'Bash', tool_input: { command: 'node scripts/find-module.js github' } });
+  assert.ok(runHook(bash(root, 'grep -rn "github" src/', 'l1')), 'legacy keeps today\'s behavior');
+});
+
+test('v2: a function hint names its line and says the file can be opened there', () => {
+  const structure = JSON.parse(JSON.stringify(V2_STRUCTURE));
+  structure.modules['renderer/github/rowModels'].functions = { issueBranchName: { line: 57 } };
+  const root = v2Project(structure);
+  const ctx = ctxOf(runHook({ session_id: 'ln', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'issueBranchName' } }));
+  assert.match(ctx, /^ {2}src\/renderer\/github\/rowModels\.js:57 issueBranchName — Row view-models$/m);
+  assert.match(ctx, /Open it at the line shown directly; grep is for searching inside a file\./);
+  const concept = ctxOf(runHook({ session_id: 'ln2', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } }));
+  assert.match(concept, /Open these files directly; grep is for searching inside a file\./);
+});

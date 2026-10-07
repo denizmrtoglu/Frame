@@ -17286,7 +17286,7 @@
           ]
         },
         "saveState": {
-          "line": 112,
+          "line": 113,
           "params": [
             "root",
             "sessionId",
@@ -17294,23 +17294,23 @@
           ]
         },
         "cleanupState": {
-          "line": 120,
+          "line": 121,
           "params": [
             "root"
           ]
         },
         "setHookCli": {
-          "line": 166,
+          "line": 167,
           "params": [
             "payload"
           ],
           "purpose": "Called once, from the entry point, with the parsed payload."
         },
         "hookHost": {
-          "line": 170
+          "line": 171
         },
         "note": {
-          "line": 174,
+          "line": 175,
           "params": [
             "root",
             "ev",
@@ -17318,7 +17318,7 @@
           ]
         },
         "quiet": {
-          "line": 190,
+          "line": 191,
           "params": [
             "root",
             "reason"
@@ -17326,33 +17326,33 @@
           "purpose": "Record a quiet path and return, so call sites stay single-expression."
         },
         "emit": {
-          "line": 194,
+          "line": 195,
           "params": [
             "context"
           ]
         },
         "searchSegments": {
-          "line": 216,
+          "line": 217,
           "params": [
             "cmd"
           ]
         },
         "extractPattern": {
-          "line": 235,
+          "line": 236,
           "params": [
             "seg"
           ],
           "purpose": "Pull the pattern operand out of one search segment (already known to start"
         },
         "candidates": {
-          "line": 251,
+          "line": 252,
           "params": [
             "raw"
           ],
           "purpose": "A raw pattern (regex, glob, or plain word) → the concept words worth"
         },
         "patternFrom": {
-          "line": 266,
+          "line": 267,
           "params": [
             "toolName",
             "input"
@@ -17360,17 +17360,17 @@
           "purpose": "The raw pattern of a search call: null when the call is not a search at"
         },
         "keywordsFrom": {
-          "line": 286,
+          "line": 287,
           "params": [
             "toolName",
             "input"
           ]
         },
         "loadIntentMap": {
-          "line": 301
+          "line": 302
         },
         "render": {
-          "line": 308,
+          "line": 309,
           "params": [
             "root",
             "structure",
@@ -17379,14 +17379,14 @@
           ]
         },
         "engineFor": {
-          "line": 334,
+          "line": 335,
           "params": [
             "root"
           ],
           "purpose": "project.retrieval.engine, else the shipped default; anything else is the default."
         },
         "existsInProject": {
-          "line": 342,
+          "line": 343,
           "params": [
             "root",
             "rel"
@@ -17394,7 +17394,7 @@
           "purpose": "A hinted file must be a regular file inside the project right now."
         },
         "legacyMode": {
-          "line": 354,
+          "line": 355,
           "params": [
             "root",
             "input",
@@ -17402,33 +17402,57 @@
           ]
         },
         "loadIndex": {
-          "line": 375,
+          "line": 376,
           "params": [
             "root"
           ],
           "purpose": "The index to answer from: a current lookup.json, else the map compiled in memory."
         },
         "fingerprint": {
-          "line": 385,
+          "line": 386,
           "params": [
             "paths"
           ]
         },
         "shownQuery": {
-          "line": 392,
+          "line": 393,
           "params": [
             "pattern"
           ],
           "purpose": "One line of the query, safe to show and to paste as a shell argument."
         },
         "shellQuote": {
-          "line": 396,
+          "line": 397,
           "params": [
             "text"
           ]
         },
+        "findModuleQuery": {
+          "line": 412,
+          "params": [
+            "toolName",
+            "input"
+          ],
+          "purpose": "The query of a `node …/find-module.js <query>` call on Bash, else null."
+        },
+        "lookupKey": {
+          "line": 435,
+          "params": [
+            "text"
+          ],
+          "purpose": "The same normalized form for a find-module query and a search pattern."
+        },
+        "recordLookup": {
+          "line": 439,
+          "params": [
+            "root",
+            "sessionId",
+            "query",
+            "revision"
+          ]
+        },
         "renderV2": {
-          "line": 400,
+          "line": 450,
           "params": [
             "root",
             "result",
@@ -17437,7 +17461,7 @@
           ]
         },
         "v2Mode": {
-          "line": 430,
+          "line": 481,
           "params": [
             "root",
             "input",
@@ -17445,13 +17469,13 @@
           ]
         },
         "searchMode": {
-          "line": 462,
+          "line": 520,
           "params": [
             "input"
           ]
         }
       },
-      "sizeBytes": 21053,
+      "sizeBytes": 24122,
       "extraction": {
         "status": "parsed"
       },
@@ -17461,7 +17485,9 @@
           "engineFor": "dd31c17caca3abfa",
           "existsInProject": "5dddbd190b145640",
           "extractPattern": "2c7cae15c16d94d2",
+          "findModuleQuery": "679d121672326d9c",
           "loadIndex": "2f9196b0793b2ccf",
+          "lookupKey": "1fa1b453d43d98ef",
           "patternFrom": "79c2136a033352ff",
           "quiet": "3e8f4a1504407442",
           "setHookCli": "c07ecdee8595a6cf",
@@ -20187,32 +20213,32 @@
       "depends": [],
       "functions": {
         "isRegistered": {
-          "line": 427,
+          "line": 429,
           "params": [
             "name"
           ]
         },
         "kindOf": {
-          "line": 431,
+          "line": 433,
           "params": [
             "name"
           ]
         },
         "isSuppression": {
-          "line": 435,
+          "line": 437,
           "params": [
             "name"
           ]
         },
         "fieldPasses": {
-          "line": 439,
+          "line": 441,
           "params": [
             "spec",
             "value"
           ]
         },
         "validateEvent": {
-          "line": 462,
+          "line": 464,
           "params": [
             "name",
             "fields"
@@ -20220,7 +20246,7 @@
           "purpose": "Validate an (event, fields) pair against the registry."
         },
         "formatLabel": {
-          "line": 479,
+          "line": 481,
           "params": [
             "name",
             "fields"
@@ -20228,7 +20254,7 @@
           "purpose": "The one-line sentence the panel's default view shows, or null when the"
         },
         "buildRecord": {
-          "line": 500,
+          "line": 502,
           "params": [
             "name",
             "fields"
@@ -20236,7 +20262,7 @@
           "purpose": "Build the record the append contract writes: the validated fields plus the"
         }
       },
-      "sizeBytes": 22748,
+      "sizeBytes": 22912,
       "extraction": {
         "status": "parsed"
       },
@@ -21725,7 +21751,7 @@
         "src/shared/activityEvents"
       ],
       "functions": {},
-      "sizeBytes": 11171,
+      "sizeBytes": 11202,
       "extraction": {
         "status": "parsed"
       },
@@ -23485,9 +23511,16 @@
           "params": [
             "input"
           ]
+        },
+        "runHookEnv": {
+          "line": 445,
+          "params": [
+            "input",
+            "env"
+          ]
         }
       },
-      "sizeBytes": 21693,
+      "sizeBytes": 25386,
       "extraction": {
         "status": "parsed"
       },
@@ -26675,6 +26708,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "d772541fc5bba3555c169522a4807f6e2fd31fc6fc26fe4249fe32959e19c224"
+    "revision": "1ba2f2d597d5d0232a163ea4d1d2a0cbe77b6f5cb5cde3f0c71b436cc809fda7"
   }
 }

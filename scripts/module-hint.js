@@ -105,7 +105,8 @@ function loadState(root, sessionId) {
   const st = readJson(stateFile(root, sessionId)) || {};
   return {
     concepts: Array.isArray(st.concepts) ? st.concepts : [],
-    delivered: Array.isArray(st.delivered) ? st.delivered : []
+    delivered: Array.isArray(st.delivered) ? st.delivered : [],
+    lookedUp: Array.isArray(st.lookedUp) ? st.lookedUp : []
   };
 }
 
@@ -397,6 +398,55 @@ function shellQuote(text) {
   return `'${text.replace(/'/g, `'\\''`)}'`;
 }
 
+// ─── find-module awareness (STR-03b) ──────────────────────
+//
+// An agent told to run find-module before grepping often greps right after
+// it anyway, and the hint then repeats the answer find-module just gave.
+// The hook already sees every Bash call: a find-module call is remembered
+// for the session, and a later search for the same thing stays quiet.
+
+const FIND_MODULE_CALL = /^\s*node\s+(?:"[^"]*find-module\.js"|'[^']*find-module\.js'|\S*find-module\.js)\s+(.+)$/;
+const MAX_LOOKED_UP = 64;
+
+/** The query of a `node …/find-module.js <query>` call on Bash, else null. */
+function findModuleQuery(toolName, input) {
+  const role = vocab ? vocab.roleOf(toolName) : (toolName === 'Bash' ? 'shell' : null);
+  if (role !== 'shell') return null;
+  const cmd = String((input && input.command) || '');
+  if (!cmd.includes('find-module') || cmd.includes('<<')) return null;
+  for (const seg of cmd.split(SEGMENT_SPLIT)) {
+    const m = FIND_MODULE_CALL.exec(seg.split('|')[0]);
+    if (!m) continue;
+    const words = [];
+    const tokens = m[1].match(/"[^"]*"|'[^']*'|\S+/g) || [];
+    for (let i = 0; i < tokens.length; i++) {
+      const t = tokens[i];
+      if (t === '--list') return null;
+      if (t === '--limit' || t === '--retrieval') { i++; continue; }
+      if (t.startsWith('--')) continue;
+      words.push(t.replace(/^["']|["']$/g, ''));
+    }
+    if (words.length) return words.join(' ');
+  }
+  return null;
+}
+
+/** The same normalized form for a find-module query and a search pattern. */
+function lookupKey(text) {
+  return retrieval.fold(String(text)).replace(/[^\p{L}\p{N}_-]+/gu, ' ').trim();
+}
+
+function recordLookup(root, sessionId, query, revision) {
+  if (!sessionId) return;
+  const state = loadState(root, sessionId);
+  const entry = { q: lookupKey(query), rev: revision || null };
+  if (!entry.q || state.lookedUp.some((e) => e.q === entry.q && e.rev === entry.rev)) return;
+  cleanupState(root);
+  state.lookedUp.push(entry);
+  if (state.lookedUp.length > MAX_LOOKED_UP) state.lookedUp.splice(0, state.lookedUp.length - MAX_LOOKED_UP);
+  saveState(root, sessionId, state);
+}
+
 function renderV2(root, result, pattern, descriptor) {
   const q = shownQuery(pattern);
   const evidence = [...new Set(result.answer.map((c) => c.evidence))].join(', ');
@@ -404,8 +454,9 @@ function renderV2(root, result, pattern, descriptor) {
   const head = verified
     ? `Frame's module map points to these files for "${q}" (${evidence}):`
     : `Frame's module map has candidates for "${q}" (${evidence}) — map not verified recently (${descriptor.freshness}):`;
-  const tail = `Start from these files rather than a broad scan; your search still runs. ` +
-    `Full query: node ${finderCliPath(root)} ${shellQuote(q)}`;
+  const withLine = result.answer.some((c) => c.line);
+  const tail = `Open ${withLine ? 'it at the line shown' : 'these files'} directly; grep is for searching inside a file. ` +
+    `Your search still runs. Full query: node ${finderCliPath(root)} ${shellQuote(q)}`;
   const moreLine = `  … more — ${finderCliPath(root)} lists them`;
   // head \n lines… \n [more \n] tail — the "more" line is always reserved
   const total = (ls) => head.length + 1 + ls.reduce((n, l) => n + l.length + 1, 0) + moreLine.length + 1 + tail.length;
@@ -414,7 +465,7 @@ function renderV2(root, result, pattern, descriptor) {
   for (let i = 0; i < answer.length; i++) {
     const c = answer[i];
     const share = Math.floor((MAX_CONTEXT_CHARS - total(lines)) / (answer.length - i)) - 1;
-    const base = `  ${c.path}`;
+    const base = `  ${c.path}${c.line ? `:${c.line} ${c.symbol}` : ''}`;
     if (share < base.length) break; // stop on a whole candidate, never a cut path
     const room = share - base.length - 3;
     const desc = c.description && room > 12
@@ -432,6 +483,13 @@ function v2Mode(root, input, descriptor) {
   if (!pattern || !pattern.trim()) return quiet(root, 'no-words');
   // A scan that missed files: an answer could be the wrong one. Stay quiet.
   if (descriptor.coverage && descriptor.coverage !== 'complete') return quiet(root, 'map-incomplete');
+
+  // find-module already answered this in the session, at this map revision
+  if (input.session_id) {
+    const seen = loadState(root, input.session_id).lookedUp;
+    const q = lookupKey(pattern);
+    if (seen.some((e) => e.q === q && e.rev === (descriptor.revision || null))) return quiet(root, 'already-looked-up');
+  }
 
   const { index, reason } = loadIndex(root);
   if (!index) return quiet(root, reason);
@@ -461,6 +519,15 @@ function v2Mode(root, input, descriptor) {
 
 function searchMode(input) {
   const root = resolveRoot(input.cwd);
+
+  // A find-module call is remembered (v2), never answered: it is the answer.
+  const lookedUp = findModuleQuery(input.tool_name, input.tool_input || {});
+  if (lookedUp !== null) {
+    if (structureRead && retrieval && engineFor(root) !== 'legacy') {
+      recordLookup(root, input.session_id, lookedUp, structureRead.readDescriptor(root).revision);
+    }
+    return;
+  }
 
   if (patternFrom(input.tool_name, input.tool_input || {}) === null) return; // not a search: silent, unrecorded
 

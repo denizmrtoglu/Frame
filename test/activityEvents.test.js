@@ -67,9 +67,9 @@ test('the guard events are classified as suppressions, not actions', () => {
 
 test('every spec-hint quiet path has its own reason code', () => {
   // eleven quiet returns in spec-hint.js, plus module-hint's `map-dirty` (STR-02)
-  // and `map-incomplete`, `index-oversize`, `ambiguous-weak` (STR-03)
-  assert.equal(events.HINT_REASONS.length, 15, 'one code per quiet return in the hint hooks');
-  assert.equal(new Set(events.HINT_REASONS).size, 15, 'codes are distinct');
+  // and `map-incomplete`, `index-oversize`, `ambiguous-weak` (STR-03), `already-looked-up` (STR-03b)
+  assert.equal(events.HINT_REASONS.length, 16, 'one code per quiet return in the hint hooks');
+  assert.equal(new Set(events.HINT_REASONS).size, 16, 'codes are distinct');
   for (const reason of events.HINT_REASONS) {
     const out = events.validateEvent('hint.quiet', { reason });
     assert.equal(out.reason, reason, `${reason} must pass the enum`);

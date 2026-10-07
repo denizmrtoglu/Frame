@@ -50,3 +50,17 @@ With v2, `find-module` prints function answers as `path:line name` (for example 
 _Captured: 2026-10-07 · 2 file change(s)_
 
 ---
+
+## T04 — The hook sees find-module calls
+
+With v2, `scripts/module-hint.js` parses every Bash call for `node …/find-module.js <query>` (quoted paths, flags, `cd … &&` and pipes; `--list` is ignored), and does this before its non-search bail.
+- **Recording:** the query is stored in the session state (`lookedUp`, at most 64 entries) with the map revision from the read contract. The find-module call itself never gets a hint. A command like `find-module X && grep X` is one lookup.
+- **Quiet repeat:** a later search in the same session, with the same normalized query and the same revision, stays quiet with reason `already-looked-up`. That reason is added to `HINT_REASONS` and `SEARCH_REASON_TEXT`, and the reason-count test went from 15 to 16.
+- **When it hints again:** another session, another query, or a new revision.
+- **Hint text:** symbol answers show `path:line name`. The tail reads "Open it at the line shown directly" (or "Open these files directly"), "grep is for searching inside a file", "Your search still runs".
+
+Legacy behavior is unchanged: it records nothing and keeps its wording. Files touched: `scripts/module-hint.js`, `src/shared/activityEvents.js`, `test/module-hint.test.js`, `test/activityEvents.test.js`.
+
+_Captured: 2026-10-07 · 4 file change(s)_
+
+---

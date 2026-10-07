@@ -51,12 +51,29 @@ test('the corpus has the planned size and coverage, with families disjoint acros
   }
 });
 
+test('heldOut2 (STR-03b) is English only, frozen, sized as planned and disjoint from development and the spent split', () => {
+  const { splits } = bench.loadCases();
+  const held2 = splits.heldOut2.cases;
+  assert.ok(held2.length >= 120, `${held2.length} cases`);
+  assert.ok(held2.filter((c) => c.tags.includes('negative')).length >= 25);
+  assert.ok(held2.filter((c) => c.tags.includes('natural')).length >= 10, 'natural phrasing without file names');
+  for (const c of held2) {
+    assert.ok(!/[^\x00-\x7F]/.test(c.query), `${c.id}: English only — ${c.query}`);
+    assert.ok(!c.tags.includes('turkish'), c.id);
+  }
+  const devFamilies = new Set(splits.development.cases.map((c) => c.family).filter((f) => f !== 'negative'));
+  assert.deepEqual(held2.filter((c) => devFamilies.has(c.family)).map((c) => c.id), []);
+  const spent = new Set(splits.heldOut.cases.filter((c) => c.family !== 'negative').map((c) => c.query.toLowerCase()));
+  assert.deepEqual(held2.filter((c) => c.family !== 'negative' && spent.has(c.query.toLowerCase())).map((c) => c.id), []);
+  for (const c of held2) assert.equal(c.tags.includes('negative'), c.expect.length === 0, c.id);
+});
+
 test('every expected file exists at the pinned commit', (t) => {
   const corpus = bench.loadCases();
   const r = spawnSync('git', ['ls-tree', '-r', '--name-only', corpus.pinnedCommit], { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   if (r.status !== 0) return t.skip('pinned commit not available (shallow clone)');
   const files = new Set(r.stdout.split('\n'));
-  for (const c of [...corpus.splits.development.cases, ...corpus.splits.heldOut.cases]) {
+  for (const c of Object.values(corpus.splits).flatMap((split) => split.cases)) {
     for (const f of c.expect) assert.ok(files.has(f), `${c.id}: ${f}`);
     if (c.mutate && c.mutate.remove) assert.ok(files.has(c.mutate.remove));
     if (c.mutate && c.mutate.rename) assert.ok(files.has(c.mutate.rename[0]));

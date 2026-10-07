@@ -6,11 +6,10 @@
 
 - **D1 · Model for agent runs (business, asked 2026-10-07).** The default model. A one-repeat pilot across every arm runs first; the five-repeat run follows only if the pilot's cells are valid. Haiku was rejected as noisier and less representative.
 - **D2 · Hook latency (technical, asked).** The hook asks the running lifecycle worker over a local socket and falls back to `lookup.json` when no worker answers. Rejected: a smaller hook index, because node's ~30 ms startup would remain and the gain is limited.
-- **D3 · ASCII Turkish words (technical, asked).** A short, fixed list of Turkish filler words ("nerede", "hangi", "dosya", "ana", "sayfa"…) is treated like prose: such a word may stay unexplained. The list lives in `structure-retrieval.js` and is versioned with the algorithm.
+- **D3 · English only for now (business, decided 2026-10-07).** This round covers English queries only. The Turkish work — a filler-word list (chosen earlier for ASCII Turkish words) and Turkish synonyms — moves to a later spec. `heldOut2` has no Turkish cases, and the natural agent requests are in English.
 - **D4 · Test posture (technical, asked).** Everything testable, by the project's standing convention (`.frame/PROJECT_NOTES.md` → Testing).
 - **D5 · Gates and rule unchanged (carried, STR-03 D2).** Same `GATES`, and all must pass, otherwise the default stays `legacy`. The STR-03 held-out split is spent. A new split `heldOut2` is written and hashed **before** any engine change in this spec (Sequencing step 1); the old split stays in the file as a record.
 - **D6 · Hook requires one file to carry every word (silent; STR-03 failure analysis).** In `mode: 'hook'` the "rank by words covered" relaxation is off; the CLI keeps it.
-- **D7 · Turkish synonyms are curation (silent).** They are added to this repository's `scripts/intent-map.json` for its curated concepts. User projects get the filler list (D3), not Frame's own concepts.
 - **D8 · Socket placement (silent; verified).**
   - The path is `<os.tmpdir()>/frame-lookup-<sha256(realpath(root)) first 16 hex>.sock` on POSIX and `\\.\pipe\frame-lookup-<same>` on Windows, because macOS caps a socket path at 104 characters.
   - The worker writes the address into `.frame/runtime/structure/lookup.endpoint` with its pid and the lookup revision.
@@ -24,7 +23,7 @@
 - **D12 · Wording (silent).** The AGENTS navigation and REFERENCE "Looking Files Up" say that a `find-module` answer is enough to open the file (with its line), and that grep is for searching inside a file.
 - **D13 · Evaluation design (silent; from the spec).**
   - `tasks.json` `retrievalSuite` tasks gain `kind: 'navigation' | 'natural' | 'question'`:
-    - `natural`: conversational requests, several in Turkish, that name behavior and never files; success is a check on the file change;
+    - `natural`: conversational English requests that name behavior and never files; success is a check on the file change;
     - `question`: no edit; success is `answerCheck`, the expected path appearing in the final `result` text.
   - Lookup metrics, computed from transcripts:
     - lookups per task: `find-module` Bash calls, Grep/Glob, search-bearing Bash calls, using the hook's own leading-segment rule;
@@ -35,7 +34,6 @@
 ### A1. Engine rules (`structure-retrieval.js`)
 
 - Hook mode drops the coverage relaxation (D6).
-- `TURKISH_FILLER` (D3) words count as prose in `retrieveUnits`.
 - `ALGORITHM` goes to `str03-v2.2`, so indexes compiled under the old rules are stale.
 - `retrieve` returns `line` for function evidence from a new `lines` map in the index: `{ "<fileId>:<symbol>": line }`, functions only.
 
@@ -63,7 +61,7 @@ D12 wording goes into the hint tail. The quiet reason `already-looked-up` is add
 
 ### A5. Evaluation
 
-- **Corpus:** `retrieval-cases.json` gains `heldOut2`: at least 120 cases, families disjoint from development, at least 30 Turkish, at least 25 negatives, frozen with SHA-256 before step 2.
+- **Corpus:** `retrieval-cases.json` gains `heldOut2`: English only, at least 120 cases, families disjoint from development, at least 25 negatives, natural-phrasing cases included, frozen with SHA-256 before step 2.
 - **Benchmark:** `run-retrieval.js` takes `--split heldOut2`. It measures the hook with and without a worker socket: it starts `structure-lifecycle.js --watch` on the 10k fixture and waits for its endpoint.
 - **Agent runs:**
   - `run-eval.js`: `--out` outside the repository, the D14 check, and `kind` / `answerCheck`;
@@ -73,8 +71,7 @@ D12 wording goes into the hint tail. The quiet reason `already-looked-up` is add
 
 ## Files
 
-- `scripts/structure-retrieval.js` — **Modified** — hook coverage rule, Turkish filler list, function line map, algorithm v2.2.
-- `scripts/intent-map.json` — **Modified** — Turkish synonyms for this repository's curated concepts.
+- `scripts/structure-retrieval.js` — **Modified** — hook coverage rule, function line map, algorithm v2.2.
 - `scripts/structure-lifecycle.js` — **Modified** — local socket server and endpoint file in watch and supervised modes.
 - `scripts/module-hint.js` — **Modified** — find-module awareness, socket client with fallback, D12 wording.
 - `scripts/find-module.js` — **Modified** — definition lines for function candidates.
@@ -86,7 +83,7 @@ D12 wording goes into the hint tail. The quiet reason `already-looked-up` is add
 - `scripts/eval/score.js` — **Modified** — lookups, repeats, per-kind summary, answer-checked success.
 - `scripts/eval/tasks.json` — **Modified** — natural and question tasks.
 - `scripts/eval/README.md` — **Modified** — protocol, results, decision.
-- `test/structureRetrieval.test.js` — **Modified** — hook coverage, filler words, lines, synonyms.
+- `test/structureRetrieval.test.js` — **Modified** — hook coverage, lines.
 - `test/structureLifecycle.test.js` — **Modified** — socket lifecycle, endpoint, answers, cleanup.
 - `test/module-hint.test.js` — **Modified** — find-module awareness, socket path and fallback, wording.
 - `test/findModule.test.js` — **Modified** — line output.
@@ -97,7 +94,6 @@ D12 wording goes into the hint tail. The quiet reason `already-looked-up` is add
 ## Footprint
 
 - scripts/structure-retrieval.js
-- scripts/intent-map.json
 - scripts/structure-lifecycle.js
 - scripts/module-hint.js
 - scripts/find-module.js
@@ -124,7 +120,7 @@ None. Node's built-in `net` serves the socket. Agent runs use the configured `cl
 ## Sequencing
 
 1. **Freeze `heldOut2`.** Write the new held-out split with its hash, before any engine change. Extend `retrievalEval` with its integrity checks.
-2. **Engine rules.** Hook coverage rule, Turkish filler list, Turkish synonyms in `intent-map.json`, function line map, algorithm v2.2. Check them on the development split. Extend `structureRetrieval`.
+2. **Engine rules.** Hook coverage rule, function line map, algorithm v2.2. Check them on the development split. Extend `structureRetrieval`.
 3. **Line numbers in `find-module`.** Extend `findModule`.
 4. **find-module awareness in the hook.** Session record, `already-looked-up` quiet reason, wording in the hint. Extend `module-hint` and `activityEvents`.
 5. **Worker socket.** Server and endpoint in the worker, client and fallback in the hook. Socket-backed latency in `run-retrieval.js`. Extend `structureLifecycle` and `module-hint`.

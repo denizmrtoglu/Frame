@@ -1,5 +1,5 @@
 ---
-keywords: STR, retrieval, v2, promotion, search hint, Turkish synonyms, hook latency, benchmark gates, find-module, duplicate lookups, agent eval
+keywords: STR, retrieval, v2, promotion, search hint, hook latency, benchmark gates, find-module, duplicate lookups, agent eval
 related: str-03-local-file-retrieval, str-02-structure-lifecycle, str-04-jev-evaluation, audit-q3-core-value-efficacy
 ---
 
@@ -11,7 +11,7 @@ STR-03's v2 retrieval beats the legacy engine on every measured metric, but it m
 
 | Gate | v2 result | Target | Cause |
 |---|---|---|---|
-| recall@5 | 89.4% | ≥ 90% | 8 purely Turkish queries ("ayarlar", "komut paleti") have no curated Turkish synonyms; 2 contain ASCII Turkish words ("nerede", "ana sayfa") |
+| recall@5 | 89.4% | ≥ 90% | all 10 misses are Turkish queries (8 purely Turkish, 2 with ASCII Turkish words); every English answerable query was found |
 | Hint precision | 96.5% | ≥ 98% | 3 wrong hints, from the hook applying the "no file carries every word → rank by coverage" relaxation together with partial concepts ("görev paneli", "görev çalıştırma modalı", "docker compose") |
 | False hints | 3.6% | ≤ 2% | the same relaxation ("docker compose") |
 | Hook p95 at 10k files | 55 ms | ≤ 50 ms | node startup (~30 ms) plus parsing a 1.9 MB lookup index on every search |
@@ -24,16 +24,15 @@ What it costs is not measured yet. In this project's own STR session (an author 
 
 Fix these causes, measure the result on a new held-out split, and promote v2 to the default engine if every gate passes:
 - In hook mode, every identifier word must be covered by a single file. The relaxation stays in the CLI only.
-- The curated concepts in `intent-map.json` get Turkish synonyms.
 - A search hint at 10k files returns within the latency budget.
-- A new frozen corpus split replaces the spent held-out split, and the gates are re-run once.
+- A new frozen corpus split replaces the spent held-out split, and the gates are re-run once. This round is **English only**: the new split has no Turkish queries, and the gates are measured on English queries.
 - `DEFAULT_ENGINE` becomes `v2` only if every gate passes.
 - One lookup per question:
   - `find-module` prints the definition line for symbol matches (`path:line name`, from the map's function lines);
   - the search hook notices a `find-module` call in the same session and stays quiet when a later search asks for the same thing;
   - the generated AGENTS/REFERENCE text says a `find-module` answer is enough to open the file, and grep is for searching inside it.
 - The matched-agent evaluation runs on realistic work:
-  - natural, conversational requests that name behavior, never files, including Turkish ones;
+  - natural, conversational requests in English that name behavior, never files;
   - question-only tasks that measure lookup cost without edits;
   - the existing 12 navigation tasks.
 
@@ -57,7 +56,7 @@ Fix these causes, measure the result on a new held-out split, and promote v2 to 
 ## Success Criteria
 
 1. When a hook query has an identifier word that no single file shares with the other words, then the hook stays quiet while `find-module` still lists the ranked candidates.
-2. When a query uses a Turkish name for a curated concept ("ayarlar", "komut paleti", "görev paneli"), then the concept's files are returned through the synonym tier.
+2. When the gates run, then they run on the English-only `heldOut2` split, and the README states that Turkish queries are not measured in this round.
 3. When the hook runs on the 10k-file synthetic project, then its p95 is at most 50 ms on the recorded reference machine, and its answers match the ones from reading `lookup.json`.
 4. When the new held-out split runs once, then the README records every gate for both engines with sample counts.
 5. When all gates pass, then `DEFAULT_ENGINE` is `v2`, the REFERENCE wording says so, and legacy stays selectable. When any gate fails, then the default stays `legacy` and the failed gate is named.
@@ -74,6 +73,7 @@ Fix these causes, measure the result on a new held-out split, and promote v2 to 
 
 ## Out of Scope
 
+- Turkish queries (Turkish synonyms for curated concepts, Turkish filler words such as "nerede" or "ana sayfa", Turkish agent requests): deferred to a later spec, after this English round.
 - Semantic or remote reranking, embeddings: `str-04-jev-evaluation`.
 - The paid matched-agent run (STR-03 S8).
 - Moving hand-written prose out of `STRUCTURE.json` (a separate architecture spec).
@@ -85,6 +85,3 @@ Fix these causes, measure the result on a new held-out split, and promote v2 to 
   - (a) the hook asks the already-running lifecycle worker over a local socket and falls back to `lookup.json` without one;
   - (b) a smaller index for hooks: drop description postings or split the index by tier.
 - **Model for the agent runs:** the default model (more representative, costlier) or Haiku (cheaper, noisier); the README's pilot note recommends the default model.
-- **Turkish words without Turkish letters** ("nerede", "ana sayfa"):
-  - (a) a short Turkish filler-word list treated like prose;
-  - (b) leave them as misses and accept the recall cost.

@@ -389,9 +389,12 @@ implemented without approval.
 **Fast file lookup** — before manual grep/glob, run:
 
 \`\`\`bash
-node .frame/bin/find-module.js <keyword>   # concept/synonym → files
+node .frame/bin/find-module.js <keyword>   # concept, file name or function → files
 node .frame/bin/find-module.js --list      # all features
 \`\`\`
+
+Its answer is enough to open the file — a function answer comes with its
+line. Use grep to search inside a file, not to find it again.
 
 **Spec history** — before working a topic or changing a file, check what
 earlier specs did there and why (Claude Code sessions also get this injected
@@ -648,8 +651,14 @@ No problem, continue. The user can also say what they consider important themsel
   name, a path or a function/IPC name. Each result says which of those
   matched; several files of equal standing are listed as candidates. Add
   \`--json\` for one machine-readable result and \`--limit N\` (at most 20).
+- A function answer comes with the line it is defined on
+  (\`path:line name\`), so the file can be opened there directly. Use grep to
+  search inside a file, not to find the file again.
 - The search hint that appears next to a grep uses the same lookup with
-  stricter evidence, and stays quiet while the map is being updated.
+  stricter evidence: one file must match every word. It stays quiet while
+  the map is being updated, and when \`find-module\` already answered the same
+  thing in the session. While Frame runs, its background worker answers
+  hints from memory.
 - Two engines: \`legacy\` (the default — concepts and synonyms first, then a
   text search) and \`v2\` (also file names, paths and symbols, with a compact
   index kept in \`.frame/runtime/structure/\`). v2 becomes the default once

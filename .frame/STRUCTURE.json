@@ -20819,14 +20819,14 @@
           ]
         },
         "getReferenceTemplate": {
-          "line": 455,
+          "line": 458,
           "params": [
             "projectName"
           ],
           "purpose": "REFERENCE.md template — the reference-on-demand companion to the lean"
         },
         "getStructureTemplate": {
-          "line": 722,
+          "line": 731,
           "params": [
             "projectName",
             "project"
@@ -20834,21 +20834,21 @@
           "purpose": "STRUCTURE.json template"
         },
         "getNotesTemplate": {
-          "line": 750,
+          "line": 759,
           "params": [
             "projectName"
           ],
           "purpose": "PROJECT_NOTES.md template"
         },
         "getTasksTemplate": {
-          "line": 770,
+          "line": 779,
           "params": [
             "projectName"
           ],
           "purpose": "tasks.json template"
         },
         "getQuickstartTemplate": {
-          "line": 816,
+          "line": 825,
           "params": [
             "projectName",
             "project"
@@ -20856,24 +20856,24 @@
           "purpose": "QUICKSTART.md template"
         },
         "getFrameConfigTemplate": {
-          "line": 899,
+          "line": 908,
           "params": [
             "projectName"
           ],
           "purpose": ".frame/config.json template"
         },
         "getClaudeRuleTemplate": {
-          "line": 942,
+          "line": 951,
           "params": [
             "agentsText"
           ],
           "purpose": "`.claude/rules/frame.md` — the file Claude Code loads at session start."
         },
         "getFrameGitignoreBlock": {
-          "line": 957
+          "line": 966
         },
         "getGenericWrapperTemplate": {
-          "line": 1110,
+          "line": 1119,
           "params": [
             "toolCommand",
             "promptFlag = ''"
@@ -20881,38 +20881,38 @@
           "purpose": "Generic AI tool wrapper template"
         },
         "getStructureHookSnippet": {
-          "line": 1156
+          "line": 1165
         },
         "getStructurePreCommitHookTemplate": {
-          "line": 1193,
+          "line": 1202,
           "purpose": "Full pre-commit hook file content for the \"no existing hook\" case."
         },
         "classifyStructureHook": {
-          "line": 1222,
+          "line": 1231,
           "params": [
             "text"
           ],
           "purpose": "'current' when `text` is today's template, 'previous' when it is an"
         },
         "getOrchBusHeader": {
-          "line": 1241,
+          "line": 1250,
           "purpose": "Orchestration command-channel scripts (.frame/bin/)"
         },
         "getOrchRequestScript": {
-          "line": 1253,
+          "line": 1262,
           "params": [
             "type"
           ]
         },
         "getOrchStatusScript": {
-          "line": 1273
+          "line": 1282
         },
         "getOrchBinScripts": {
-          "line": 1291,
+          "line": 1300,
           "purpose": "Map of filename → script body for the orchestration bin scripts. The"
         }
       },
-      "sizeBytes": 55440,
+      "sizeBytes": 55957,
       "extraction": {
         "status": "parsed"
       },
@@ -23745,7 +23745,7 @@
           ]
         }
       },
-      "sizeBytes": 30143,
+      "sizeBytes": 31086,
       "extraction": {
         "status": "parsed"
       },
@@ -26791,6 +26791,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "3cce6e8bc2bd160babcd9e0769eb64300649250c6dfea0e859f9b88ff4a3d7db"
+    "revision": "86745f284901290cdd8b95a1f989779fbd5f5d813e3f7ab6245e48de4499e74d"
   }
 }

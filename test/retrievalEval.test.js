@@ -219,6 +219,8 @@ test('a cell is invalid when its hook did not run as the arm intends', () => {
   const v = (meta, stats = { searchCalls: 1 }) => score.cellValidity({ retrievalArm: true, setupOk: true, ...meta }, stats);
   assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }), { valid: false, reason: 'hook-never-ran' });
   assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 0 }), { valid: true }, 'no search, nothing to hint');
+  assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 2, hookableLookups: 0 }), { valid: true }, 'only calls running find-module: nothing for the hook to answer');
+  assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 3, hookableLookups: 1 }), { valid: false, reason: 'hook-never-ran' });
   assert.deepEqual(v({ arm: 'legacy', hookRecords: 3 }), { valid: true });
   assert.deepEqual(v({ arm: 'no-hint', hookRecords: 1 }), { valid: false, reason: 'hook-ran-in-no-hint-arm' });
   assert.deepEqual(v({ arm: 'no-hint', hookRecords: 0 }), { valid: true });
@@ -307,7 +309,7 @@ test('a transcript counts lookups and the repeats that follow an answer', (t) =>
     ]
   });
   const r = score.scoreRun(dir);
-  assert.deepEqual([r.lookups, r.findModuleCalls, r.repeatedLookups, r.kind], [3, 1, 1, 'question']);
+  assert.deepEqual([r.lookups, r.findModuleCalls, r.repeatedLookups, r.hookableLookups, r.kind], [3, 1, 1, 2, 'question']);
 });
 
 test('a question passes when the final answer names an accepted path', () => {

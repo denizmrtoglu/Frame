@@ -16382,7 +16382,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 14031,
+      "sizeBytes": 15847,
       "extraction": {
         "status": "parsed"
       },
@@ -16834,7 +16834,7 @@
           ]
         },
         "cellValidity": {
-          "line": 157,
+          "line": 160,
           "params": [
             "meta",
             "stats"
@@ -16842,13 +16842,13 @@
           "purpose": "Whether a retrieval-arm cell measured what its arm intends. Returns"
         },
         "scoreRun": {
-          "line": 166,
+          "line": 172,
           "params": [
             "runDir"
           ]
         },
         "paired": {
-          "line": 201,
+          "line": 207,
           "params": [
             "runs",
             "a",
@@ -16858,16 +16858,16 @@
           "purpose": "Paired per-task comparison of arm `b` against arm `a` on valid cells:"
         },
         "aggregate": {
-          "line": 224,
+          "line": 230,
           "params": [
             "runs"
           ]
         },
         "main": {
-          "line": 258
+          "line": 264
         }
       },
-      "sizeBytes": 16387,
+      "sizeBytes": 16860,
       "extraction": {
         "status": "parsed"
       },
@@ -23929,7 +23929,7 @@
           ]
         }
       },
-      "sizeBytes": 21431,
+      "sizeBytes": 21768,
       "extraction": {
         "status": "parsed"
       },
@@ -26918,6 +26918,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "a135e1c15330678cb8f5da510eec738416ea5c9518b08a36575ff5eed062735f"
+    "revision": "2d26793869a6b8a93b4c3286db4771905ca8adc726a3512958abf69deef9c36f"
   }
 }

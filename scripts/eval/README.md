@@ -282,3 +282,32 @@ Candidate for the next round, to be validated on a new split: the hook stops
 at tier 5 (path, concept, synonym, file name, symbol) and leaves partial
 concepts to `find-module`, or it allows them only for a query that is not a
 single camelCase identifier.
+
+## STR-03b — Opus without the engine vs v2 (pilot) — 2026-10-07
+
+Question: what does Opus do, spend and take to find code when Frame's search engine is not there, compared with v2?
+- **`no-engine`** removes the search hint, `find-module` and the find-module instructions. The rest of Frame stays.
+- **`v2`** runs this checkout's engine with the lifecycle worker answering hints.
+
+Setup: 16 tasks (10 natural English change requests, 6 question-only) × 2 arms × 1 repeat, `claude --model opus`, seed 7, pinned 262f91b. All 32 cells were valid and passed. The repository was unchanged afterwards.
+
+| Per task, average | no-engine | v2 | Change |
+|---|---|---|---|
+| Input tokens (incl. cache) | 169,095 | 137,858 | **−18.5%** |
+| Output tokens | 1,397 | 1,093 | −21.8% |
+| Time | 29.7 s | 22.7 s | **−23.6%** |
+| Agent turns | 8.8 | 7.4 | −15.9% |
+| Tool calls | 5.1 | 4.1 | −20.3% |
+| Lookups (find-module + searches) | 5.25 | 4.81 | −8.4% |
+| Success | 16/16 | 16/16 | — |
+
+| By kind | no-engine | v2 | Change |
+|---|---|---|---|
+| Natural requests: input tokens | 205,507 | 174,161 | −15.3% |
+| Natural requests: time | 40.3 s | 31.7 s | −21.3% |
+| Questions: input tokens | 108,408 | 77,352 | −28.6% |
+| Questions: time | 12.0 s | 7.7 s | −35.8% |
+
+Paired by task, v2 used fewer input tokens on 14 of 16 tasks and less time on 12 of 16.
+
+How to read it: one repeat per cell is a pilot, not a verdict. One no-engine natural cell took 116 s against 13 s with v2, which inflates the time average. In natural requests, repeated lookups did not go down (1.9 vs 2.1). In v2 the agents mostly followed AGENTS and ran `find-module` first, so the hint itself rarely fired: the gain here comes from the lookup answering directly. Five repeats would settle the size of the effect (`--repeat 5`).

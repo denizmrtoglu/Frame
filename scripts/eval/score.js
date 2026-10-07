@@ -88,7 +88,7 @@ const READY_BASH = /^\s*(?:cat|head|tail|less|sed\s+-n)\b/;
 function scoreTranscript(file, options = {}) {
   const stats = {
     searchBeforeFirstEdit: 0, toolCalls: 0, turns: 0, searchCalls: 0, readCalls: 0, filesRead: [],
-    lookups: 0, findModuleCalls: 0, repeatedLookups: 0,
+    lookups: 0, findModuleCalls: 0, repeatedLookups: 0, hookableLookups: 0,
     inputTokens: null, cacheCreationTokens: null, cacheReadTokens: null, totalInputTokens: null, outputTokens: null
   };
   if (!fs.existsSync(file)) return stats;
@@ -115,7 +115,10 @@ function scoreTranscript(file, options = {}) {
         const isSearch = SEARCH_TOOLS.has(block.name) ||
           (block.name === 'Bash' && block.input && SEARCHY_BASH.test(String(block.input.command || '')));
 
-        for (const l of lookupsOf(block)) {
+        const blockLookups = lookupsOf(block);
+        // a call that runs find-module is recorded by the hook, never answered
+        if (!blockLookups.some((l) => l.via === 'find-module')) stats.hookableLookups += blockLookups.length;
+        for (const l of blockLookups) {
           stats.lookups++;
           if (l.via === 'find-module') stats.findModuleCalls++;
           if (l.term && seenTerms.has(l.term)) stats.repeatedLookups++;
@@ -159,7 +162,10 @@ function cellValidity(meta, stats) {
   if (meta.setupOk === false) return { valid: false, reason: 'setup-failed' };
   const records = meta.hookRecords || 0;
   if (meta.arm === 'no-hint' || meta.arm === 'no-engine') return records === 0 ? { valid: true } : { valid: false, reason: `hook-ran-in-${meta.arm}-arm` };
-  if (stats.searchCalls > 0 && records === 0) return { valid: false, reason: 'hook-never-ran' };
+  // find-module calls never get a hint (the hook records them), so only
+  // the other searches show whether the hook ran
+  const hookable = typeof stats.hookableLookups === 'number' ? stats.hookableLookups : stats.searchCalls;
+  if (hookable > 0 && records === 0) return { valid: false, reason: 'hook-never-ran' };
   return { valid: true };
 }
 

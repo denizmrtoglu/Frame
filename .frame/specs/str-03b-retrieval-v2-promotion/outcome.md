@@ -158,3 +158,38 @@ The repository was unchanged by the benchmark (`git status` before and after com
 _Captured: 2026-10-07 · 1 file change(s)_
 
 ---
+
+## T09 — Agent pilot: Opus without the engine vs v2
+
+The design changed on the user's request (2026-10-07): two arms. **`no-engine`** has no search hint, no `find-module`, and the find-module lines are stripped from the AGENTS copies and REFERENCE; the rest of Frame stays. **`v2`** gets this checkout's engine files, a current map and index, engine v2, its hint, and the lifecycle worker running during the agent's session.
+
+Found while building the arms: the pinned `.claude/settings.json` already registers the legacy search hook, so the original "no-hint" arm would have run it unnoticed. The arms now rewrite that hook explicitly (`withSearchHook`). A dry run with a stand-in agent confirmed each cell's environment before any paid run.
+
+Result, 16 tasks (10 natural, 6 question) × 2 arms × 1 repeat, `claude --model opus`. All 32 cells were valid and passed, and the repository was unchanged.
+
+| Measure | no-engine | v2 | Change |
+|---|---|---|---|
+| Input tokens | 169,095 | 137,858 | −18.5% |
+| Time | 29.7 s | 22.7 s | −23.6% |
+| Turns | 8.8 | 7.4 | |
+| Tool calls | 5.1 | 4.1 | |
+
+By kind: questions −28.6% tokens and −35.8% time; natural requests −15.3% and −21.3%. Paired: fewer tokens on 14 of 16 tasks, less time on 12 of 16.
+
+Caveats:
+- One repeat per cell.
+- One 116 s outlier in no-engine.
+- Repeated lookups in natural requests did not fall.
+- The hint rarely fired, because agents ran `find-module` first.
+
+Scoring fixes made while reading the results:
+- `find-module` calls were counted as searches the hook should have answered, which marked 2 valid cells invalid.
+- Calls that run `find-module` are now excluded from that check (`hookableLookups`).
+
+Product gap seen in a transcript: in a compound command (`find-module X; grep -rl Y`), the hook records the find-module lookup and does not consider the grep with a different term.
+
+Files touched: `scripts/eval/run-eval.js` (arms, worker, `--arms`/`--kinds`), `scripts/eval/score.js`, `scripts/eval/README.md`, `test/retrievalEval.test.js`.
+
+_Captured: 2026-10-07 · 4 file change(s)_
+
+---

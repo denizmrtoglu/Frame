@@ -42,3 +42,11 @@ The oversize-index test needed 14,000 modules instead of 9,000 to stay above the
 _Captured: 2026-10-07 · 2 file change(s)_
 
 ---
+
+## T03 — Definition lines in find-module
+
+With v2, `find-module` prints function answers as `path:line name` (for example `scripts/structure-commit.js:522 publishStaged`), so the file can be opened at the definition without a follow-up `grep -n`. `--json` candidates carry `line` and `symbol`. File-name, path and concept answers are printed as before. This was checked against the live map: `resolveReadPath` → `scripts/structure-read.js:86`, which is the actual line. The legacy engine's output is unchanged. Files touched: `scripts/find-module.js`, `test/findModule.test.js`.
+
+_Captured: 2026-10-07 · 2 file change(s)_
+
+---

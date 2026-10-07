@@ -191,9 +191,11 @@ function printV2(result, query) {
   const head = result.status === 'resolved' ? 'Files for' : `Candidates for`;
   console.log(`${head} "${query}"${result.status === 'ambiguous' ? ' (several match equally — pick by path)' : ''}:`);
   for (const c of result.candidates) {
+    // a function answer names its line, so the file can be opened there (STR-03b)
+    const where = c.line ? `${c.path}:${c.line} ${c.symbol}` : c.path;
     const desc = c.description ? ` — ${c.description}` : '';
     const missing = c.missing ? `  ⚠ missing on disk — run: ${repairCommand()}` : '';
-    console.log(`  ${c.path.padEnd(42)}${desc}  [${c.evidence}]${missing}`);
+    console.log(`  ${where.padEnd(42)}${desc}  [${c.evidence}]${missing}`);
   }
   if (result.truncated) console.log(`  … more — raise --limit (up to ${retrieval.LIMITS.cliFiles})`);
   console.log('');
@@ -259,6 +261,10 @@ function main() {
       freshnessReasons: descriptor.reasons,
       candidates: result.candidates.slice(0, args.limit).map((c) => {
         const out = { path: c.path, evidence: c.evidence, tier: c.tier, description: c.description || '' };
+        if (c.line) {
+          out.line = c.line;
+          out.symbol = c.symbol;
+        }
         if (c.missing) out.missing = true;
         return out;
       }),

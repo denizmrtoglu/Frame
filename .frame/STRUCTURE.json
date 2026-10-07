@@ -16828,13 +16828,13 @@
           ]
         },
         "main": {
-          "line": 204
+          "line": 206
         },
         "readCuration": {
-          "line": 282
+          "line": 288
         }
       },
-      "sizeBytes": 11585,
+      "sizeBytes": 11832,
       "extraction": {
         "status": "parsed"
       },
@@ -19271,40 +19271,40 @@
       ],
       "functions": {
         "fold": {
-          "line": 68,
+          "line": 69,
           "params": [
             "text"
           ],
           "purpose": "Case- and accent-insensitive search form; Turkish letters fold to ASCII."
         },
         "splitWords": {
-          "line": 78,
+          "line": 79,
           "params": [
             "text"
           ],
           "purpose": "Identifier words: camelCase, snake_case, kebab-case, dotted and path parts."
         },
         "normalizeQuery": {
-          "line": 95,
+          "line": 96,
           "params": [
             "raw"
           ],
           "purpose": "A raw query → its search units. Regex syntax is dropped, alternations"
         },
         "basenameOf": {
-          "line": 126,
+          "line": 128,
           "params": [
             "file"
           ]
         },
         "stripExt": {
-          "line": 130,
+          "line": 132,
           "params": [
             "name"
           ]
         },
         "compileIndex": {
-          "line": 144,
+          "line": 147,
           "params": [
             "structure",
             "curation = {}",
@@ -19312,8 +19312,15 @@
           ],
           "purpose": "Compile the lookup index from a map (STR-02c read view) and the curated"
         },
+        "foldedPaths": {
+          "line": 239,
+          "params": [
+            "index"
+          ],
+          "purpose": "The index's paths in search form, computed once per index object."
+        },
         "matchUnit": {
-          "line": 229,
+          "line": 249,
           "params": [
             "index",
             "unit",
@@ -19322,7 +19329,7 @@
           "purpose": "Every match one unit has: Map(fileId → best tier) plus the concepts it named."
         },
         "retrieve": {
-          "line": 290,
+          "line": 310,
           "params": [
             "index",
             "query",
@@ -19331,7 +19338,7 @@
           "purpose": "Rank the files that explain the query."
         },
         "retrieveUnits": {
-          "line": 302,
+          "line": 322,
           "params": [
             "index",
             "allUnits",
@@ -19341,39 +19348,39 @@
           ]
         },
         "lookupPath": {
-          "line": 386,
+          "line": 419,
           "params": [
             "root"
           ]
         },
         "curationPath": {
-          "line": 391,
+          "line": 424,
           "params": [
             "dir = __dirname"
           ],
           "purpose": "intent-map.json beside the running scripts (scripts/ or .frame/bin/)."
         },
         "readCuration": {
-          "line": 395,
+          "line": 428,
           "params": [
             "file"
           ]
         },
         "signatureOf": {
-          "line": 403,
+          "line": 436,
           "params": [
             "file"
           ]
         },
         "sameSignature": {
-          "line": 412,
+          "line": 445,
           "params": [
             "a",
             "b"
           ]
         },
         "publishLookup": {
-          "line": 424,
+          "line": 457,
           "params": [
             "root",
             "options = {}"
@@ -19381,7 +19388,7 @@
           "purpose": "Compile and atomically publish lookup.json from the map at `mapPath`"
         },
         "loadLookup": {
-          "line": 470,
+          "line": 503,
           "params": [
             "root",
             "options = {}"
@@ -19389,7 +19396,7 @@
           "purpose": "Read the published index for a lookup. Never compiles, never writes."
         },
         "indexFromMap": {
-          "line": 508,
+          "line": 541,
           "params": [
             "root",
             "options = {}"
@@ -19397,7 +19404,7 @@
           "purpose": "Compile an index in memory from the read view — the fallback when no"
         },
         "legacyRetrieve": {
-          "line": 541,
+          "line": 574,
           "params": [
             "structure",
             "curation",
@@ -19406,7 +19413,7 @@
           "purpose": "Today's behavior, kept selectable as the rollback path (STR-03 D2):"
         },
         "legacyHookLookup": {
-          "line": 594,
+          "line": 627,
           "params": [
             "index",
             "intentMap",
@@ -19414,7 +19421,7 @@
           ]
         }
       },
-      "sizeBytes": 25912,
+      "sizeBytes": 27387,
       "extraction": {
         "status": "parsed"
       },
@@ -19424,6 +19431,7 @@
           "compileIndex": "60c20164d8c3a443",
           "curationPath": "37dd7da1d8d13d69",
           "fold": "475b654bf901e6d9",
+          "foldedPaths": "c6dde37b59b40cc7",
           "indexFromMap": "f0606664e619eacc",
           "legacyRetrieve": "01c5d2059f3b0d6f",
           "loadLookup": "824e133bd24d973a",
@@ -22215,7 +22223,7 @@
           ]
         }
       },
-      "sizeBytes": 9262,
+      "sizeBytes": 10227,
       "extraction": {
         "status": "parsed"
       },
@@ -24584,7 +24592,7 @@
           ]
         }
       },
-      "sizeBytes": 18299,
+      "sizeBytes": 20907,
       "extraction": {
         "status": "parsed"
       },
@@ -26667,6 +26675,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "eaaea7beb3643a5a04f8aea3572d103da7b646bacb467ab4ca4df28f99e19504"
+    "revision": "d772541fc5bba3555c169522a4807f6e2fd31fc6fc26fe4249fe32959e19c224"
   }
 }

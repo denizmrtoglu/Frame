@@ -151,6 +151,9 @@ test('gates pass only when every limit holds, recall never drops below legacy, a
   assert.deepEqual(failed({ hooks: { claude: { ...good.hooks.claude, falseHintRate: 0.03 } } }), ['false-hints:claude']);
   assert.deepEqual(failed({ hooks: { claude: { ...good.hooks.claude, maxChars: 1801 } } }), ['payload:claude']);
   assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 51 }]), ['hook-p95:10000-files']);
+  // STR-03b: with a running worker measured, its socket latency decides
+  assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 70, hookSocketP95Ms: 38 }]), []);
+  assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 30, hookSocketP95Ms: 55 }]), ['hook-p95:10000-files']);
   assert.deepEqual(failed({ cliP95Ms: 151 }), ['cli-p95']);
 });
 

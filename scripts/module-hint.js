@@ -50,6 +50,7 @@ const STATE_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 const MAX_MODULES = 8;     // output ceiling: a hint, not a file listing
 const MAX_CANDIDATES = 3;  // legacy: how many words from one search we bother to try
 const MAX_CONTEXT_CHARS = 1800; // below Claude Code's ~2,000-character inline ceiling
+const WORKER_BUDGET_MS = 25;    // connect + answer from the lifecycle worker, else read lookup.json
 
 // ─── tiny utils ───────────────────────────────────────────
 
@@ -478,7 +479,64 @@ function renderV2(root, result, pattern, descriptor) {
   return `${head}\n${lines.join('\n')}\n${tail}`;
 }
 
-function v2Mode(root, input, descriptor) {
+/**
+ * Ask the running lifecycle worker (STR-03b): one JSON line over the local
+ * socket it announced in lookup.endpoint. Resolves null — and the caller
+ * reads lookup.json as before — when there is no live worker of the same
+ * algorithm, or no answer within WORKER_BUDGET_MS. Local IPC only: the
+ * address is a socket path, never a host or port.
+ */
+function askWorker(root, query) {
+  const endpoint = readJson(retrieval.lookupEndpointPath(root));
+  if (!endpoint || endpoint.v !== retrieval.LOOKUP_PROTOCOL || endpoint.algorithm !== retrieval.ALGORITHM
+    || typeof endpoint.address !== 'string' || !Number.isInteger(endpoint.pid)) return Promise.resolve(null);
+  try {
+    process.kill(endpoint.pid, 0);
+  } catch (e) {
+    if (e.code !== 'EPERM') return Promise.resolve(null); // the announced worker is gone
+  }
+  let net;
+  try {
+    net = require('net');
+  } catch {
+    return Promise.resolve(null);
+  }
+  return new Promise((resolve) => {
+    let done = false;
+    let buffer = '';
+    let socket = null;
+    const finish = (value) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      try { socket.destroy(); } catch { /* already closed */ }
+      resolve(value);
+    };
+    const timer = setTimeout(() => finish(null), WORKER_BUDGET_MS);
+    try {
+      socket = net.createConnection({ path: endpoint.address });
+    } catch {
+      return finish(null);
+    }
+    socket.setEncoding('utf8');
+    socket.on('connect', () => socket.write(`${JSON.stringify({ v: retrieval.LOOKUP_PROTOCOL, query, mode: 'hook', limit: MAX_MODULES })}\n`));
+    socket.on('data', (chunk) => {
+      buffer += chunk;
+      const newline = buffer.indexOf('\n');
+      if (newline === -1) return;
+      try {
+        const reply = JSON.parse(buffer.slice(0, newline));
+        finish(reply && reply.ok && reply.result ? reply : null);
+      } catch {
+        finish(null);
+      }
+    });
+    socket.on('error', () => finish(null));
+    socket.on('close', () => finish(null));
+  });
+}
+
+async function v2Mode(root, input, descriptor) {
   const pattern = patternFrom(input.tool_name, input.tool_input || {});
   if (!pattern || !pattern.trim()) return quiet(root, 'no-words');
   // A scan that missed files: an answer could be the wrong one. Stay quiet.
@@ -491,16 +549,27 @@ function v2Mode(root, input, descriptor) {
     if (seen.some((e) => e.q === q && e.rev === (descriptor.revision || null))) return quiet(root, 'already-looked-up');
   }
 
-  const { index, reason } = loadIndex(root);
-  if (!index) return quiet(root, reason);
-  const exists = (rel) => existsInProject(root, rel);
-  const result = retrieval.retrieve(index, pattern, { mode: 'hook', exists });
-  if (result.status === 'no-match') {
-    const weak = retrieval.retrieve(index, pattern, { mode: 'cli', limit: 1 });
-    return quiet(root, weak.status === 'no-match' ? 'no-match' : 'ambiguous-weak');
+  // The running worker answers from memory; without one, read lookup.json.
+  let result;
+  let revisionKey;
+  const fromWorker = await askWorker(root, pattern);
+  if (fromWorker) {
+    result = fromWorker.result;
+    revisionKey = fromWorker.revision || 'worker';
+    if (result.status === 'no-match') return quiet(root, fromWorker.weak ? 'ambiguous-weak' : 'no-match');
+  } else {
+    const { index, reason } = loadIndex(root);
+    if (!index) return quiet(root, reason);
+    const exists = (rel) => existsInProject(root, rel);
+    result = retrieval.retrieve(index, pattern, { mode: 'hook', exists });
+    if (result.status === 'no-match') {
+      const weak = retrieval.retrieve(index, pattern, { mode: 'cli', limit: 1 });
+      return quiet(root, weak.status === 'no-match' ? 'no-match' : 'ambiguous-weak');
+    }
+    revisionKey = index.revision || (index.source && JSON.stringify(index.source.signature)) || 'map';
   }
 
-  const key = `${index.revision || (index.source && JSON.stringify(index.source.signature)) || 'map'}|${fingerprint(result.answer.map((c) => c.path))}`;
+  const key = `${revisionKey}|${fingerprint(result.answer.map((c) => c.path))}`;
   const sessionId = input.session_id;
   if (sessionId) {
     const state = loadState(root, sessionId);
@@ -544,7 +613,7 @@ function searchMode(input) {
 try {
   const input = JSON.parse(readStdin() || '{}');
   setHookCli(input);
-  if (process.argv[2] === 'search') searchMode(input);
+  if (process.argv[2] === 'search') Promise.resolve(searchMode(input)).catch(() => { /* silence is the contract */ });
 } catch { /* silence is the contract */ }
 
 // Deliberately `exitCode`, not `process.exit(0)`: an explicit exit tears the

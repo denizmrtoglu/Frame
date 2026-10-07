@@ -227,8 +227,17 @@ test('the hook never loads builder or state code, directly or through a helper',
   const local = [...seen].map((f) => path.basename(f)).sort();
   assert.deepEqual(local, ['activity-log.js', 'module-hint.js', 'redact.js', 'structure-read.js', 'structure-retrieval.js', 'toolVocabulary.js']);
   assert.ok(!local.some((f) => /structure-(discovery|generation|state|snapshot|lifecycle|commit)|update-structure/.test(f)), local.join(', '));
-  for (const banned of ['child_process', 'net', 'http', 'https', 'dgram', 'worker_threads']) {
+  for (const banned of ['child_process', 'http', 'https', 'dgram', 'tls', 'worker_threads']) {
     assert.ok(!builtins.has(banned), `${banned} in the closure`);
+  }
+  // STR-03b: `net` only to reach the lifecycle worker's local socket — a
+  // path, never a host or port — and only from the hook itself
+  const hookSource = fs.readFileSync(HOOK, 'utf8');
+  assert.match(hookSource, /net\.createConnection\(\{ path: endpoint\.address \}\)/);
+  assert.ok(!/createConnection\([^)]*\b(host|port)\b/.test(hookSource), 'no host or port connections');
+  for (const file of seen) {
+    if (file === HOOK) continue;
+    assert.ok(!/require\(['"]net['"]\)/.test(fs.readFileSync(file, 'utf8')), `${path.basename(file)} must not load net`);
   }
 });
 
@@ -497,4 +506,84 @@ test('v2: a function hint names its line and says the file can be opened there',
   assert.match(ctx, /Open it at the line shown directly; grep is for searching inside a file\./);
   const concept = ctxOf(runHook({ session_id: 'ln2', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } }));
   assert.match(concept, /Open these files directly; grep is for searching inside a file\./);
+});
+
+// ─── STR-03b: answers from the running worker ─────────────
+
+const net = require('net');
+const { execFile } = require('child_process');
+
+function runHookAsync(input) {
+  return new Promise((resolve, reject) => {
+    const started = Date.now();
+    const child = execFile('node', [HOOK, 'search'], { encoding: 'utf8' }, (err, stdout) => {
+      if (err) return reject(err);
+      resolve({ out: stdout.trim() ? JSON.parse(stdout) : null, ms: Date.now() - started });
+    });
+    child.stdin.end(JSON.stringify(input));
+  });
+}
+
+function fakeWorker(root, { reply, silent = false, pid = process.pid, algorithm = retrieval.ALGORITHM } = {}) {
+  const address = retrieval.lookupAddress(root);
+  try { fs.unlinkSync(address); } catch { /* none */ }
+  const requests = [];
+  const server = net.createServer((socket) => {
+    let buffer = '';
+    socket.on('data', (c) => {
+      buffer += c;
+      if (!buffer.includes('\n')) return;
+      requests.push(JSON.parse(buffer.split('\n')[0]));
+      if (!silent) socket.end(`${JSON.stringify(reply)}\n`);
+    });
+  });
+  return new Promise((resolve) => server.listen(address, () => {
+    fs.mkdirSync(path.dirname(retrieval.lookupEndpointPath(root)), { recursive: true });
+    fs.writeFileSync(retrieval.lookupEndpointPath(root), JSON.stringify({ v: 1, address, pid, algorithm }));
+    resolve({ requests, close: () => new Promise((r) => server.close(() => { try { fs.unlinkSync(address); } catch { /* gone */ } r(); })) });
+  }));
+}
+
+const workerAnswer = (paths) => ({
+  v: 1, ok: true, revision: 'rev-w', algorithm: retrieval.ALGORITHM,
+  result: { status: 'resolved', truncated: false, candidates: [], answer: paths.map((p) => ({ path: p, description: 'from the worker', tier: 4, evidence: 'file name' })) }
+});
+
+test('v2: the hook takes the running worker\'s answer', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  const worker = await fakeWorker(root, { reply: workerAnswer(['src/main/fsSafe.js']) });
+  try {
+    const { out } = await runHookAsync({ session_id: 'w1', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'onlyTheWorkerKnows' } });
+    assert.match(ctxOf(out), /src\/main\/fsSafe\.js — from the worker/);
+    assert.deepEqual(worker.requests[0], { v: 1, query: 'onlyTheWorkerKnows', mode: 'hook', limit: 8 });
+  } finally {
+    await worker.close();
+  }
+});
+
+test('v2: a silent worker costs at most the budget, then lookup.json answers', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  const worker = await fakeWorker(root, { silent: true });
+  try {
+    const { out, ms } = await runHookAsync({ session_id: 'w2', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } });
+    assert.match(ctxOf(out), /src\/main\/githubManager\.js/);
+    assert.ok(ms < 2000, `${ms} ms`);
+    assert.equal(worker.requests.length, 1);
+  } finally {
+    await worker.close();
+  }
+});
+
+test('v2: an endpoint of a dead worker or another algorithm is ignored', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  for (const opts of [{ pid: 2 ** 22 + 12345 }, { algorithm: 'str03-v0' }]) {
+    const worker = await fakeWorker(root, { reply: workerAnswer(['src/main/fsSafe.js']), ...opts });
+    try {
+      const { out } = await runHookAsync({ session_id: `w3-${JSON.stringify(opts)}`, cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } });
+      assert.match(ctxOf(out), /githubManager/, 'answered from lookup.json');
+      assert.equal(worker.requests.length, 0, 'never asked');
+    } finally {
+      await worker.close();
+    }
+  }
 });

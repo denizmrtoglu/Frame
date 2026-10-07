@@ -16513,35 +16513,35 @@
           "purpose": "Load the corpus; a split whose hash does not match was edited after freezing."
         },
         "parseCli": {
-          "line": 71,
+          "line": 72,
           "params": [
             "stdout"
           ],
           "purpose": "Candidate files from find-module output: the --json envelope, or the human listing."
         },
         "parseHook": {
-          "line": 89,
+          "line": 90,
           "params": [
             "stdout"
           ],
           "purpose": "Hinted files and the raw context from a hook's stdout ('' = no hint)."
         },
         "quantile": {
-          "line": 109,
+          "line": 110,
           "params": [
             "values",
             "q"
           ]
         },
         "summarize": {
-          "line": 122,
+          "line": 123,
           "params": [
             "results"
           ],
           "purpose": "results: [{ case, cli: [files], cliMs, hooks: { claude: { files, context, ms }, codex: {…} } }]"
         },
         "evaluateGates": {
-          "line": 186,
+          "line": 187,
           "params": [
             "summary",
             "baseline = null",
@@ -16551,39 +16551,39 @@
           "purpose": "The A5 gates for one engine's held-out summary. `baseline` is legacy's"
         },
         "timed": {
-          "line": 212,
+          "line": 217,
           "params": [
             "args",
             "options"
           ]
         },
         "baseEnv": {
-          "line": 218,
+          "line": 223,
           "params": [
             "project",
             "activityHome"
           ]
         },
         "setEngine": {
-          "line": 222,
+          "line": 227,
           "params": [
             "project",
             "engine"
           ]
         },
         "availableEngines": {
-          "line": 235,
+          "line": 240,
           "purpose": "Engines this checkout can run: legacy always; v2 once the shared engine exists."
         },
         "cliSupportsJson": {
-          "line": 241,
+          "line": 246,
           "params": [
             "project",
             "env"
           ]
         },
         "hookPayloads": {
-          "line": 250,
+          "line": 255,
           "params": [
             "c",
             "sessionId",
@@ -16591,7 +16591,7 @@
           ]
         },
         "runCase": {
-          "line": 264,
+          "line": 269,
           "params": [
             "c",
             "engine",
@@ -16601,34 +16601,52 @@
           ]
         },
         "applyMutation": {
-          "line": 280,
+          "line": 285,
           "params": [
             "base",
             "mutate"
           ]
         },
         "buildMap": {
-          "line": 289,
+          "line": 294,
           "params": [
             "project",
             "env"
           ]
         },
         "exportPinned": {
-          "line": 308,
+          "line": 313,
           "params": [
             "commit"
           ]
         },
         "syntheticProject": {
-          "line": 315,
+          "line": 320,
           "params": [
             "count"
           ],
           "purpose": "A synthetic project of `count` JavaScript files in nested packages."
         },
+        "sleepMs": {
+          "line": 334,
+          "params": [
+            "ms"
+          ]
+        },
+        "measureWithWorker": {
+          "line": 342,
+          "params": [
+            "dir",
+            "env",
+            "engine",
+            "count",
+            "queries",
+            "fileAnswers"
+          ],
+          "purpose": "Start the lifecycle worker (--watch) on the project, wait for its lookup"
+        },
         "runScale": {
-          "line": 329,
+          "line": 379,
           "params": [
             "engine",
             "activityHome",
@@ -16637,22 +16655,22 @@
           ]
         },
         "parseArgs": {
-          "line": 355,
+          "line": 411,
           "params": [
             "argv"
           ]
         },
         "printReport": {
-          "line": 373,
+          "line": 429,
           "params": [
             "report"
           ]
         },
         "main": {
-          "line": 398
+          "line": 457
         }
       },
-      "sizeBytes": 20432,
+      "sizeBytes": 23790,
       "extraction": {
         "status": "parsed"
       },
@@ -16661,6 +16679,7 @@
           "availableEngines": "d7a3b42e8e1d0229",
           "evaluateGates": "948f7fa8250c71c8",
           "loadCases": "c4906eb41cfc462c",
+          "measureWithWorker": "c7a0f68641628b54",
           "parseCli": "4090dfdc9064bc07",
           "parseHook": "fcfc1b3dfcb70ab2",
           "summarize": "38f21892ccfab5b8",
@@ -17241,52 +17260,53 @@
         "structure-read",
         "structure-retrieval",
         "activity-log",
-        "toolVocabulary"
+        "toolVocabulary",
+        "net"
       ],
       "functions": {
         "toPosix": {
-          "line": 56,
+          "line": 57,
           "params": [
             "p"
           ]
         },
         "readStdin": {
-          "line": 58
+          "line": 59
         },
         "readJson": {
-          "line": 62,
+          "line": 63,
           "params": [
             "p"
           ]
         },
         "resolveRoot": {
-          "line": 68,
+          "line": 69,
           "params": [
             "hookCwd"
           ]
         },
         "finderCliPath": {
-          "line": 91,
+          "line": 92,
           "params": [
             "root"
           ]
         },
         "stateFile": {
-          "line": 99,
+          "line": 100,
           "params": [
             "root",
             "sessionId"
           ]
         },
         "loadState": {
-          "line": 104,
+          "line": 105,
           "params": [
             "root",
             "sessionId"
           ]
         },
         "saveState": {
-          "line": 113,
+          "line": 114,
           "params": [
             "root",
             "sessionId",
@@ -17294,23 +17314,23 @@
           ]
         },
         "cleanupState": {
-          "line": 121,
+          "line": 122,
           "params": [
             "root"
           ]
         },
         "setHookCli": {
-          "line": 167,
+          "line": 168,
           "params": [
             "payload"
           ],
           "purpose": "Called once, from the entry point, with the parsed payload."
         },
         "hookHost": {
-          "line": 171
+          "line": 172
         },
         "note": {
-          "line": 175,
+          "line": 176,
           "params": [
             "root",
             "ev",
@@ -17318,7 +17338,7 @@
           ]
         },
         "quiet": {
-          "line": 191,
+          "line": 192,
           "params": [
             "root",
             "reason"
@@ -17326,33 +17346,33 @@
           "purpose": "Record a quiet path and return, so call sites stay single-expression."
         },
         "emit": {
-          "line": 195,
+          "line": 196,
           "params": [
             "context"
           ]
         },
         "searchSegments": {
-          "line": 217,
+          "line": 218,
           "params": [
             "cmd"
           ]
         },
         "extractPattern": {
-          "line": 236,
+          "line": 237,
           "params": [
             "seg"
           ],
           "purpose": "Pull the pattern operand out of one search segment (already known to start"
         },
         "candidates": {
-          "line": 252,
+          "line": 253,
           "params": [
             "raw"
           ],
           "purpose": "A raw pattern (regex, glob, or plain word) → the concept words worth"
         },
         "patternFrom": {
-          "line": 267,
+          "line": 268,
           "params": [
             "toolName",
             "input"
@@ -17360,17 +17380,17 @@
           "purpose": "The raw pattern of a search call: null when the call is not a search at"
         },
         "keywordsFrom": {
-          "line": 287,
+          "line": 288,
           "params": [
             "toolName",
             "input"
           ]
         },
         "loadIntentMap": {
-          "line": 302
+          "line": 303
         },
         "render": {
-          "line": 309,
+          "line": 310,
           "params": [
             "root",
             "structure",
@@ -17379,14 +17399,14 @@
           ]
         },
         "engineFor": {
-          "line": 335,
+          "line": 336,
           "params": [
             "root"
           ],
           "purpose": "project.retrieval.engine, else the shipped default; anything else is the default."
         },
         "existsInProject": {
-          "line": 343,
+          "line": 344,
           "params": [
             "root",
             "rel"
@@ -17394,7 +17414,7 @@
           "purpose": "A hinted file must be a regular file inside the project right now."
         },
         "legacyMode": {
-          "line": 355,
+          "line": 356,
           "params": [
             "root",
             "input",
@@ -17402,33 +17422,33 @@
           ]
         },
         "loadIndex": {
-          "line": 376,
+          "line": 377,
           "params": [
             "root"
           ],
           "purpose": "The index to answer from: a current lookup.json, else the map compiled in memory."
         },
         "fingerprint": {
-          "line": 386,
+          "line": 387,
           "params": [
             "paths"
           ]
         },
         "shownQuery": {
-          "line": 393,
+          "line": 394,
           "params": [
             "pattern"
           ],
           "purpose": "One line of the query, safe to show and to paste as a shell argument."
         },
         "shellQuote": {
-          "line": 397,
+          "line": 398,
           "params": [
             "text"
           ]
         },
         "findModuleQuery": {
-          "line": 412,
+          "line": 413,
           "params": [
             "toolName",
             "input"
@@ -17436,14 +17456,14 @@
           "purpose": "The query of a `node …/find-module.js <query>` call on Bash, else null."
         },
         "lookupKey": {
-          "line": 435,
+          "line": 436,
           "params": [
             "text"
           ],
           "purpose": "The same normalized form for a find-module query and a search pattern."
         },
         "recordLookup": {
-          "line": 439,
+          "line": 440,
           "params": [
             "root",
             "sessionId",
@@ -17452,7 +17472,7 @@
           ]
         },
         "renderV2": {
-          "line": 450,
+          "line": 451,
           "params": [
             "root",
             "result",
@@ -17460,8 +17480,16 @@
             "descriptor"
           ]
         },
+        "askWorker": {
+          "line": 489,
+          "params": [
+            "root",
+            "query"
+          ],
+          "purpose": "Ask the running lifecycle worker (STR-03b): one JSON line over the local"
+        },
         "v2Mode": {
-          "line": 481,
+          "line": 539,
           "params": [
             "root",
             "input",
@@ -17469,18 +17497,19 @@
           ]
         },
         "searchMode": {
-          "line": 520,
+          "line": 589,
           "params": [
             "input"
           ]
         }
       },
-      "sizeBytes": 24122,
+      "sizeBytes": 26730,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
+          "askWorker": "b9a0082e7bf3f798",
           "candidates": "a9ed75e60ec11d73",
           "engineFor": "dd31c17caca3abfa",
           "existsInProject": "5dddbd190b145640",
@@ -18938,6 +18967,7 @@
         "SCHEDULER_DEFAULTS",
         "reconcile",
         "startWorker",
+        "startLookupServer",
         "createWatcher",
         "classify",
         "resolveGitDirs",
@@ -18960,7 +18990,8 @@
         "structure-read",
         "structure-retrieval",
         "structure-commit",
-        "activity-log"
+        "activity-log",
+        "net"
       ],
       "functions": {
         "createScheduler": {
@@ -19096,25 +19127,33 @@
           ],
           "purpose": "Run the lifecycle for one checkout until stopped."
         },
+        "startLookupServer": {
+          "line": 812,
+          "params": [
+            "root",
+            "options = {}"
+          ],
+          "purpose": "Answer lookups from the index this worker published (STR-03b), over a"
+        },
         "resolveProjectRoot": {
-          "line": 799
+          "line": 935
         },
         "writeLine": {
-          "line": 808,
+          "line": 944,
           "params": [
             "stream",
             "value"
           ]
         },
         "runOnce": {
-          "line": 812,
+          "line": 948,
           "params": [
             "root",
             "json"
           ]
         },
         "runLongLived": {
-          "line": 834,
+          "line": 970,
           "params": [
             "root",
             "supervised"
@@ -19122,10 +19161,10 @@
           "purpose": "--watch: foreground coordinator with its own timer until SIGINT/SIGTERM."
         },
         "main": {
-          "line": 876
+          "line": 1012
         }
       },
-      "sizeBytes": 31557,
+      "sizeBytes": 36559,
       "extraction": {
         "status": "parsed"
       },
@@ -19140,6 +19179,7 @@
           "reconcile": "eb06502300c7b411",
           "resolveGitDirs": "bc24c5fffc5a0032",
           "runLongLived": "b1f7d3c740156dce",
+          "startLookupServer": "197495f27801e192",
           "startWorker": "d32dcd9da1f83cb2",
           "writeLifecycle": "8b41315bf3542a50"
         }
@@ -19276,6 +19316,9 @@
         "indexFromMap",
         "lookupPath",
         "curationPath",
+        "lookupAddress",
+        "lookupEndpointPath",
+        "LOOKUP_PROTOCOL",
         "normalizeQuery",
         "retrieve",
         "legacyRetrieve",
@@ -19293,7 +19336,9 @@
       "depends": [
         "fs",
         "path",
-        "structure-read"
+        "structure-read",
+        "crypto",
+        "os"
       ],
       "functions": {
         "fold": {
@@ -19429,8 +19474,20 @@
           ],
           "purpose": "Compile an index in memory from the read view — the fallback when no"
         },
+        "lookupAddress": {
+          "line": 576,
+          "params": [
+            "root"
+          ]
+        },
+        "lookupEndpointPath": {
+          "line": 587,
+          "params": [
+            "root"
+          ]
+        },
         "legacyRetrieve": {
-          "line": 574,
+          "line": 600,
           "params": [
             "structure",
             "curation",
@@ -19439,7 +19496,7 @@
           "purpose": "Today's behavior, kept selectable as the rollback path (STR-03 D2):"
         },
         "legacyHookLookup": {
-          "line": 627,
+          "line": 653,
           "params": [
             "index",
             "intentMap",
@@ -19447,7 +19504,7 @@
           ]
         }
       },
-      "sizeBytes": 27387,
+      "sizeBytes": 28500,
       "extraction": {
         "status": "parsed"
       },
@@ -23475,7 +23532,8 @@
         "path",
         "child_process",
         "crypto",
-        "scripts/structure-retrieval"
+        "scripts/structure-retrieval",
+        "net"
       ],
       "functions": {
         "runHook": {
@@ -23492,7 +23550,7 @@
           ]
         },
         "withReceipt": {
-          "line": 239,
+          "line": 248,
           "params": [
             "root",
             "{ dirty = []",
@@ -23501,26 +23559,42 @@
           ]
         },
         "v2Project": {
-          "line": 307,
+          "line": 316,
           "params": [
             "structure = V2_STRUCTURE"
           ]
         },
         "runCodex": {
-          "line": 317,
+          "line": 326,
           "params": [
             "input"
           ]
         },
         "runHookEnv": {
-          "line": 445,
+          "line": 454,
           "params": [
             "input",
             "env"
           ]
+        },
+        "runHookAsync": {
+          "line": 516,
+          "params": [
+            "input"
+          ]
+        },
+        "fakeWorker": {
+          "line": 527,
+          "params": [
+            "root",
+            "{ reply",
+            "silent = false",
+            "pid = process.pid",
+            "algorithm = retrieval.ALGORITHM } = {}"
+          ]
         }
       },
-      "sizeBytes": 25386,
+      "sizeBytes": 29600,
       "extraction": {
         "status": "parsed"
       },
@@ -23720,7 +23794,7 @@
       ],
       "functions": {
         "cell": {
-          "line": 171,
+          "line": 174,
           "params": [
             "t",
             "{ meta",
@@ -23728,7 +23802,7 @@
           ]
         }
       },
-      "sizeBytes": 15457,
+      "sizeBytes": 15748,
       "extraction": {
         "status": "parsed"
       },
@@ -24437,7 +24511,9 @@
         "scripts/structure-state",
         "src/main/structureLifecycle",
         "src/main/structureBootstrap",
-        "scripts/activity-log"
+        "scripts/activity-log",
+        "net",
+        "scripts/structure-retrieval"
       ],
       "functions": {
         "fakeClock": {
@@ -24505,9 +24581,16 @@
           "params": [
             "files"
           ]
+        },
+        "askSocket": {
+          "line": 892,
+          "params": [
+            "address",
+            "request"
+          ]
         }
       },
-      "sizeBytes": 38349,
+      "sizeBytes": 41934,
       "extraction": {
         "status": "parsed"
       },
@@ -26708,6 +26791,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "1ba2f2d597d5d0232a163ea4d1d2a0cbe77b6f5cb5cde3f0c71b436cc809fda7"
+    "revision": "3cce6e8bc2bd160babcd9e0769eb64300649250c6dfea0e859f9b88ff4a3d7db"
   }
 }

@@ -64,3 +64,33 @@ Legacy behavior is unchanged: it records nothing and keeps its wording. Files to
 _Captured: 2026-10-07 · 4 file change(s)_
 
 ---
+
+## T05 — The worker answers lookups over a local socket
+
+**Worker side.** `scripts/structure-lifecycle.js` in `--watch` and `--supervised` mode starts `startLookupServer` (`startWorker({ serveLookup: true })`; `--once` starts nothing).
+- **Address:** the socket sits at `lookupAddress(root)`, which `structure-retrieval.js` defines: `<tmpdir>/frame-lookup-<sha256(realpath) 16 hex>.sock`, or a named pipe on Windows. The path is 83 characters here, under macOS's 104.
+- **Endpoint file:** `lookup.endpoint` records the address, pid and algorithm.
+- **Protocol:** one JSON line in, one out. The served index refreshes after each published or unchanged lookup and is checked by stat. Answers apply the same contained-file check. A hook-mode miss carries `weak`.
+- **Bad input:** a malformed or wrong-version request gets `bad-request`.
+- **Shutdown:** stopping removes the endpoint (when it is ours) and the socket.
+
+**Hook side.** `scripts/module-hint.js` (v2) asks the worker first: live pid, same algorithm, a 25 ms budget for connect and answer, path-only connection. It falls back to the `lookup.json` path. `searchMode` is now async, with the same never-throw wrapper.
+
+**Import-closure test.** It now allows `net` only in the hook itself, and only as `net.createConnection({ path: endpoint.address })` with no host or port. No helper may load it, and `tls` was added to the banned list.
+
+**Benchmark.** `scripts/eval/run-retrieval.js` (v2 scale runs) starts `--watch` on the synthetic project, waits for the endpoint and a settled receipt, times the hook again, and compares its answers with the file path. The 10k-file gate uses the worker latency when it was measured. Gates now run on `heldOut2`, and the summary names the split.
+
+Development-split smoke run, without touching `heldOut2`:
+- hook precision 100%, hint recall 91.8%, false hints 0;
+- 1k files: hook p95 34 ms from the file, 37 ms with the worker;
+- **10k files: p95 52 ms from the file, 33 ms with the worker**; both paths gave the same answers for 30 of 30 queries.
+
+Found and fixed while measuring:
+- **Line parsing:** the benchmark's hook parser read `path:line` as the path, which showed a false 69.6% precision. It now strips the line.
+- **Busy worker:** the first latency run measured while the worker's attach scan held its event loop, which showed p95 81 ms. The benchmark now waits for the steady state.
+
+Design note: while a full reconciliation runs (attach, and the periodic check), the worker cannot answer, so a hook in that window pays up to 25 ms more than the file path. Files touched: `scripts/structure-retrieval.js`, `scripts/structure-lifecycle.js`, `scripts/module-hint.js`, `scripts/eval/run-retrieval.js`, `test/structureLifecycle.test.js`, `test/module-hint.test.js`, `test/retrievalEval.test.js`.
+
+_Captured: 2026-10-07 · 7 file change(s)_
+
+---

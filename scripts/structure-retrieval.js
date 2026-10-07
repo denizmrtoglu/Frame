@@ -562,6 +562,32 @@ function indexFromMap(root, options = {}) {
   return { state: 'compiled', index: compileIndex(structure, readCuration(options.curationPath || curationPath())), structure };
 }
 
+/* ------------------------- the worker's lookup socket ------------------------ */
+//
+// STR-03b: the lifecycle worker keeps the index it published in memory and
+// answers lookups over a local socket, so a hook skips reading and parsing
+// lookup.json. Process-to-process IPC on this machine only — never a network
+// address. The socket lives in the OS temp directory under a hash of the
+// project's real path (macOS caps a socket path at 104 characters); the
+// worker announces it in `.frame/runtime/structure/lookup.endpoint`.
+
+const LOOKUP_PROTOCOL = 1;
+
+function lookupAddress(root) {
+  let real = root;
+  try {
+    real = fs.realpathSync(root);
+  } catch { /* the path as given */ }
+  const id = require('crypto').createHash('sha256').update(real).digest('hex').slice(0, 16);
+  return process.platform === 'win32'
+    ? `\\\\.\\pipe\\frame-lookup-${id}`
+    : path.join(require('os').tmpdir(), `frame-lookup-${id}.sock`);
+}
+
+function lookupEndpointPath(root) {
+  return path.join(root, '.frame', 'runtime', 'structure', 'lookup.endpoint');
+}
+
 /* --------------------------------- legacy -------------------------------- */
 
 /**
@@ -647,6 +673,9 @@ module.exports = {
   indexFromMap,
   lookupPath,
   curationPath,
+  lookupAddress,
+  lookupEndpointPath,
+  LOOKUP_PROTOCOL,
   normalizeQuery,
   retrieve,
   legacyRetrieve,

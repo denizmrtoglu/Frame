@@ -158,7 +158,7 @@ function cellValidity(meta, stats) {
   if (!meta.retrievalArm) return { valid: true };
   if (meta.setupOk === false) return { valid: false, reason: 'setup-failed' };
   const records = meta.hookRecords || 0;
-  if (meta.arm === 'no-hint') return records === 0 ? { valid: true } : { valid: false, reason: 'hook-ran-in-no-hint-arm' };
+  if (meta.arm === 'no-hint' || meta.arm === 'no-engine') return records === 0 ? { valid: true } : { valid: false, reason: `hook-ran-in-${meta.arm}-arm` };
   if (stats.searchCalls > 0 && records === 0) return { valid: false, reason: 'hook-never-ran' };
   return { valid: true };
 }
@@ -282,11 +282,12 @@ function main() {
     summary[arm] = aggregate(armRuns);
   }
 
-  const retrievalArms = runs.some((r) => ['no-hint', 'legacy', 'v2'].includes(r.arm));
+  const retrievalArms = runs.some((r) => ['no-hint', 'no-engine', 'legacy', 'v2'].includes(r.arm));
   const comparisons = {};
   const byKind = {};
   if (retrievalArms) {
-    for (const [a, b] of [['no-hint', 'legacy'], ['no-hint', 'v2'], ['legacy', 'v2']]) {
+    const present = new Set(runs.map((r) => r.arm));
+    for (const [a, b] of [['no-engine', 'v2'], ['no-hint', 'legacy'], ['no-hint', 'v2'], ['legacy', 'v2']].filter(([x, y]) => present.has(x) && present.has(y))) {
       comparisons[`${b} vs ${a}`] = Object.fromEntries(['totalInputTokens', 'lookups', 'repeatedLookups', 'readCalls', 'durationMs', 'filesFound']
         .map((m) => [m, paired(runs, a, b, m)]));
     }

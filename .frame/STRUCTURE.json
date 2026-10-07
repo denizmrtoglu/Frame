@@ -16412,7 +16412,10 @@
         "answerPasses",
         "repositorySnapshot",
         "snapshotDiff",
-        "RETRIEVAL_ARMS"
+        "withoutFindModule",
+        "withSearchHook",
+        "RETRIEVAL_ARMS",
+        "ALL_RETRIEVAL_ARMS"
       ],
       "depends": [
         "fs",
@@ -16424,8 +16427,29 @@
         "parseArgs": {
           "line": 68
         },
+        "withoutFindModule": {
+          "line": 104,
+          "params": [
+            "text"
+          ],
+          "purpose": "Instructions without the find-module route: the \"Fast file lookup\" block and any line naming it."
+        },
+        "withSearchHook": {
+          "line": 114,
+          "params": [
+            "settings",
+            "command"
+          ],
+          "purpose": "The project's hook settings with the search hint replaced: removed"
+        },
+        "readJsonFile": {
+          "line": 130,
+          "params": [
+            "file"
+          ]
+        },
         "shuffled": {
-          "line": 92,
+          "line": 135,
           "params": [
             "items",
             "seed"
@@ -16433,7 +16457,7 @@
           "purpose": "Deterministic shuffle (mulberry32) so a run order can be reproduced."
         },
         "setupRetrievalArm": {
-          "line": 114,
+          "line": 157,
           "params": [
             "wt",
             "arm",
@@ -16442,14 +16466,14 @@
           "purpose": "Retrieval-arm setup: the same map for every arm (this checkout's"
         },
         "finalAnswer": {
-          "line": 139,
+          "line": 184,
           "params": [
             "transcript"
           ],
           "purpose": "The agent's final answer: the `result` text of the last result event."
         },
         "answerPasses": {
-          "line": 152,
+          "line": 197,
           "params": [
             "task",
             "transcript"
@@ -16457,42 +16481,76 @@
           "purpose": "Whether a question task's answer names one of its accepted paths."
         },
         "repositorySnapshot": {
-          "line": 159,
+          "line": 204,
           "params": [
             "cwd = ROOT_DIR"
           ],
           "purpose": "What a run must leave exactly as it found it."
         },
         "snapshotDiff": {
-          "line": 172,
+          "line": 217,
           "params": [
             "before",
             "after"
           ],
           "purpose": "The differences between two snapshots, as readable lines ([] when clean)."
         },
+        "setupNoEngine": {
+          "line": 230,
+          "params": [
+            "wt"
+          ],
+          "purpose": "`no-engine`: no search hint, no find-module, no find-module instructions."
+        },
+        "setupV2": {
+          "line": 249,
+          "params": [
+            "wt",
+            "activityHome"
+          ],
+          "purpose": "`v2`: this checkout's engine files, a current map and index, engine v2, and its search hint."
+        },
+        "sleepMs": {
+          "line": 290,
+          "params": [
+            "ms"
+          ]
+        },
+        "startLifecycle": {
+          "line": 295,
+          "params": [
+            "wt"
+          ],
+          "purpose": "Start this checkout's lifecycle worker on a cell and wait until its first reconciliation settled."
+        },
+        "stopLifecycle": {
+          "line": 311,
+          "params": [
+            "child"
+          ]
+        },
         "hookActivity": {
-          "line": 185,
+          "line": 318,
           "params": [
             "activityHome"
           ],
           "purpose": "Search-hook records a cell produced: { records, injected }."
         },
         "git": {
-          "line": 210,
+          "line": 343,
           "params": [
             "cmd",
             "cwd"
           ]
         },
         "setupHooks": {
-          "line": 220,
+          "line": 353,
           "params": [
             "wt"
           ]
         },
         "runOne": {
-          "line": 245,
+          "line": 378,
           "params": [
             "task",
             "arm",
@@ -16504,10 +16562,10 @@
           ]
         },
         "main": {
-          "line": 348
+          "line": 487
         }
       },
-      "sizeBytes": 16971,
+      "sizeBytes": 24410,
       "extraction": {
         "status": "parsed"
       },
@@ -16517,9 +16575,14 @@
           "finalAnswer": "fb17c2abbc6b0ba0",
           "hookActivity": "4631feb261596931",
           "repositorySnapshot": "b7880e36b157ef56",
+          "setupNoEngine": "40aedd4732666472",
           "setupRetrievalArm": "783c6bac4f5c86a2",
+          "setupV2": "36e63c62ffacadf1",
           "shuffled": "a75b35feb454edac",
-          "snapshotDiff": "0db094a1581f719c"
+          "snapshotDiff": "0db094a1581f719c",
+          "startLifecycle": "8a96829399ca5af1",
+          "withSearchHook": "b9ffd815cee3e151",
+          "withoutFindModule": "aef65034cbdccf97"
         }
       }
     },
@@ -16804,7 +16867,7 @@
           "line": 258
         }
       },
-      "sizeBytes": 16215,
+      "sizeBytes": 16387,
       "extraction": {
         "status": "parsed"
       },
@@ -23866,7 +23929,7 @@
           ]
         }
       },
-      "sizeBytes": 19381,
+      "sizeBytes": 21431,
       "extraction": {
         "status": "parsed"
       },
@@ -26855,6 +26918,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "e31e4092013769404e381e2f261743a6f07133e7fe3161f2d8484e42f641f17d"
+    "revision": "a135e1c15330678cb8f5da510eec738416ea5c9518b08a36575ff5eed062735f"
   }
 }

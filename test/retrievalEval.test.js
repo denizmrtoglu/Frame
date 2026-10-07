@@ -329,3 +329,40 @@ test('a run that changes status, branches or worktrees is reported', () => {
   assert.deepEqual(Object.keys(snap), ['status', 'branches', 'worktrees']);
   assert.ok(!snap.status.startsWith('ERROR'));
 });
+
+/* ----------------------- STR-03b: the no-engine and v2 arms ----------------------- */
+
+test('no-engine instructions lose the find-module route and nothing else', () => {
+  const text = [
+    '## Project Navigation', '',
+    '**Fast file lookup** — before manual grep/glob, run:', '',
+    '```bash', 'node .frame/bin/find-module.js <keyword>   # concept → files', 'node .frame/bin/find-module.js --list', '```', '',
+    '**Spec history** — run spec-context.', 'See also find-module for files.', 'Keep this line.'
+  ].join('\n');
+  const out = runEval.withoutFindModule(text);
+  assert.ok(!/find-module/.test(out));
+  assert.ok(!/Fast file lookup/.test(out));
+  assert.match(out, /\*\*Spec history\*\* — run spec-context\.\nKeep this line\./);
+});
+
+test('the search hook is removed or replaced once; every other hook stays', () => {
+  const settings = { hooks: {
+    PreToolUse: [
+      { matcher: 'Edit|Write', hooks: [{ type: 'command', command: 'node scripts/spec-hint.js pre-edit' }] },
+      { matcher: 'Grep|Glob|Bash', hooks: [{ type: 'command', command: 'node scripts/module-hint.js search' }] }
+    ],
+    SessionStart: [{ hooks: [{ type: 'command', command: 'node scripts/docs-hint.js session-start' }] }]
+  } };
+  const removed = runEval.withSearchHook(settings, null);
+  assert.ok(!/module-hint/.test(JSON.stringify(removed)));
+  assert.equal(removed.hooks.PreToolUse.length, 1);
+  assert.equal(removed.hooks.SessionStart.length, 1);
+
+  const command = 'FRAME_ACTIVITY_HOME="/tmp/a b" node scripts/module-hint.js search';
+  const replaced = runEval.withSearchHook(settings, command);
+  const commands = Object.values(replaced.hooks).flat().flatMap((g) => g.hooks.map((h) => h.command));
+  assert.equal(commands.filter((c) => /module-hint/.test(c)).length, 1, 'exactly one search hook');
+  assert.ok(commands.includes(command));
+  assert.equal(runEval.withSearchHook({}, command).hooks.PreToolUse[0].matcher, 'Grep|Glob|Bash', 'added when none was registered');
+  assert.ok(runEval.ALL_RETRIEVAL_ARMS.includes('no-engine'));
+});

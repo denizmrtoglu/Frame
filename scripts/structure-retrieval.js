@@ -21,7 +21,8 @@
  * Hooks emit tiers 1–6 only; 7–8 are for explicit lookup.
  *
  * Every content word of a query must be explained by some match: a file
- * that matches "config" does not answer "webpack config". A word carrying a
+ * that matches "config" does not answer "webpack config". A hook is
+ * stricter: one file must carry every word, or it stays quiet. A word carrying a
  * non-ASCII letter ("dosyası", "yöneticisi") is natural-language prose —
  * code identifiers here are ASCII — so it may stay unexplained.
  */
@@ -29,7 +30,7 @@
 'use strict';
 
 const INDEX_VERSION = 1;
-const ALGORITHM = 'str03-v2.1';
+const ALGORITHM = 'str03-v2.2';
 
 // `legacy` is the pre-STR-03 behavior, kept selectable as the rollback path;
 // the default follows the benchmark gates (scripts/eval/README.md).
@@ -111,7 +112,8 @@ function normalizeQuery(raw) {
         folded,
         words,
         prose: NON_ASCII_LETTER.test(token),
-        noise: words.length > 0 && words.every((w) => NOISE.has(w) || w.length < 3),
+        // a file name or path ("go.js", "ui/a.js") is never noise, however short its words
+        noise: !/[./]/.test(token) && words.length > 0 && words.every((w) => NOISE.has(w) || w.length < 3),
         marker: MARKERS.has(folded)
       });
       if (units.length >= LIMITS.queryUnits) break;
@@ -138,7 +140,8 @@ function stripExt(name) {
  * postings in file order, each term capped and marked when truncated.
  *
  *   files     [[path, description]]
- *   terms     { "<tier>:<folded>": [fileId, …] }  tiers 1, 4, 5, 7, 8
+ *   terms     { "<tier>:<folded>": [fileId, …] }  tiers 4, 5, 7, 8 (paths are scanned)
+ *   lines     { "<fileId>:<folded function>": line }
  *   concepts  [[name, [fileId, …], [synonym, …]]]  intentIndex order
  */
 function compileIndex(structure, curation = {}, meta = {}) {
@@ -149,6 +152,7 @@ function compileIndex(structure, curation = {}, meta = {}) {
   const files = [];
   const idOf = new Map();
   const terms = Object.create(null);
+  const lines = Object.create(null);
   const truncated = new Set();
   const add = (tier, term, id) => {
     if (!term) return;
@@ -169,8 +173,8 @@ function compileIndex(structure, curation = {}, meta = {}) {
     const description = typeof mod.description === 'string' ? mod.description.slice(0, LIMITS.descriptionChars) : '';
     files.push([mod.file, description]);
 
+    // Paths are matched by scanning `files` (tier 1), so they cost no postings.
     const base = basenameOf(mod.file);
-    add(TIER.PATH, fold(mod.file), id);
     add(TIER.BASENAME, fold(base), id);
     add(TIER.BASENAME, fold(stripExt(base)), id);
 
@@ -180,6 +184,10 @@ function compileIndex(structure, curation = {}, meta = {}) {
     const ipc = mod.ipc && typeof mod.ipc === 'object' ? mod.ipc : {};
     for (const name of [...(ipc.listens || []), ...(ipc.emits || [])]) if (typeof name === 'string') symbols.add(name);
     for (const name of symbols) add(TIER.SYMBOL, fold(name), id);
+    // definition lines, functions only (exports and IPC channels carry none)
+    for (const [name, fn] of Object.entries(mod.functions && typeof mod.functions === 'object' ? mod.functions : {})) {
+      if (fn && Number.isInteger(fn.line) && fn.line > 0) lines[`${id}:${fold(name)}`] = fn.line;
+    }
 
     const seen = new Set();
     for (const w of splitWords(mod.file)) {
@@ -218,12 +226,24 @@ function compileIndex(structure, curation = {}, meta = {}) {
     ...meta,
     files,
     terms,
+    lines,
     concepts,
     truncated: [...truncated].sort()
   };
 }
 
 /* ------------------------------- retrieval ------------------------------- */
+
+const FOLDED_PATHS = new WeakMap();
+/** The index's paths in search form, computed once per index object. */
+function foldedPaths(index) {
+  let paths = FOLDED_PATHS.get(index);
+  if (!paths) {
+    paths = index.files.map(([file]) => fold(file));
+    FOLDED_PATHS.set(index, paths);
+  }
+  return paths;
+}
 
 /** Every match one unit has: Map(fileId → best tier) plus the concepts it named. */
 function matchUnit(index, unit, phraseConcepts) {
@@ -235,11 +255,11 @@ function matchUnit(index, unit, phraseConcepts) {
   const postings = (tier, term) => index.terms[`${tier}:${term}`] || [];
 
   // 1 path: exact, or a suffix that starts at a directory boundary
-  for (const id of postings(TIER.PATH, unit.folded)) note(id, TIER.PATH);
-  if (unit.folded.includes('/')) {
+  if (unit.folded.includes('/') || unit.folded.includes('.')) {
+    const paths = foldedPaths(index);
     const suffix = `/${unit.folded}`;
-    index.files.forEach(([file], id) => {
-      if (fold(file).endsWith(suffix)) note(id, TIER.PATH);
+    paths.forEach((file, id) => {
+      if (file === unit.folded || (unit.folded.includes('/') && file.endsWith(suffix))) note(id, TIER.PATH);
     });
   }
   // 2–3 concepts and synonyms, 6 partial concepts
@@ -338,9 +358,12 @@ function retrieveUnits(index, allUnits, mode, limit, options) {
   // Every required word must be explained by some match. Files carrying
   // all of them come first; when none does ("GitHub paneli": the github
   // group and the panel group), files rank by how many words they carry.
+  // A hook is stricter (STR-03b): one file must carry every required word,
+  // or the hint stays quiet — the relaxation produced its wrong hints.
   const explained = new Set([...perFile.values()].flatMap((e) => [...e.covered]));
   if (!required.every((i) => explained.has(i))) return none;
   let ranked = [...perFile.entries()]
+    .filter(([, e]) => mode !== 'hook' || required.every((i) => e.covered.has(i)))
     .map(([id, e]) => ({ id, tier: e.tier, sum: e.sum, cov: e.covered.size }))
     .sort((a, b) => b.cov - a.cov || a.tier - b.tier || a.sum - b.sum
       || (conceptOrder.get(a.id) ?? Infinity) - (conceptOrder.get(b.id) ?? Infinity)
@@ -358,6 +381,16 @@ function retrieveUnits(index, allUnits, mode, limit, options) {
   const toCandidate = (r) => {
     const [file, description] = index.files[r.id];
     const c = { path: file, description, tier: r.tier, evidence: TIER_EVIDENCE[r.tier] };
+    if (r.tier === TIER.SYMBOL && index.lines) {
+      for (const u of units) {
+        const line = index.lines[`${r.id}:${u.folded}`];
+        if (line) {
+          c.line = line;
+          c.symbol = u.raw;
+          break;
+        }
+      }
+    }
     if (r.missing) c.missing = true;
     return c;
   };
@@ -529,6 +562,32 @@ function indexFromMap(root, options = {}) {
   return { state: 'compiled', index: compileIndex(structure, readCuration(options.curationPath || curationPath())), structure };
 }
 
+/* ------------------------- the worker's lookup socket ------------------------ */
+//
+// STR-03b: the lifecycle worker keeps the index it published in memory and
+// answers lookups over a local socket, so a hook skips reading and parsing
+// lookup.json. Process-to-process IPC on this machine only — never a network
+// address. The socket lives in the OS temp directory under a hash of the
+// project's real path (macOS caps a socket path at 104 characters); the
+// worker announces it in `.frame/runtime/structure/lookup.endpoint`.
+
+const LOOKUP_PROTOCOL = 1;
+
+function lookupAddress(root) {
+  let real = root;
+  try {
+    real = fs.realpathSync(root);
+  } catch { /* the path as given */ }
+  const id = require('crypto').createHash('sha256').update(real).digest('hex').slice(0, 16);
+  return process.platform === 'win32'
+    ? `\\\\.\\pipe\\frame-lookup-${id}`
+    : path.join(require('os').tmpdir(), `frame-lookup-${id}.sock`);
+}
+
+function lookupEndpointPath(root) {
+  return path.join(root, '.frame', 'runtime', 'structure', 'lookup.endpoint');
+}
+
 /* --------------------------------- legacy -------------------------------- */
 
 /**
@@ -614,6 +673,9 @@ module.exports = {
   indexFromMap,
   lookupPath,
   curationPath,
+  lookupAddress,
+  lookupEndpointPath,
+  LOOKUP_PROTOCOL,
   normalizeQuery,
   retrieve,
   legacyRetrieve,

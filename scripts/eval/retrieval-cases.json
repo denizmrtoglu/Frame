@@ -2348,6 +2348,1527 @@
           ]
         }
       ]
+    },
+    "heldOut2": {
+      "sha256": "fa26977b5673ec4ed7c2da7287d48dd9298b9985de4dacd3fddfd9d3cd0d906b",
+      "frozenAt": "2026-10-07",
+      "note": "STR-03b: English only (Turkish is deferred to a later spec); written before any STR-03b engine change; the STR-03 heldOut split is spent and kept as a record",
+      "cases": [
+        {
+          "id": "ho2-001",
+          "family": "ai-tool",
+          "query": "aiToolManager",
+          "expect": [
+            "src/main/aiToolManager.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-002",
+          "family": "ai-tool",
+          "query": "detectDefaultTool",
+          "expect": [
+            "src/main/aiToolManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-003",
+          "family": "ai-tool",
+          "query": "codex",
+          "expect": [
+            "src/main/aiToolManager.js",
+            "src/renderer/aiToolSelector.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-004",
+          "family": "ai-tool",
+          "query": "getStartCommand",
+          "expect": [
+            "src/renderer/aiToolSelector.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-005",
+          "family": "sessions",
+          "query": "claude-sessions",
+          "expect": [
+            "src/main/claudeSessionsManager.js",
+            "src/renderer/home/widgets/lastSessions.js",
+            "src/renderer/sessionsPanel.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho2-006",
+          "family": "sessions",
+          "query": "encodeProjectPath",
+          "expect": [
+            "src/main/claudeSessionsManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-007",
+          "family": "sessions",
+          "query": "sessionsPanel.js",
+          "expect": [
+            "src/renderer/sessionsPanel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-008",
+          "family": "sessions",
+          "query": "scanTranscript",
+          "expect": [
+            "src/main/claudeSessionsManager.js"
+          ],
+          "tags": [
+            "shell",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"scanTranscript\" src/main"
+          }
+        },
+        {
+          "id": "ho2-009",
+          "family": "usage",
+          "query": "claude-usage",
+          "expect": [
+            "src/main/claudeUsageManager.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho2-010",
+          "family": "usage",
+          "query": "quota",
+          "expect": [
+            "src/main/claudeUsageManager.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-011",
+          "family": "usage",
+          "query": "readKeychainCredentials",
+          "expect": [
+            "src/main/claudeUsageManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-012",
+          "family": "crash",
+          "query": "crashGuard",
+          "expect": [
+            "src/main/crashGuard.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-013",
+          "family": "crash",
+          "query": "crash-recovery",
+          "expect": [
+            "src/main/crashGuard.js",
+            "src/renderer/healthNotice.js",
+            "src/renderer/statusBar/noticeTray.js",
+            "src/renderer/statusBar/noticeTrayModel.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-014",
+          "family": "crash",
+          "query": "describeStructureScan",
+          "expect": [
+            "src/renderer/healthNotice.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-015",
+          "family": "crash",
+          "query": "noticeTrayModel",
+          "expect": [
+            "src/renderer/statusBar/noticeTrayModel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-016",
+          "family": "crash",
+          "query": "normalizeSeverity",
+          "expect": [
+            "src/renderer/statusBar/noticeTrayModel.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-017",
+          "family": "editor",
+          "query": "code-editor",
+          "expect": [
+            "src/main/fileEditor.js",
+            "src/renderer/editor.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-018",
+          "family": "editor",
+          "query": "fileEditor.js",
+          "expect": [
+            "src/main/fileEditor.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-019",
+          "family": "editor",
+          "query": "togglePreview",
+          "expect": [
+            "src/renderer/editor.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-020",
+          "family": "editor",
+          "query": "checkModified",
+          "expect": [
+            "src/renderer/editor.js"
+          ],
+          "tags": [
+            "shell",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "rg -n \"checkModified\" src/renderer"
+          }
+        },
+        {
+          "id": "ho2-021",
+          "family": "filetree",
+          "query": "file-tree",
+          "expect": [
+            "src/main/fileTree.js",
+            "src/renderer/fileTreeUI.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho2-022",
+          "family": "filetree",
+          "query": "explorer",
+          "expect": [
+            "src/main/fileTree.js",
+            "src/renderer/fileTreeUI.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-023",
+          "family": "filetree",
+          "query": "uniqueCopyPath",
+          "expect": [
+            "src/main/fileTree.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-024",
+          "family": "filetree",
+          "query": "renameEntry",
+          "expect": [
+            "src/main/fileTree.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-025",
+          "family": "migration",
+          "query": "layoutMigration",
+          "expect": [
+            "src/main/layoutMigration.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-026",
+          "family": "migration",
+          "query": "migrationModal",
+          "expect": [
+            "src/renderer/migrationModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-027",
+          "family": "migration",
+          "query": "hasPendingDecisions",
+          "expect": [
+            "src/renderer/migrationModal.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-028",
+          "family": "orchestration",
+          "query": "orchestration",
+          "expect": [
+            "src/main/orchestrationManager.js",
+            "src/renderer/agentDispatch.js",
+            "src/renderer/homeBoard.js",
+            "src/renderer/laneStatus.js",
+            "src/renderer/orchestrator.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho2-029",
+          "family": "orchestration",
+          "query": "conductor",
+          "expect": [
+            "src/main/orchestrationManager.js",
+            "src/renderer/agentDispatch.js",
+            "src/renderer/homeBoard.js",
+            "src/renderer/laneStatus.js",
+            "src/renderer/orchestrator.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-030",
+          "family": "orchestration",
+          "query": "worktreeDirFor",
+          "expect": [
+            "src/main/orchestrationManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-031",
+          "family": "orchestration",
+          "query": "laneStatus",
+          "expect": [
+            "src/renderer/laneStatus.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-032",
+          "family": "orchestration",
+          "query": "detectAgentName",
+          "expect": [
+            "src/renderer/laneStatus.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-033",
+          "family": "orchestration",
+          "query": "agentDispatch",
+          "expect": [
+            "src/renderer/agentDispatch.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-034",
+          "family": "plugins",
+          "query": "plugins",
+          "expect": [
+            "src/main/pluginsManager.js",
+            "src/renderer/pluginsPanel.js"
+          ],
+          "tags": [
+            "curated"
+          ]
+        },
+        {
+          "id": "ho2-035",
+          "family": "plugins",
+          "query": "getMarketplacePlugins",
+          "expect": [
+            "src/main/pluginsManager.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-036",
+          "family": "plugins",
+          "query": "pluginsPanel",
+          "expect": [
+            "src/renderer/pluginsPanel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-037",
+          "family": "polling",
+          "query": "pollGate",
+          "expect": [
+            "src/main/pollGate.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-038",
+          "family": "polling",
+          "query": "gatedInterval",
+          "expect": [
+            "src/main/pollGate.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-039",
+          "family": "polling",
+          "query": "ttlCache",
+          "expect": [
+            "src/main/pollGate.js"
+          ],
+          "tags": [
+            "shell",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"ttlCache\" src/"
+          }
+        },
+        {
+          "id": "ho2-040",
+          "family": "insights",
+          "query": "projectInsights",
+          "expect": [
+            "src/main/projectInsights.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-041",
+          "family": "insights",
+          "query": "getFileBlame",
+          "expect": [
+            "src/main/projectInsights.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-042",
+          "family": "insights",
+          "query": "decisionsView",
+          "expect": [
+            "src/renderer/decisionsView.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-043",
+          "family": "dock",
+          "query": "dock",
+          "expect": [
+            "src/renderer/dock.js",
+            "src/renderer/dock/dockState.js"
+          ],
+          "tags": [
+            "concept"
+          ]
+        },
+        {
+          "id": "ho2-044",
+          "family": "dock",
+          "query": "dockState",
+          "expect": [
+            "src/renderer/dock/dockState.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-045",
+          "family": "dock",
+          "query": "clampSize",
+          "expect": [
+            "src/renderer/dock/dockState.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-046",
+          "family": "guide",
+          "query": "guideModal",
+          "expect": [
+            "src/renderer/guideModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-047",
+          "family": "guide",
+          "query": "flattenPages",
+          "expect": [
+            "src/renderer/guide/guideContent.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-048",
+          "family": "guide",
+          "query": "guideSketches.js",
+          "expect": [
+            "src/renderer/guide/guideSketches.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-049",
+          "family": "first-run",
+          "query": "measureWordmark",
+          "expect": [
+            "src/renderer/onboarding.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-050",
+          "family": "first-run",
+          "query": "onboarding.js",
+          "expect": [
+            "src/renderer/onboarding.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-051",
+          "family": "widgets",
+          "query": "activeSpecs",
+          "expect": [
+            "src/renderer/home/widgets/activeSpecs.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-052",
+          "family": "widgets",
+          "query": "lastSessions widget",
+          "expect": [
+            "src/renderer/home/widgets/lastSessions.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-053",
+          "family": "widgets",
+          "query": "homeBoard",
+          "expect": [
+            "src/renderer/homeBoard.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-054",
+          "family": "prompts",
+          "query": "prompt-history",
+          "expect": [
+            "src/main/promptLogger.js",
+            "src/renderer/promptsPanel.js"
+          ],
+          "tags": [
+            "synonym"
+          ]
+        },
+        {
+          "id": "ho2-055",
+          "family": "prompts",
+          "query": "promptsPanel",
+          "expect": [
+            "src/renderer/promptsPanel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-056",
+          "family": "prompts",
+          "query": "parseHistory",
+          "expect": [
+            "src/renderer/promptsPanel.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-057",
+          "family": "specs-ui",
+          "query": "specDrivenHint",
+          "expect": [
+            "src/renderer/specDrivenHint.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-058",
+          "family": "specs-ui",
+          "query": "buildGridModel",
+          "expect": [
+            "src/renderer/specs/filterModel.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-059",
+          "family": "specs-ui",
+          "query": "filterModel.js",
+          "expect": [
+            "src/renderer/specs/filterModel.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-060",
+          "family": "specs-ui",
+          "query": "implementModeModal",
+          "expect": [
+            "src/renderer/implementModeModal.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-061",
+          "family": "specs-ui",
+          "query": "reportSection",
+          "expect": [
+            "src/renderer/reportSection.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-062",
+          "family": "statusbar",
+          "query": "statusBar.js",
+          "expect": [
+            "src/renderer/statusBar.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-063",
+          "family": "statusbar",
+          "query": "noticeTray",
+          "expect": [
+            "src/renderer/statusBar/noticeTray.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-064",
+          "family": "platform",
+          "query": "formatShortcut",
+          "expect": [
+            "src/renderer/platform.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-065",
+          "family": "platform",
+          "query": "platform.js",
+          "expect": [
+            "src/renderer/platform.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-066",
+          "family": "platform",
+          "query": "makeSortable",
+          "expect": [
+            "src/renderer/dnd/sortable.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-067",
+          "family": "platform",
+          "query": "reorder",
+          "expect": [
+            "src/renderer/dnd/reorder.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-068",
+          "family": "platform",
+          "query": "ipcWatchdog",
+          "expect": [
+            "src/renderer/ipcWatchdog.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-069",
+          "family": "platform",
+          "query": "escapeHtml",
+          "expect": [
+            "src/renderer/docsHealthHint.js",
+            "src/renderer/htmlUtils.js",
+            "src/templates/commands/claude-code/build-implement-report.mjs"
+          ],
+          "tags": [
+            "ambiguous",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-070",
+          "family": "structure-scripts",
+          "query": "structure-discovery",
+          "expect": [
+            "scripts/structure-discovery.js"
+          ],
+          "tags": [
+            "basename",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-071",
+          "family": "structure-scripts",
+          "query": "resolvePolicy",
+          "expect": [
+            "scripts/structure-discovery.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-072",
+          "family": "structure-scripts",
+          "query": "statIdentity",
+          "expect": [
+            "scripts/structure-snapshot.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-073",
+          "family": "structure-scripts",
+          "query": "proseHash",
+          "expect": [
+            "scripts/structure-generation.js"
+          ],
+          "tags": [
+            "singleton",
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-074",
+          "family": "structure-scripts",
+          "query": "scripts/structure-snapshot.js",
+          "expect": [
+            "scripts/structure-snapshot.js"
+          ],
+          "tags": [
+            "path",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-075",
+          "family": "structure-scripts",
+          "query": "cliOfTool",
+          "expect": [
+            "scripts/toolVocabulary.js"
+          ],
+          "tags": [
+            "shell",
+            "singleton",
+            "symbol"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -n \"cliOfTool\" scripts/*.js"
+          }
+        },
+        {
+          "id": "ho2-076",
+          "family": "structure-scripts",
+          "query": "**/structure-generation.js",
+          "expect": [
+            "scripts/structure-generation.js"
+          ],
+          "tags": [
+            "glob",
+            "path",
+            "singleton"
+          ],
+          "hook": {
+            "tool": "Glob",
+            "pattern": "**/structure-generation.js"
+          }
+        },
+        {
+          "id": "ho2-077",
+          "family": "templates",
+          "query": "frameTemplates",
+          "expect": [
+            "src/shared/frameTemplates.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-078",
+          "family": "templates",
+          "query": "getAgentsTemplate",
+          "expect": [
+            "src/shared/frameTemplates.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-079",
+          "family": "templates",
+          "query": "implement-launch",
+          "expect": [
+            "src/templates/bin/implement-launch.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-080",
+          "family": "templates",
+          "query": "buildLaunchArgs",
+          "expect": [
+            "src/templates/bin/implement-launch.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-081",
+          "family": "templates",
+          "query": "renderVerification",
+          "expect": [
+            "src/templates/commands/claude-code/build-implement-report.mjs"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-082",
+          "family": "feedback",
+          "query": "feedbackReport",
+          "expect": [
+            "src/shared/feedbackReport.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-083",
+          "family": "feedback",
+          "query": "mailtoUrl",
+          "expect": [
+            "src/shared/feedbackReport.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-084",
+          "family": "feedback",
+          "query": "partitionDone",
+          "expect": [
+            "src/shared/doneWindow.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-085",
+          "family": "feedback",
+          "query": "doneWindow",
+          "expect": [
+            "src/renderer/doneWindow.js",
+            "src/shared/doneWindow.js"
+          ],
+          "tags": [
+            "ambiguous",
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-086",
+          "family": "state",
+          "query": "onProjectChange",
+          "expect": [
+            "src/renderer/state.js"
+          ],
+          "tags": [
+            "symbol"
+          ]
+        },
+        {
+          "id": "ho2-087",
+          "family": "state",
+          "query": "projectStatusBadges",
+          "expect": [
+            "src/renderer/projectStatusBadges.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-088",
+          "family": "state",
+          "query": "sectionRail",
+          "expect": [
+            "src/renderer/sectionRail.js"
+          ],
+          "tags": [
+            "basename"
+          ]
+        },
+        {
+          "id": "ho2-089",
+          "family": "ai-tool",
+          "query": "switch the active ai tool",
+          "expect": [
+            "src/main/aiToolManager.js",
+            "src/renderer/aiToolSelector.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-090",
+          "family": "sessions",
+          "query": "resume claude sessions list",
+          "expect": [
+            "src/main/claudeSessionsManager.js",
+            "src/renderer/home/widgets/lastSessions.js",
+            "src/renderer/sessionsPanel.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-091",
+          "family": "usage",
+          "query": "claude usage quota polling",
+          "expect": [
+            "src/main/claudeUsageManager.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-092",
+          "family": "crash",
+          "query": "crash guard error handlers",
+          "expect": [
+            "src/main/crashGuard.js",
+            "src/renderer/healthNotice.js",
+            "src/renderer/statusBar/noticeTray.js",
+            "src/renderer/statusBar/noticeTrayModel.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-093",
+          "family": "editor",
+          "query": "file editor save",
+          "expect": [
+            "src/main/fileEditor.js",
+            "src/renderer/editor.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-094",
+          "family": "filetree",
+          "query": "file tree rename entry",
+          "expect": [
+            "src/main/fileTree.js",
+            "src/renderer/fileTreeUI.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-095",
+          "family": "migration",
+          "query": "layout migration decision modal",
+          "expect": [
+            "src/main/layoutMigration.js",
+            "src/renderer/migrationModal.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-096",
+          "family": "orchestration",
+          "query": "orchestration worker lanes",
+          "expect": [
+            "src/main/orchestrationManager.js",
+            "src/renderer/agentDispatch.js",
+            "src/renderer/homeBoard.js",
+            "src/renderer/laneStatus.js",
+            "src/renderer/orchestrator.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-097",
+          "family": "plugins",
+          "query": "plugin marketplace",
+          "expect": [
+            "src/main/pluginsManager.js",
+            "src/renderer/pluginsPanel.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-098",
+          "family": "polling",
+          "query": "visibility gated polling interval",
+          "expect": [
+            "src/main/pollGate.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-099",
+          "family": "insights",
+          "query": "file git blame history",
+          "expect": [
+            "src/main/projectInsights.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-100",
+          "family": "dock",
+          "query": "dock panel position and size",
+          "expect": [
+            "src/renderer/dock.js",
+            "src/renderer/dock/dockState.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-101",
+          "family": "guide",
+          "query": "how to use frame guide",
+          "expect": [
+            "src/renderer/guide/guideContent.js",
+            "src/renderer/guide/guideSketches.js",
+            "src/renderer/guideModal.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-102",
+          "family": "prompts",
+          "query": "prompt history panel",
+          "expect": [
+            "src/main/promptLogger.js",
+            "src/renderer/promptsPanel.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-103",
+          "family": "statusbar",
+          "query": "status bar notice tray",
+          "expect": [
+            "src/renderer/statusBar.js",
+            "src/renderer/statusBar/noticeTray.js",
+            "src/renderer/statusBar/noticeTrayModel.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-104",
+          "family": "platform",
+          "query": "drag to reorder rows",
+          "expect": [
+            "src/renderer/dnd/reorder.js",
+            "src/renderer/dnd/sortable.js"
+          ],
+          "tags": [
+            "natural",
+            "singleton"
+          ]
+        },
+        {
+          "id": "ho2-105",
+          "family": "templates",
+          "query": "agents template generation",
+          "expect": [
+            "src/shared/frameTemplates.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-106",
+          "family": "feedback",
+          "query": "feedback report composer",
+          "expect": [
+            "src/renderer/feedbackPanel.js",
+            "src/shared/feedbackReport.js"
+          ],
+          "tags": [
+            "natural"
+          ]
+        },
+        {
+          "id": "ho2-107",
+          "family": "mutation",
+          "query": "pollGate",
+          "expect": [],
+          "tags": [
+            "negative",
+            "removed"
+          ],
+          "mutate": {
+            "remove": "src/main/pollGate.js"
+          }
+        },
+        {
+          "id": "ho2-108",
+          "family": "mutation",
+          "query": "ipcWatchdog",
+          "expect": [],
+          "tags": [
+            "negative",
+            "renamed"
+          ],
+          "mutate": {
+            "rename": [
+              "src/renderer/ipcWatchdog.js",
+              "src/renderer/ipcGuard.js"
+            ]
+          }
+        },
+        {
+          "id": "ho2-109",
+          "family": "negative",
+          "query": "graphql schema",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-110",
+          "family": "negative",
+          "query": "redis cache layer",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-111",
+          "family": "negative",
+          "query": "stripe webhook",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-112",
+          "family": "negative",
+          "query": "kubernetes deployment",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-113",
+          "family": "negative",
+          "query": "kafka consumer group",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-114",
+          "family": "negative",
+          "query": "oauth2 refresh token",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-115",
+          "family": "negative",
+          "query": "cron job scheduler",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-116",
+          "family": "negative",
+          "query": "sms verification code",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-117",
+          "family": "negative",
+          "query": "pdf invoice generation",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-118",
+          "family": "negative",
+          "query": "websocket server",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-119",
+          "family": "negative",
+          "query": "react router",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-120",
+          "family": "negative",
+          "query": "tailwind theme",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-121",
+          "family": "negative",
+          "query": "jest snapshot",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-122",
+          "family": "negative",
+          "query": "django model",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-123",
+          "family": "negative",
+          "query": "swiftui view",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-124",
+          "family": "negative",
+          "query": "payment gateway retry",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-125",
+          "family": "negative",
+          "query": "shopping cart total",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-126",
+          "family": "negative",
+          "query": "email template engine",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-127",
+          "family": "negative",
+          "query": "database index migration",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-128",
+          "family": "negative",
+          "query": "FIXME",
+          "expect": [],
+          "tags": [
+            "negative"
+          ]
+        },
+        {
+          "id": "ho2-129",
+          "family": "negative",
+          "query": "useState",
+          "expect": [],
+          "tags": [
+            "negative",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "rg -n \"useState\" src/"
+          }
+        },
+        {
+          "id": "ho2-130",
+          "family": "negative",
+          "query": "TODO",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"TODO\" src/"
+          }
+        },
+        {
+          "id": "ho2-131",
+          "family": "negative",
+          "query": "catch (e)",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise",
+            "shell"
+          ],
+          "hook": {
+            "tool": "Bash",
+            "command": "grep -rn \"catch (e)\" src/main"
+          }
+        },
+        {
+          "id": "ho2-132",
+          "family": "negative",
+          "query": "\\.then\\(",
+          "expect": [],
+          "tags": [
+            "negative",
+            "noise"
+          ]
+        }
+      ]
     }
   }
 }

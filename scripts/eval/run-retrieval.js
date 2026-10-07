@@ -13,7 +13,7 @@
  *
  * Usage:
  *   node scripts/eval/run-retrieval.js                    # all splits, every available engine
- *   node scripts/eval/run-retrieval.js --split heldOut    # development | heldOut | all
+ *   node scripts/eval/run-retrieval.js --split heldOut2   # development | heldOut | heldOut2 | all
  *   node scripts/eval/run-retrieval.js --engine legacy    # legacy | v2 | all
  *   node scripts/eval/run-retrieval.js --no-scale         # skip the synthetic projects
  *   node scripts/eval/run-retrieval.js --json             # one JSON report on stdout
@@ -65,7 +65,8 @@ function loadCases(file = CASES_FILE) {
 
 /* ------------------------------- parsing ------------------------------ */
 
-const PATH_LINE = /^ {2}(\S+)/;
+// a hinted line: "  path — desc", or "  path:line symbol — desc" for a function (STR-03b)
+const PATH_LINE = /^ {2}(\S+?)(?::\d+)?(?:\s|$)/;
 
 /** Candidate files from find-module output: the --json envelope, or the human listing. */
 function parseCli(stdout) {
@@ -202,7 +203,11 @@ function evaluateGates(summary, baseline = null, scale = null, gates = GATES) {
   }
   check('cli-p95', summary.cliP95Ms, gates.cliP95Ms, summary.cliP95Ms <= gates.cliP95Ms);
   if (scale) {
-    for (const s of scale) check(`hook-p95:${s.files}-files`, s.hookP95Ms, gates.hookP95Ms, s.hookP95Ms <= gates.hookP95Ms);
+    for (const s of scale) {
+      // with a running worker when it was measured (STR-03b), the lookup.json path otherwise
+      const p95 = typeof s.hookSocketP95Ms === 'number' ? s.hookSocketP95Ms : s.hookP95Ms;
+      check(`hook-p95:${s.files}-files`, p95, gates.hookP95Ms, p95 <= gates.hookP95Ms);
+    }
   }
   return { pass: out.every((g) => g.pass), gates: out };
 }
@@ -326,6 +331,51 @@ function syntheticProject(count) {
   return dir;
 }
 
+function sleepMs(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+/**
+ * Start the lifecycle worker (--watch) on the project, wait for its lookup
+ * endpoint, and time the hook again; answers must match the lookup.json path.
+ */
+function measureWithWorker(dir, env, engine, count, queries, fileAnswers) {
+  const { spawn } = require('child_process');
+  const endpoint = path.join(dir, '.frame', 'runtime', 'structure', 'lookup.endpoint');
+  const worker = spawn(process.execPath, [path.join(SCRIPTS, 'structure-lifecycle.js'), '--watch'], { cwd: dir, env, stdio: 'ignore' });
+  try {
+    const deadline = Date.now() + 60000;
+    while (!fs.existsSync(endpoint) && Date.now() < deadline) sleepMs(50);
+    if (!fs.existsSync(endpoint)) return { hookSocketError: 'no-endpoint' };
+    // Measure the steady state: wait until the attach reconciliation has
+    // applied (its receipt is newer than the worker) and nothing is pending.
+    const lifecycleFile = path.join(dir, '.frame', 'runtime', 'structure', 'lifecycle.json');
+    const started = Date.now();
+    const settled = () => {
+      try {
+        const lc = JSON.parse(fs.readFileSync(lifecycleFile, 'utf8'));
+        return lc.receipt && Date.parse(lc.receipt.observedAt) >= started - 60000
+          && lc.epoch && lc.epoch.applied >= lc.epoch.requested && (!lc.dirty || lc.dirty.length === 0);
+      } catch { return false; }
+    };
+    while (!settled() && Date.now() < deadline) sleepMs(50);
+    sleepMs(200);
+    const ms = [];
+    let agree = 0;
+    queries.forEach((q, i) => {
+      const payload = { session_id: `scale-socket-${engine}-${count}-${i}`, cwd: dir, tool_name: 'Grep', tool_input: { pattern: q } };
+      const r = timed([path.join(SCRIPTS, 'module-hint.js'), 'search'], { cwd: dir, env, input: JSON.stringify(payload) });
+      ms.push(r.ms);
+      if (parseHook(r.stdout).files.join(',') === fileAnswers[i]) agree++;
+    });
+    return { hookSocketP50Ms: quantile(ms, 0.5), hookSocketP95Ms: quantile(ms, 0.95), socketAgreement: `${agree}/${queries.length}` };
+  } finally {
+    worker.kill('SIGTERM');
+    const deadline = Date.now() + 5000;
+    while (fs.existsSync(endpoint) && Date.now() < deadline) sleepMs(50);
+  }
+}
+
 function runScale(engine, activityHome, sizes = [1000, 10000]) {
   const out = [];
   for (const count of sizes) {
@@ -339,12 +389,18 @@ function runScale(engine, activityHome, sizes = [1000, 10000]) {
       for (let i = 0; i < 10; i++) queries.push(`absent${i}thing`);
       const hookMs = [];
       const cliMs = [];
+      const fileAnswers = [];
       queries.forEach((q, i) => {
         const payload = { session_id: `scale-${engine}-${count}-${i}`, cwd: dir, tool_name: 'Grep', tool_input: { pattern: q } };
-        hookMs.push(timed([path.join(SCRIPTS, 'module-hint.js'), 'search'], { cwd: dir, env, input: JSON.stringify(payload) }).ms);
+        const r = timed([path.join(SCRIPTS, 'module-hint.js'), 'search'], { cwd: dir, env, input: JSON.stringify(payload) });
+        hookMs.push(r.ms);
+        fileAnswers.push(parseHook(r.stdout).files.join(','));
         cliMs.push(timed([path.join(SCRIPTS, 'find-module.js'), q], { cwd: dir, env }).ms);
       });
-      out.push({ files: count, ...build, hookP50Ms: quantile(hookMs, 0.5), hookP95Ms: quantile(hookMs, 0.95), cliP95Ms: quantile(cliMs, 0.95) });
+      const entry = { files: count, ...build, hookP50Ms: quantile(hookMs, 0.5), hookP95Ms: quantile(hookMs, 0.95), cliP95Ms: quantile(cliMs, 0.95) };
+      // STR-03b: the same hook with a running worker answering over its socket
+      if (engine === 'v2') Object.assign(entry, measureWithWorker(dir, env, engine, count, queries, fileAnswers));
+      out.push(entry);
     } finally {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -383,12 +439,15 @@ function printReport(report) {
     }
     const g = report.gates[engine];
     if (g) {
-      console.log(`  Gates (held-out): ${g.pass ? 'PASS' : 'FAIL'}`);
+      console.log(`  Gates (${report.gateSplit}): ${g.pass ? 'PASS' : 'FAIL'}`);
       for (const x of g.gates) if (!x.pass) console.log(`    ✗ ${x.name}: ${typeof x.value === 'number' && x.value <= 1 && x.limit <= 1 ? pct(x.value) : x.value} (limit ${x.limit})`);
     }
     if (report.scale[engine]) {
       for (const s of report.scale[engine]) {
-        console.log(`  scale ${s.files} files: build ${ms(s.buildMs)} · map ${s.mapBytes} B · lookup ${s.lookupBytes ?? '—'} B · hook p50/p95 ${ms(s.hookP50Ms)}/${ms(s.hookP95Ms)} · CLI p95 ${ms(s.cliP95Ms)}`);
+        const socket = typeof s.hookSocketP95Ms === 'number'
+          ? ` · with worker p50/p95 ${ms(s.hookSocketP50Ms)}/${ms(s.hookSocketP95Ms)} (same answers ${s.socketAgreement})`
+          : (s.hookSocketError ? ` · with worker: ${s.hookSocketError}` : '');
+        console.log(`  scale ${s.files} files: build ${ms(s.buildMs)} · map ${s.mapBytes} B · lookup ${s.lookupBytes ?? '—'} B · hook p50/p95 ${ms(s.hookP50Ms)}/${ms(s.hookP95Ms)}${socket} · CLI p95 ${ms(s.cliP95Ms)}`);
       }
     }
     console.log('');
@@ -431,9 +490,12 @@ function main() {
       }
       if (opts.scale) report.scale[engine] = runScale(engine, activityHome);
     }
-    const legacyHeld = report.engines.legacy && report.engines.legacy.heldOut;
+    // gates run on the newest held-out split (heldOut2 since STR-03b; heldOut is spent)
+    const gateSplit = corpus.splits.heldOut2 ? 'heldOut2' : 'heldOut';
+    report.gateSplit = gateSplit;
+    const legacyHeld = report.engines.legacy && report.engines.legacy[gateSplit];
     for (const engine of engines) {
-      const held = report.engines[engine].heldOut;
+      const held = report.engines[engine][gateSplit];
       if (!held) continue;
       const scale = report.scale[engine] ? report.scale[engine].filter((s) => s.files === 10000) : null;
       report.gates[engine] = evaluateGates(held, engine === 'legacy' ? null : legacyHeld, scale);

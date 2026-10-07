@@ -55,7 +55,8 @@ const HINT_REASONS = [
   'map-dirty', // search: STRUCTURE.json changes are still being applied (STR-02)
   'map-incomplete', // search: the last scan missed files, an answer could be wrong (STR-03)
   'index-oversize', // search: the lookup index or map is above the hook's 2 MiB cap (STR-03)
-  'ambiguous-weak' // search: only path or description words matched — CLI evidence, not a hint (STR-03)
+  'ambiguous-weak', // search: only path or description words matched — CLI evidence, not a hint (STR-03)
+  'already-looked-up' // search: find-module already answered this in the session (STR-03b)
 ];
 
 const HOSTS = ['app', 'claude-hook', 'codex-hook', 'git-precommit', 'orch-bus', 'cli'];
@@ -342,6 +343,7 @@ const SEARCH_REASON_TEXT = {
   'map-incomplete': 'the module map missed files in its last scan',
   'index-oversize': 'the module map is too large to read in a hook',
   'ambiguous-weak': 'only weak matches (path or description words)',
+  'already-looked-up': 'find-module already answered it this session',
   'no-context': 'nothing fit in the hint',
   'no-index': 'no module map in STRUCTURE.json',
   'no-words': 'no concept word in the search',

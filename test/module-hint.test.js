@@ -227,8 +227,17 @@ test('the hook never loads builder or state code, directly or through a helper',
   const local = [...seen].map((f) => path.basename(f)).sort();
   assert.deepEqual(local, ['activity-log.js', 'module-hint.js', 'redact.js', 'structure-read.js', 'structure-retrieval.js', 'toolVocabulary.js']);
   assert.ok(!local.some((f) => /structure-(discovery|generation|state|snapshot|lifecycle|commit)|update-structure/.test(f)), local.join(', '));
-  for (const banned of ['child_process', 'net', 'http', 'https', 'dgram', 'worker_threads']) {
+  for (const banned of ['child_process', 'http', 'https', 'dgram', 'tls', 'worker_threads']) {
     assert.ok(!builtins.has(banned), `${banned} in the closure`);
+  }
+  // STR-03b: `net` only to reach the lifecycle worker's local socket — a
+  // path, never a host or port — and only from the hook itself
+  const hookSource = fs.readFileSync(HOOK, 'utf8');
+  assert.match(hookSource, /net\.createConnection\(\{ path: endpoint\.address \}\)/);
+  assert.ok(!/createConnection\([^)]*\b(host|port)\b/.test(hookSource), 'no host or port connections');
+  for (const file of seen) {
+    if (file === HOOK) continue;
+    assert.ok(!/require\(['"]net['"]\)/.test(fs.readFileSync(file, 'utf8')), `${path.basename(file)} must not load net`);
   }
 });
 
@@ -438,4 +447,143 @@ test('the default engine (legacy) keeps today\'s output until the gates promote 
   if (retrieval.DEFAULT_ENGINE !== 'legacy') return;
   const root = mkProject();
   assert.match(ctxOf(runHook(bash(root, 'grep -rn "github" src/', 'lg'))), /already answers "github" \(STRUCTURE\.json intentIndex\)/);
+});
+
+// ─── STR-03b: find-module awareness and lines ─────────────
+
+function runHookEnv(input, env) {
+  const stdout = execFileSync('node', [HOOK, 'search'], { input: JSON.stringify(input), encoding: 'utf8', env: { ...process.env, ...env } });
+  return stdout.trim() ? JSON.parse(stdout) : null;
+}
+
+test('v2: a search right after find-module for the same thing stays quiet, and says why', () => {
+  const root = v2Project();
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), 'frame-act-'));
+  const env = { FRAME_ACTIVITY_HOME: home };
+  const grep = (session, pattern = 'issueBranchName') => runHookEnv({ session_id: session, cwd: root, tool_name: 'Grep', tool_input: { pattern } }, env);
+  const fm = (session, command) => runHookEnv({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } }, env);
+  try {
+    assert.equal(fm('a1', 'node .frame/bin/find-module.js issueBranchName --json'), null, 'find-module itself is never answered');
+    assert.equal(grep('a1'), null);
+    const records = fs.readdirSync(home, { recursive: true }).filter((f) => String(f).endsWith('.jsonl'))
+      .flatMap((f) => fs.readFileSync(path.join(home, String(f)), 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)));
+    assert.ok(records.some((r) => r.ev === 'hint.quiet' && r.reason === 'already-looked-up'));
+
+    assert.ok(grep('a2'), 'another session still gets the hint');
+    assert.ok(grep('a1', 'github'), 'a different query still gets the hint');
+
+    // a new map revision makes the earlier lookup old news
+    withReceipt(root);
+    assert.ok(grep('a1'), 'revision changed since the lookup');
+  } finally {
+    fs.rmSync(home, { recursive: true, force: true });
+  }
+});
+
+test('v2: find-module calls are parsed with quotes, flags and compound commands; --list records nothing', () => {
+  const root = v2Project();
+  const run = (session, command) => runHook({ session_id: session, cwd: root, tool_name: 'Bash', tool_input: { command } });
+  const grep = (session, pattern) => runHook({ session_id: session, cwd: root, tool_name: 'Grep', tool_input: { pattern } });
+  run('p1', 'cd x && node "scripts/find-module.js" --limit 3 --retrieval=v2 writeFileAtomic | head');
+  assert.equal(grep('p1', 'writeFileAtomic'), null);
+  run('p2', 'node scripts/find-module.js --list');
+  assert.ok(grep('p2', 'github'), '--list is not a lookup');
+  assert.equal(run('p3', 'node scripts/find-module.js github && grep -rn "github" src/'), null, 'the grep in the same command is the same lookup');
+});
+
+test('legacy: find-module calls change nothing', () => {
+  const root = mkProject();
+  runHook({ session_id: 'l1', cwd: root, tool_name: 'Bash', tool_input: { command: 'node scripts/find-module.js github' } });
+  assert.ok(runHook(bash(root, 'grep -rn "github" src/', 'l1')), 'legacy keeps today\'s behavior');
+});
+
+test('v2: a function hint names its line and says the file can be opened there', () => {
+  const structure = JSON.parse(JSON.stringify(V2_STRUCTURE));
+  structure.modules['renderer/github/rowModels'].functions = { issueBranchName: { line: 57 } };
+  const root = v2Project(structure);
+  const ctx = ctxOf(runHook({ session_id: 'ln', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'issueBranchName' } }));
+  assert.match(ctx, /^ {2}src\/renderer\/github\/rowModels\.js:57 issueBranchName — Row view-models$/m);
+  assert.match(ctx, /Open it at the line shown directly; grep is for searching inside a file\./);
+  const concept = ctxOf(runHook({ session_id: 'ln2', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } }));
+  assert.match(concept, /Open these files directly; grep is for searching inside a file\./);
+});
+
+// ─── STR-03b: answers from the running worker ─────────────
+
+const net = require('net');
+const { execFile } = require('child_process');
+
+function runHookAsync(input) {
+  return new Promise((resolve, reject) => {
+    const started = Date.now();
+    const child = execFile('node', [HOOK, 'search'], { encoding: 'utf8' }, (err, stdout) => {
+      if (err) return reject(err);
+      resolve({ out: stdout.trim() ? JSON.parse(stdout) : null, ms: Date.now() - started });
+    });
+    child.stdin.end(JSON.stringify(input));
+  });
+}
+
+function fakeWorker(root, { reply, silent = false, pid = process.pid, algorithm = retrieval.ALGORITHM } = {}) {
+  const address = retrieval.lookupAddress(root);
+  try { fs.unlinkSync(address); } catch { /* none */ }
+  const requests = [];
+  const server = net.createServer((socket) => {
+    let buffer = '';
+    socket.on('data', (c) => {
+      buffer += c;
+      if (!buffer.includes('\n')) return;
+      requests.push(JSON.parse(buffer.split('\n')[0]));
+      if (!silent) socket.end(`${JSON.stringify(reply)}\n`);
+    });
+  });
+  return new Promise((resolve) => server.listen(address, () => {
+    fs.mkdirSync(path.dirname(retrieval.lookupEndpointPath(root)), { recursive: true });
+    fs.writeFileSync(retrieval.lookupEndpointPath(root), JSON.stringify({ v: 1, address, pid, algorithm }));
+    resolve({ requests, close: () => new Promise((r) => server.close(() => { try { fs.unlinkSync(address); } catch { /* gone */ } r(); })) });
+  }));
+}
+
+const workerAnswer = (paths) => ({
+  v: 1, ok: true, revision: 'rev-w', algorithm: retrieval.ALGORITHM,
+  result: { status: 'resolved', truncated: false, candidates: [], answer: paths.map((p) => ({ path: p, description: 'from the worker', tier: 4, evidence: 'file name' })) }
+});
+
+test('v2: the hook takes the running worker\'s answer', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  const worker = await fakeWorker(root, { reply: workerAnswer(['src/main/fsSafe.js']) });
+  try {
+    const { out } = await runHookAsync({ session_id: 'w1', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'onlyTheWorkerKnows' } });
+    assert.match(ctxOf(out), /src\/main\/fsSafe\.js — from the worker/);
+    assert.deepEqual(worker.requests[0], { v: 1, query: 'onlyTheWorkerKnows', mode: 'hook', limit: 8 });
+  } finally {
+    await worker.close();
+  }
+});
+
+test('v2: a silent worker costs at most the budget, then lookup.json answers', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  const worker = await fakeWorker(root, { silent: true });
+  try {
+    const { out, ms } = await runHookAsync({ session_id: 'w2', cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } });
+    assert.match(ctxOf(out), /src\/main\/githubManager\.js/);
+    assert.ok(ms < 2000, `${ms} ms`);
+    assert.equal(worker.requests.length, 1);
+  } finally {
+    await worker.close();
+  }
+});
+
+test('v2: an endpoint of a dead worker or another algorithm is ignored', { skip: process.platform === 'win32' }, async () => {
+  const root = v2Project();
+  for (const opts of [{ pid: 2 ** 22 + 12345 }, { algorithm: 'str03-v0' }]) {
+    const worker = await fakeWorker(root, { reply: workerAnswer(['src/main/fsSafe.js']), ...opts });
+    try {
+      const { out } = await runHookAsync({ session_id: `w3-${JSON.stringify(opts)}`, cwd: root, tool_name: 'Grep', tool_input: { pattern: 'github' } });
+      assert.match(ctxOf(out), /githubManager/, 'answered from lookup.json');
+      assert.equal(worker.requests.length, 0, 'never asked');
+    } finally {
+      await worker.close();
+    }
+  }
 });

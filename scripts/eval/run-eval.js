@@ -18,6 +18,14 @@
  *   node scripts/eval/run-eval.js --retrieval-arms    # STR-03: tasks.json retrievalSuite × no-hint | legacy | v2
  *   node scripts/eval/run-eval.js --retrieval-arms --repeat 5 --seed 7   # repetitions, shuffled order
  *
+ * Retrieval tasks have a `kind` (STR-03b): `navigation` and `natural` are
+ * decided by their successCheck on the produced change; `question` tasks
+ * edit nothing and pass when the agent's final answer names an expected
+ * file (`answerCheck.contains`). Retrieval runs write their results outside
+ * the repository by default, and every run compares `git status`, the
+ * branch list and the worktree list before and after: any difference is
+ * printed and fails the run.
+ *
  * Retrieval arms share everything — worktree, pinned commit, the map built
  * by this checkout's update-structure.js, prompt, model, permissions — except
  * the search hook: none, or this checkout's module-hint.js with the legacy or
@@ -125,6 +133,52 @@ function setupRetrievalArm(wt, arm, activityHome) {
     console.warn(`  (retrieval arm setup failed: ${e.message})`);
     return false;
   }
+}
+
+/** The agent's final answer: the `result` text of the last result event. */
+function finalAnswer(transcript) {
+  let answer = '';
+  for (const line of String(transcript || '').split('\n')) {
+    if (!line.trim()) continue;
+    try {
+      const event = JSON.parse(line);
+      if (event.type === 'result' && typeof event.result === 'string') answer = event.result;
+    } catch (e) { /* partial line */ }
+  }
+  return answer;
+}
+
+/** Whether a question task's answer names one of its accepted paths. */
+function answerPasses(task, transcript) {
+  const accepted = (task.answerCheck && task.answerCheck.contains) || task.expectedFiles || [];
+  const answer = finalAnswer(transcript);
+  return accepted.some((p) => answer.includes(p));
+}
+
+/** What a run must leave exactly as it found it. */
+function repositorySnapshot(cwd = ROOT_DIR) {
+  const run = (args) => {
+    const r = spawnSync('git', args, { cwd, encoding: 'utf-8', maxBuffer: 64 * 1024 * 1024 });
+    return r.status === 0 ? r.stdout : `ERROR ${r.stderr}`;
+  };
+  return {
+    status: run(['status', '--porcelain', '--untracked-files=all']),
+    branches: run(['branch', '--list', '--format=%(refname:short) %(objectname)']),
+    worktrees: run(['worktree', 'list', '--porcelain'])
+  };
+}
+
+/** The differences between two snapshots, as readable lines ([] when clean). */
+function snapshotDiff(before, after) {
+  const out = [];
+  for (const key of Object.keys(before)) {
+    if (before[key] === after[key]) continue;
+    const a = new Set(before[key].split('\n').filter(Boolean));
+    const b = new Set(after[key].split('\n').filter(Boolean));
+    for (const line of b) if (!a.has(line)) out.push(`${key} + ${line}`);
+    for (const line of a) if (!b.has(line)) out.push(`${key} - ${line}`);
+  }
+  return out;
 }
 
 /** Search-hook records a cell produced: { records, injected }. */
@@ -254,11 +308,15 @@ function runOne(task, arm, resultsDir, timeoutSec, hooks, suite = SUITE, repeat 
       .split('\n').filter(Boolean);
 
     let checkPassed = false;
-    try {
-      execSync(task.successCheck, { cwd: wt, stdio: 'ignore', timeout: 60000 });
-      checkPassed = true;
-    } catch (e) {
-      checkPassed = false;
+    if (task.kind === 'question') {
+      checkPassed = answerPasses(task, result.stdout);
+    } else {
+      try {
+        execSync(task.successCheck, { cwd: wt, stdio: 'ignore', timeout: 60000 });
+        checkPassed = true;
+      } catch (e) {
+        checkPassed = false;
+      }
     }
 
     const activity = retrievalArm ? hookActivity(activityHome) : null;
@@ -266,7 +324,7 @@ function runOne(task, arm, resultsDir, timeoutSec, hooks, suite = SUITE, repeat 
       task: task.id,
       arm,
       hooksActive,
-      ...(retrievalArm ? { retrievalArm: true, repeat, setupOk, hookRecords: activity.records, hintsInjected: activity.injected, worktree: wt } : {}),
+      ...(retrievalArm ? { retrievalArm: true, kind: task.kind || 'navigation', repeat, setupOk, hookRecords: activity.records, hintsInjected: activity.injected, worktree: wt } : {}),
       pinnedCommit: suite.pinnedCommit,
       agent: `${AGENT_CMD} ${AGENT_ARGS.join(' ')}`,
       exitCode: result.status,
@@ -301,7 +359,11 @@ function main() {
 
   const arms = opts.arm ? [opts.arm] : (opts.retrievalArms ? RETRIEVAL_ARMS : ['frame', 'bare']);
   const stamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
-  const resultsDir = opts.out || path.join(__dirname, 'results', `run-${stamp}`);
+  // Retrieval runs keep everything outside the repository (STR-03b).
+  const resultsDir = opts.out || (opts.retrievalArms
+    ? path.join(os.tmpdir(), `frame-eval-${stamp}`)
+    : path.join(__dirname, 'results', `run-${stamp}`));
+  const before = repositorySnapshot();
   fs.mkdirSync(resultsDir, { recursive: true });
 
   console.log(`Suite: ${tasks.length} task(s) × ${arms.length} arm(s)${opts.retrievalArms ? ` × ${opts.repeat} repeat(s), seed ${opts.seed}` : ''} @ ${suite.pinnedCommit.slice(0, 7)}`);
@@ -327,9 +389,18 @@ function main() {
   }
 
   fs.writeFileSync(path.join(resultsDir, 'runs.json'), JSON.stringify(all, null, 2) + '\n');
-  console.log(`\nDone. Score with: node scripts/eval/score.js ${path.relative(ROOT_DIR, resultsDir)}`);
+  try { git('git worktree prune'); } catch (e) { /* best effort */ }
+  const changed = snapshotDiff(before, repositorySnapshot());
+  if (changed.length) {
+    console.error('\n✗ The repository changed during the run:');
+    for (const line of changed) console.error(`  ${line}`);
+    process.exitCode = 1;
+  } else {
+    console.log('\n✓ Repository unchanged: git status, branches and worktrees match the start.');
+  }
+  console.log(`Done. Score with: node scripts/eval/score.js ${resultsDir}`);
 }
 
 if (require.main === module) main();
 
-module.exports = { shuffled, hookActivity, RETRIEVAL_ARMS };
+module.exports = { shuffled, hookActivity, finalAnswer, answerPasses, repositorySnapshot, snapshotDiff, RETRIEVAL_ARMS };

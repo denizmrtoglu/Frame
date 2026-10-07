@@ -240,17 +240,25 @@ test('paired comparison averages repeats per task, uses valid cells only, and co
   assert.deepEqual([p.lower, p.higher, p.same], [1, 1, 0]);
 });
 
-test('the navigation suite: at least 12 tasks, files named only by behavior, checks bound to the expected file', (t) => {
+test('the retrieval suite: navigation, natural and question tasks, files named only by behavior, checks bound to the expected file', (t) => {
   const suite = require('../scripts/eval/tasks.json').retrievalSuite;
-  assert.ok(suite.tasks.length >= 12);
+  assert.ok(suite.tasks.length >= 28);
   const r = spawnSync('git', ['ls-tree', '-r', '--name-only', suite.pinnedCommit], { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   const files = r.status === 0 ? new Set(r.stdout.split('\n')) : null;
+  const kinds = suite.tasks.reduce((a, t) => ({ ...a, [t.kind]: (a[t.kind] || 0) + 1 }), {});
+  assert.deepEqual(kinds, { navigation: 12, natural: 10, question: 6 });
   for (const task of suite.tasks) {
     assert.equal(task.expectedFiles.length, 1);
     const file = task.expectedFiles[0];
     const stem = path.basename(file).replace(/\.[^.]+$/, '');
     assert.ok(!task.prompt.toLowerCase().includes(stem.toLowerCase()), `${task.id}: the prompt must not name ${stem}`);
-    assert.ok(task.successCheck.includes(file) && task.successCheck.includes(`eval-nav: ${task.id}`), task.id);
+    if (task.kind === 'navigation') assert.ok(task.successCheck.includes(file) && task.successCheck.includes(`eval-nav: ${task.id}`), task.id);
+    if (task.kind === 'natural') assert.ok(task.successCheck.includes(file), `${task.id}: the check reads the expected file`);
+    if (task.kind === 'question') {
+      assert.deepEqual(task.answerCheck.contains, [file]);
+      assert.equal(task.successCheck, undefined, 'a question is decided by its answer');
+      assert.match(task.prompt, /Do not modify any files\.$/);
+    }
     if (files) assert.ok(files.has(file), `${task.id}: ${file} at the pinned commit`);
   }
   if (!files) t.diagnostic('pinned commit unavailable; file existence not checked');
@@ -274,4 +282,50 @@ test('hook activity counts only search-hint records', (t) => {
     { ev: 'hint.injected', mode: 'pre-edit' }, { ev: 'watch.fired' }
   ].map((r) => JSON.stringify(r)).join('\n') + '\n{"partial');
   assert.deepEqual(runEval.hookActivity(home), { records: 2, injected: 1 });
+});
+
+/* ----------------------- STR-03b: lookups, answers, cleanliness ----------------------- */
+
+test('lookups count find-module, search tools and search-leading Bash segments; repeats compare normalized terms', () => {
+  const b = (command) => ({ name: 'Bash', input: { command } });
+  assert.deepEqual(score.lookupsOf(b('node .frame/bin/find-module.js publishStaged --json')), [{ via: 'find-module', term: 'publishstaged' }]);
+  assert.deepEqual(score.lookupsOf(b('node scripts/find-module.js publishStaged && grep -rn "publishStaged" scripts/')).map((l) => l.via), ['find-module', 'bash']);
+  assert.deepEqual(score.lookupsOf(b('npm test | grep fail')), [], 'output filtering is not a lookup');
+  assert.deepEqual(score.lookupsOf(b("find . -name '*.md'")), [{ via: 'bash', term: '.md' }]);
+  assert.deepEqual(score.lookupsOf({ name: 'Grep', input: { pattern: '\\bpublishStaged\\b' } }), [{ via: 'tool', term: 'publishstaged' }]);
+  assert.deepEqual(score.lookupsOf(b("cat <<'EOF'\ngrep x\nEOF")), [], 'heredocs are data');
+});
+
+test('a transcript counts lookups and the repeats that follow an answer', (t) => {
+  const dir = cell(t, {
+    meta: { task: 'q', arm: 'v2', kind: 'question', retrievalArm: true, setupOk: true, hookRecords: 1, expectedFiles: ['src/a.js'], checkPassed: true },
+    events: [
+      tool('Bash', { command: 'node scripts/find-module.js publishStaged' }),
+      tool('Grep', { pattern: 'publishStaged' }),
+      tool('Bash', { command: 'grep -rn "other" src/' }),
+      { type: 'result', result: 'It is src/a.js', usage: { input_tokens: 10, output_tokens: 1 } }
+    ]
+  });
+  const r = score.scoreRun(dir);
+  assert.deepEqual([r.lookups, r.findModuleCalls, r.repeatedLookups, r.kind], [3, 1, 1, 'question']);
+});
+
+test('a question passes when the final answer names an accepted path', () => {
+  const transcript = [
+    JSON.stringify({ type: 'assistant', message: { content: [{ type: 'text', text: 'maybe src/b.js' }] } }),
+    JSON.stringify({ type: 'result', result: 'The file is `src/renderer/themes.js`.' })
+  ].join('\n');
+  assert.equal(runEval.finalAnswer(transcript), 'The file is `src/renderer/themes.js`.');
+  assert.equal(runEval.answerPasses({ answerCheck: { contains: ['src/renderer/themes.js'] } }, transcript), true);
+  assert.equal(runEval.answerPasses({ answerCheck: { contains: ['src/b.js'] } }, transcript), false, 'only the final answer counts');
+  assert.equal(runEval.answerPasses({ expectedFiles: ['x.js'] }, ''), false);
+});
+
+test('a run that changes status, branches or worktrees is reported', () => {
+  const before = { status: ' M a\n', branches: 'main 1\n', worktrees: 'worktree /r\n' };
+  assert.deepEqual(runEval.snapshotDiff(before, { ...before }), []);
+  assert.deepEqual(runEval.snapshotDiff(before, { ...before, branches: 'main 1\neval-x 2\n', status: '' }), ['status -  M a', 'branches + eval-x 2']);
+  const snap = runEval.repositorySnapshot();
+  assert.deepEqual(Object.keys(snap), ['status', 'branches', 'worktrees']);
+  assert.ok(!snap.status.startsWith('ERROR'));
 });

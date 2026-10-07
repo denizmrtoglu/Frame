@@ -16408,6 +16408,10 @@
       "exports": [
         "shuffled",
         "hookActivity",
+        "finalAnswer",
+        "answerPasses",
+        "repositorySnapshot",
+        "snapshotDiff",
         "RETRIEVAL_ARMS"
       ],
       "depends": [
@@ -16418,10 +16422,10 @@
       ],
       "functions": {
         "parseArgs": {
-          "line": 60
+          "line": 68
         },
         "shuffled": {
-          "line": 84,
+          "line": 92,
           "params": [
             "items",
             "seed"
@@ -16429,7 +16433,7 @@
           "purpose": "Deterministic shuffle (mulberry32) so a run order can be reproduced."
         },
         "setupRetrievalArm": {
-          "line": 106,
+          "line": 114,
           "params": [
             "wt",
             "arm",
@@ -16437,28 +16441,58 @@
           ],
           "purpose": "Retrieval-arm setup: the same map for every arm (this checkout's"
         },
+        "finalAnswer": {
+          "line": 139,
+          "params": [
+            "transcript"
+          ],
+          "purpose": "The agent's final answer: the `result` text of the last result event."
+        },
+        "answerPasses": {
+          "line": 152,
+          "params": [
+            "task",
+            "transcript"
+          ],
+          "purpose": "Whether a question task's answer names one of its accepted paths."
+        },
+        "repositorySnapshot": {
+          "line": 159,
+          "params": [
+            "cwd = ROOT_DIR"
+          ],
+          "purpose": "What a run must leave exactly as it found it."
+        },
+        "snapshotDiff": {
+          "line": 172,
+          "params": [
+            "before",
+            "after"
+          ],
+          "purpose": "The differences between two snapshots, as readable lines ([] when clean)."
+        },
         "hookActivity": {
-          "line": 131,
+          "line": 185,
           "params": [
             "activityHome"
           ],
           "purpose": "Search-hook records a cell produced: { records, injected }."
         },
         "git": {
-          "line": 156,
+          "line": 210,
           "params": [
             "cmd",
             "cwd"
           ]
         },
         "setupHooks": {
-          "line": 166,
+          "line": 220,
           "params": [
             "wt"
           ]
         },
         "runOne": {
-          "line": 191,
+          "line": 245,
           "params": [
             "task",
             "arm",
@@ -16470,18 +16504,22 @@
           ]
         },
         "main": {
-          "line": 290
+          "line": 348
         }
       },
-      "sizeBytes": 13923,
+      "sizeBytes": 16971,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
+          "answerPasses": "8d07407aeef64be4",
+          "finalAnswer": "fb17c2abbc6b0ba0",
           "hookActivity": "4631feb261596931",
+          "repositorySnapshot": "b7880e36b157ef56",
           "setupRetrievalArm": "783c6bac4f5c86a2",
-          "shuffled": "a75b35feb454edac"
+          "shuffled": "a75b35feb454edac",
+          "snapshotDiff": "0db094a1581f719c"
         }
       }
     },
@@ -16695,22 +16733,45 @@
         "scoreRun",
         "cellValidity",
         "paired",
-        "aggregate"
+        "aggregate",
+        "lookupsOf",
+        "lookupTerm"
       ],
       "depends": [
         "fs",
         "path"
       ],
       "functions": {
+        "lookupTerm": {
+          "line": 50,
+          "params": [
+            "text"
+          ],
+          "purpose": "A lookup's term, normalized so repeats compare equal (\"publishStaged\", '\"publishStaged\"')."
+        },
+        "searchTerm": {
+          "line": 55,
+          "params": [
+            "segment"
+          ],
+          "purpose": "The term a search segment looks for: its quoted or first non-flag operand, or find's -name."
+        },
+        "lookupsOf": {
+          "line": 68,
+          "params": [
+            "block"
+          ],
+          "purpose": "Lookups in one tool call: [{ via: 'find-module' | 'tool' | 'bash', term }]."
+        },
         "scoreTranscript": {
-          "line": 42,
+          "line": 88,
           "params": [
             "file",
             "options = {}"
           ]
         },
         "cellValidity": {
-          "line": 103,
+          "line": 157,
           "params": [
             "meta",
             "stats"
@@ -16718,13 +16779,13 @@
           "purpose": "Whether a retrieval-arm cell measured what its arm intends. Returns"
         },
         "scoreRun": {
-          "line": 112,
+          "line": 166,
           "params": [
             "runDir"
           ]
         },
         "paired": {
-          "line": 146,
+          "line": 201,
           "params": [
             "runs",
             "a",
@@ -16734,23 +16795,26 @@
           "purpose": "Paired per-task comparison of arm `b` against arm `a` on valid cells:"
         },
         "aggregate": {
-          "line": 169,
+          "line": 224,
           "params": [
             "runs"
           ]
         },
         "main": {
-          "line": 200
+          "line": 258
         }
       },
-      "sizeBytes": 12560,
+      "sizeBytes": 16215,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
           "cellValidity": "a2468a06292c5481",
-          "paired": "49da72b4b2b66533"
+          "lookupTerm": "70cf40bb1bb0b014",
+          "lookupsOf": "5693a0ed1e190393",
+          "paired": "49da72b4b2b66533",
+          "searchTerm": "500eea52ef3966a7"
         }
       }
     },
@@ -16760,7 +16824,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 12163,
+      "sizeBytes": 18971,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -23802,7 +23866,7 @@
           ]
         }
       },
-      "sizeBytes": 15748,
+      "sizeBytes": 19381,
       "extraction": {
         "status": "parsed"
       },
@@ -26791,6 +26855,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "86745f284901290cdd8b95a1f989779fbd5f5d813e3f7ab6245e48de4499e74d"
+    "revision": "e193c177a69dffc03676e84069078108010a75cb12214b82dbacb9d4e9f69905"
   }
 }

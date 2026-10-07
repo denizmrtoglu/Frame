@@ -108,3 +108,28 @@ _Captured: 2026-10-07 · 7 file change(s)_
 _Captured: 2026-10-07 · 2 file change(s)_
 
 ---
+
+## T07 — Agent evaluation instrument
+
+**`scripts/eval/run-eval.js`:**
+- Retrieval tasks carry a `kind`. `question` tasks pass when the final `result` text names an accepted path (`answerCheck.contains`); the other kinds use `successCheck`.
+- `--out` defaults to the OS temp directory for retrieval runs.
+- Every run snapshots `git status --porcelain --untracked-files=all`, the branch list and `git worktree list --porcelain` before and after (after a `git worktree prune`). It prints any difference and exits 1.
+- Cell meta records `kind`.
+
+**`scripts/eval/score.js`:**
+- **Lookups:** `find-module` Bash calls, Grep/Glob, and Bash segments that start a search (the hook's rule; pipes and heredocs excluded).
+- **Repeated lookups:** a normalized term seen again in the same run.
+- **Summaries:** a per-kind × arm summary, and paired comparisons now including lookups and repeats.
+
+Re-scoring the old haiku pilot shows its frame arm never called `find-module` (0 calls).
+
+**`scripts/eval/tasks.json` `retrievalSuite`:** the 12 navigation tasks, plus:
+- 10 natural English change requests. Real constants and messages at 262f91b: update interval, log sizes, sidebar width, tray limit, slug length, cache TTL, zoom steps, token misses, git-missing message. Each check was verified on a copy of the pinned tree to fail before and pass after a plausible edit (10/10).
+- 6 question tasks.
+
+No prompt contains its file's stem: the test caught "themes" in q-02, and its prompt was reworded. Files touched: `scripts/eval/run-eval.js`, `scripts/eval/score.js`, `scripts/eval/tasks.json`, `test/retrievalEval.test.js`.
+
+_Captured: 2026-10-07 · 4 file change(s)_
+
+---

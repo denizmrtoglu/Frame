@@ -24,3 +24,21 @@ Honest note: the same author wrote the corpus and the fixes; freezing it before 
 _Captured: 2026-10-07 · 2 file change(s)_
 
 ---
+
+## T02 — Engine rules
+
+`scripts/structure-retrieval.js` (algorithm `str03-v2.2`, so older indexes read as stale):
+- **Hook coverage:** in hook mode, a file must carry every required word, otherwise the hint stays quiet. The CLI keeps ranking partial coverage.
+- **Definition lines:** a `lines` map (`"<fileId>:<folded function>": line`, functions only). Symbol candidates carry `line` and `symbol`; exports and IPC channels have no line in the map.
+
+Deviations, both found while building:
+- **Path postings dropped.** Exact and suffix paths are now matched by scanning the file list, folded once per index object. The line map would otherwise have pushed the 10k-file fixture's index over the 2 MiB hook cap. The pinned map's index went from 130 KB to 164 KB.
+- **Short file names are searchable.** A query containing `.` or `/` is never treated as noise. Before, `a.js` or `go.js` was dropped because its words are short.
+
+Development split, unchanged: recall@5 95.1%, P@1 98.3%, hook precision 100%, false hints 0/11. Hook recall went from 93.4% to 91.8%: the Turkish "GitHub paneli" now goes quiet in hooks, which is the intended effect of the stricter rule.
+
+The oversize-index test needed 14,000 modules instead of 9,000 to stay above the cap. Files touched: `scripts/structure-retrieval.js`, `test/structureRetrieval.test.js`.
+
+_Captured: 2026-10-07 · 2 file change(s)_
+
+---

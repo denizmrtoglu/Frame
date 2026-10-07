@@ -243,3 +243,42 @@ node scripts/eval/score.js scripts/eval/results/<run>
 
 **Status: not run yet.** No token saving is claimed for v2. A hint firing
 does not show that work was saved; only this paired measurement can.
+
+## STR-03b — heldOut2 result and promotion decision — 2026-10-07
+
+What changed since the STR-03 run:
+- hooks need one file to carry every word;
+- function answers carry their line;
+- a hint stays quiet after `find-module` answered the same lookup;
+- the lifecycle worker answers hooks over a local socket.
+
+`heldOut2` is a new English-only split, frozen before those changes: 132 cases, 106 answerable, 26 negative. It ran once for both engines. Same machine (Apple M2, Darwin 24.6.0, node v20.20.0) and pin. This round is English only; Turkish queries are not measured and are deferred to a later spec.
+
+| heldOut2 (132) | legacy | v2 | Gate |
+|---|---|---|---|
+| Exact recall (87) | 69.0% | **100%** | 100% ✓ |
+| recall@5 | 67.9% | **92.5%** | ≥ 90% ✓ |
+| precision@1 | 53.6% | **92.3%** | ≥ 90% ✓ |
+| Hint precision (Claude / Codex) | 65.9% | 97.8% (88 of 90) | ≥ 98% ✗ |
+| Hint recall | 50.9% | 83.0% | — |
+| False hints on negatives | 30.8% | 7.7% (2 of 26) | ≤ 2% ✗ |
+| Hook p95, this repository | 37 ms | 40 ms | ≤ 50 ms ✓ |
+| Hook p95, 10k files, lookup.json | 60 ms | 51 ms | — |
+| Hook p95, 10k files, running worker | — | **34 ms** (same answers 30/30) | ≤ 50 ms ✓ |
+| CLI p95 | 31 ms | 37 ms | ≤ 150 ms ✓ |
+| Max payload | 809 chars | 660 chars | ≤ 1,800 ✓ |
+
+**Decision: the default stays `legacy`.** v2 passes every gate except the two
+about wrong hints, and it misses those by two hints. Both wrong hints come
+from one rule: the partial-concept tier (6) applied to a code identifier.
+- `useState` (a negative) contains the concept `state`, so the hint offered
+  `dockState.js`, `sectionState.js` and `accessState.js`.
+- After `pollGate.js` was removed, its own name contains `gate`, so the hint
+  offered the gate group.
+
+The engine was not changed after this run.
+
+Candidate for the next round, to be validated on a new split: the hook stops
+at tier 5 (path, concept, synonym, file name, symbol) and leaves partial
+concepts to `find-module`, or it allows them only for a query that is not a
+single camelCase identifier.

@@ -133,3 +133,28 @@ No prompt contains its file's stem: the test caught "themes" in q-02, and its pr
 _Captured: 2026-10-07 · 4 file change(s)_
 
 ---
+
+## T08 — heldOut2 run and decision
+
+Both engines ran once on the English-only `heldOut2` (132 cases).
+
+v2 passed:
+- exact recall 100%;
+- recall@5 92.5% (STR-03's miss was all Turkish);
+- P@1 92.3%;
+- hook p95 40 ms on this repository, and **34 ms at 10k files with the running worker** (51 ms from `lookup.json`; legacy 60 ms), with the same answers on 30 of 30 queries;
+- CLI p95 37 ms and payload 660 characters.
+
+v2 missed:
+- hint precision: 97.8%, 88 of 90 right, against ≥ 98%;
+- false hints: 7.7%, 2 of 26, against ≤ 2%.
+
+Legacy on the same split: 69.0 / 67.9 / 53.6 / 65.9%, with 30.8% false hints.
+
+**`DEFAULT_ENGINE` stays `legacy`** (D5: all gates, or no promotion). Both wrong hints come from the partial-concept tier on identifiers: `useState` gave the state group, and the removed `pollGate` gave the gate group. The engine was not changed after the run. `scripts/eval/README.md` records the table, the decision and the next-round candidate (hooks stop at tier 5, or no partial concept for a single camelCase identifier).
+
+The repository was unchanged by the benchmark (`git status` before and after compared). Files touched: `scripts/eval/README.md`.
+
+_Captured: 2026-10-07 · 1 file change(s)_
+
+---

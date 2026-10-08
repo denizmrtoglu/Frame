@@ -9,7 +9,7 @@
  * with the artifacts an already-migrated one has, and five opens produce the
  * tree the first one did.
  *
- * Electron and the telemetry package are stubbed (the frameProjectInit
+ * Electron and the analytics package are stubbed (the frameProjectInit
  * pattern): CI runs this suite with no node_modules.
  */
 
@@ -24,6 +24,7 @@ const { execFileSync } = require('child_process');
 const Module = require('node:module');
 const EXTERNAL_STUBS = {
   '@aptabase/electron/main': { initialize() {}, trackEvent() {} },
+  'posthog-node': { PostHog: class { capture() {} captureException() {} identify() {} shutdown() { return Promise.resolve(); } } },
   electron: {
     app: { getPath: () => os.tmpdir(), getVersion: () => '0.0.0-test' },
     ipcMain: { handle() {}, on() {} },

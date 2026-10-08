@@ -8,7 +8,7 @@
  * in-memory ring the panel reads first, enforces the rate cap, aggregates
  * suppression bursts, and knows which bucket the active project writes to.
  *
- * Split the way `telemetry.js` / `telemetryEvents.js` already are — policy in
+ * Split the way `analytics.js` / `analyticsEvents.js` already are — policy in
  * a pure module that `node --test` can reach, Electron coupling here.
  *
  * The ring always fills, whatever the panel is doing. A monitor you have to

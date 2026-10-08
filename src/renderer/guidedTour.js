@@ -115,7 +115,7 @@ async function autoStart() {
  * layers on screen at once, the automatic start waits until the user has
  * dismissed them. A manual start does not wait.
  */
-const FIRST_RUN_NOTICES = ['#telemetry-notice.visible'];
+const FIRST_RUN_NOTICES = ['#analytics-notice.visible'];
 
 function noticesGone() {
   const showing = () => FIRST_RUN_NOTICES.some((selector) => document.querySelector(selector));
@@ -137,6 +137,9 @@ function noticesGone() {
 async function finish(outcome) {
   if (!isOpen) return;
   close();
+  // Finished vs skipped is the first honest activation signal Frame has:
+  // both mean the tour was reached, only one means it landed.
+  ipcRenderer.send(IPC.ANALYTICS_TRACK, 'tour_finished', { outcome });
   try {
     const ok = await ipcRenderer.invoke(IPC.SET_USER_SETTING, tourSteps.SETTING_KEY, {
       outcome,

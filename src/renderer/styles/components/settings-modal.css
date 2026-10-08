@@ -261,6 +261,20 @@
   transition: transform 0.18s, background 0.18s;
 }
 
+/* A switch whose channel is gated on another switch. Error reporting rides
+   on anonymous usage stats being on, so when that is off this one reads as
+   unavailable rather than sitting live over something that silences it. The
+   stored value is untouched; turning stats back on restores the choice.
+   Matches the opacity the disabled select and action button already use. */
+.settings-switch input:disabled + .settings-switch-slider {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.settings-row-disabled .settings-row-text {
+  opacity: 0.5;
+}
+
 .settings-switch input:checked + .settings-switch-slider {
   background: var(--accent-primary);
   border-color: var(--accent-primary);

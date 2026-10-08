@@ -42,7 +42,7 @@ const { getOrchBinScripts } = require('../shared/frameTemplates');
 const ptyManager = require('./ptyManager');
 const gitBranches = require('./gitBranchesManager');
 const specManager = require('./specManager');
-const telemetry = require('./telemetry');
+const analytics = require('./analytics');
 const pollGate = require('./pollGate');
 
 const WORKER_TEMPLATE_PATH = path.join(__dirname, '..', 'templates', 'orchestration', 'WORKER.md');
@@ -381,7 +381,7 @@ async function handleDispatch(session, slug) {
   // Create the isolated worktree (fresh base from current HEAD)
   const wt = await gitBranches.createOrchWorktree(session.projectPath, slug);
   if (wt.error) {
-    telemetry.track('error_occurred', { category: 'orch_worktree_failed' });
+    analytics.track('error_occurred', { category: 'orch_worktree_failed' });
     relayToConductor(session, `DISPATCH FAILED: "${slug}" — worktree error: ${wt.error}`);
     return;
   }
@@ -471,7 +471,7 @@ async function handleMerge(session, slug, args = []) {
 
   const res = await gitBranches.mergeWorkToIntegration(session.projectPath, slug);
   if (res.error) {
-    telemetry.track('error_occurred', { category: 'orch_merge_failed' });
+    analytics.track('error_occurred', { category: 'orch_merge_failed' });
     relayToConductor(session, `MERGE FAILED: "${slug}" — ${res.error}`);
     return { status: 'failed', error: res.error };
   }
@@ -533,7 +533,7 @@ function pollStatuses(session) {
       // A lane Frame closed itself (user closed it, reload, removal) is not a
       // worker failure — only count one that died on its own.
       if (!ptyManager.wasDestroyedOnRequest(w.terminalId)) {
-        telemetry.track('error_occurred', { category: 'orch_worker_failed' });
+        analytics.track('error_occurred', { category: 'orch_worker_failed' });
       }
       relayToConductor(session, `WORKER FAILED: "${w.slug}" — its lane exited unexpectedly.`);
       changed = true;
@@ -618,7 +618,7 @@ async function startOrchestration(args = {}) {
     console.error('[orch] failed to materialize CONDUCTOR.md:', e.message);
   }
 
-  telemetry.track('orchestration_run_started');
+  analytics.track('orchestration_run_started');
   startBusWatcher(session);
   session.statusPoll = pollGate.gatedInterval(() => pollStatuses(session), STATUS_POLL_MS);
   // Recover any worktrees/branches left by a prior (e.g. app-closed) session so

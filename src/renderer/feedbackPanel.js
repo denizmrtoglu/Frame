@@ -319,9 +319,9 @@ function deliver(channel, report) {
  */
 function track(channel) {
   try {
-    ipcRenderer.send(IPC.TELEMETRY_TRACK, 'feedback_submitted', { channel });
+    ipcRenderer.send(IPC.ANALYTICS_TRACK, 'feedback_submitted', { channel });
   } catch (_) {
-    /* telemetry never breaks a send */
+    /* analytics never breaks a send */
   }
 }
 

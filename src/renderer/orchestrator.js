@@ -95,7 +95,7 @@ function open() {
     notify.error('Open a project first');
     return;
   }
-  ipcRenderer.send(IPC.TELEMETRY_TRACK, 'orchestrator_opened');
+  ipcRenderer.send(IPC.ANALYTICS_TRACK, 'orchestrator_opened');
   host.openSection('orchestrator', {}, api, { newTab: false });
 }
 

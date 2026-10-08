@@ -28,11 +28,11 @@ function load() {
   const { data, source, error } = fsSafe.readJsonWithRecovery(settingsPath);
   if (source === 'bak') {
     console.error('userSettings: user-settings.json was corrupt — restored from .bak');
-    // Count the recovery. Lazy + deferred require: telemetry requires this
+    // Count the recovery. Lazy + deferred require: analytics requires this
     // module, so a top-level require here would be circular.
     setImmediate(() => {
       try {
-        require('./telemetry').track('error_occurred', { category: 'settings_corrupt_recovered' });
+        require('./analytics').track('error_occurred', { category: 'settings_corrupt_recovered' });
       } catch (e) {}
     });
   } else if (error) {
@@ -40,7 +40,7 @@ function load() {
   }
   // Unrecoverable load (read/parse error with no .bak to fall back on) means
   // the cache no longer reflects what the user chose — consumers that must
-  // not fail open (telemetry opt-out) check loadFailed(). A missing file
+  // not fail open (analytics opt-out) check loadFailed(). A missing file
   // (fresh install) or a successful .bak recovery is not a failure.
   failed = data === null && error !== null;
   cache = data || {};

@@ -8,7 +8,7 @@
   z-index: 9000;
   background: var(--accent-subtle);
   border-bottom: 1px solid var(--accent-primary);
-  padding: 8px 14px;
+  padding: 8px 16px;
   display: none;
   align-items: center;
   gap: 12px;

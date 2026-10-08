@@ -33,7 +33,6 @@ function lucideIcon(data, size = 14) {
  *
  * @param {Object}   opts
  * @param {string}   opts.id            - the widget's stable id; becomes `home-card-<id>`
- * @param {Array}    opts.icon          - a lucide icon
  * @param {string}   opts.title
  * @param {string}   [opts.actionLabel] - omit for a card with no footer action
  * @param {Array}    [opts.actionIcon]
@@ -42,14 +41,13 @@ function lucideIcon(data, size = 14) {
  * @param {Function} [opts.onActionContext]
  * @returns {{el: HTMLElement, count: HTMLElement, body: HTMLElement, action: HTMLElement|null}}
  */
-function widgetShell({ id, icon, title, actionLabel, actionIcon = Plus, onOpen, onAction, onActionContext }) {
+function widgetShell({ id, title, actionLabel, actionIcon = Plus, onOpen, onAction, onActionContext }) {
   const el = document.createElement('div');
   el.className = `home-card home-card-${id}`;
 
   const headerTag = onOpen ? 'button' : 'div';
   el.innerHTML = `
     <${headerTag} class="home-card-header"${onOpen ? ' type="button"' : ''}>
-      <span class="home-card-icon">${lucideIcon(icon, 15)}</span>
       <span class="home-card-title">${title}</span>
       <span class="home-card-count"></span>
       ${onOpen ? `<span class="home-card-open">${lucideIcon(ArrowUpRight, 14)}</span>` : ''}

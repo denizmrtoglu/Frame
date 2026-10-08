@@ -1,0 +1,172 @@
+/* ==================== DROPDOWN MENUS ==================== */
+/* One look for every dropdown in the app, after macOS's native menus: a
+   translucent blurred panel with a light inner edge and a dark outer one,
+   10px corners, 4px inset. Rows are 32px, 4px apart, 8px side insets, with
+   the label on the left and any check / × on the right, 8px between
+   pieces. Each menu keeps its own position and contents in its component
+   file; only the box, rows and separators are set here. Loaded last
+   (main.css) so equal-specificity rules here win by order. Native
+   <select>s open .select-menu (selectMenu.js) so they match too. */
+
+.sidebar-project-menu,
+.theme-menu,
+.context-menu,
+.select-menu,
+.tasks-dashboard-popover,
+.sb-agents-menu,
+.sb-branch-picker {
+  background: var(--menu-bg);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid var(--menu-border);
+  border-radius: 10px;
+  box-shadow: 0 0 0 0.5px var(--menu-outline), 0 12px 32px rgba(0, 0, 0, 0.4);
+}
+
+/* Plain row lists: 4px inset, 4px between rows. */
+.sidebar-project-menu,
+.theme-menu,
+.context-menu.visible,
+.select-menu {
+  display: flex;
+  flex-direction: column;
+  padding: 4px;
+  gap: 4px;
+}
+
+.sb-bp-list,
+.sb-agents-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.select-menu {
+  position: fixed;
+  z-index: 100000;
+  max-height: 320px;
+  overflow-y: auto;
+}
+
+/* Rows: at least 32px, 8px side insets, centred on one line, 8px between
+   pieces, primary ink in Inter. */
+.sidebar-project-menu-item,
+.app-header-right button.theme-menu-item,
+.context-menu-item,
+.select-menu-item,
+.sb-bp-row,
+.sb-agents-row,
+.tasks-dashboard-popover-option {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-height: 32px;
+  padding: 4px 8px;
+  border-radius: 5px;
+  color: var(--text-primary);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  text-align: left;
+}
+
+.select-menu-item {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.select-menu-item:disabled {
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.sidebar-project-menu-item:hover,
+.app-header-right button.theme-menu-item:hover,
+.context-menu-item:hover,
+.context-menu-item:focus,
+.select-menu-item.highlight,
+.sb-bp-row.highlight,
+.sb-bp-row:hover:not(.disabled),
+.sb-agents-row.highlight,
+.sb-agents-row:hover,
+.tasks-dashboard-popover-option:hover {
+  background: var(--menu-hover);
+  color: var(--text-primary);
+}
+
+/* Separators: a hairline at the text's inset; the rows' 4px gap spaces it. */
+.sidebar-project-menu-sep,
+.context-menu-separator {
+  flex: none;
+  height: 1px;
+  margin: 0 8px;
+  background: var(--divider);
+}
+
+/* The current choice is marked by its checkmark, in the row's own ink —
+   no green, as in a native menu. */
+.sidebar-project-menu-item.active,
+.app-header-right button.theme-menu-item.active,
+.select-menu-item.active,
+.sidebar-project-menu-item-check,
+.select-menu-item-check,
+.app-header-right button.theme-menu-item svg {
+  color: var(--text-primary);
+}
+
+/* Label left, check / × right: the label grows, the marks sit at the end. */
+.select-menu-item-name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.select-menu-item-check {
+  flex-shrink: 0;
+}
+
+/* Project switcher rows: exactly 32px. Name (and its Frame tag) sit left;
+   the attention dot, checkmark and remove × sit right — the ::before
+   spacer between them is ordered in by flex `order`, so the markup stays
+   as index.js writes it. */
+.sidebar-project-menu-item {
+  height: 32px;
+  padding: 0 8px;
+  line-height: 32px;
+}
+
+.sidebar-project-menu-item::before {
+  content: '';
+  order: 2;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.sidebar-project-menu-item .sidebar-project-menu-item-name {
+  order: 0;
+  flex: 0 1 auto;
+}
+
+.sidebar-project-menu-item .sidebar-project-menu-tag {
+  order: 1;
+  line-height: normal;
+}
+
+.sidebar-project-menu-item .sidebar-project-menu-dot,
+.sidebar-project-menu-item .sidebar-project-menu-item-check,
+.sidebar-project-menu-item .sidebar-project-menu-remove {
+  order: 3;
+  margin-left: 0;
+  display: block;
+}
+
+.sidebar-project-menu-item .sidebar-project-menu-remove {
+  line-height: 16px;
+  height: 16px;
+  /* Always shown, not only on hover. */
+  visibility: visible;
+}

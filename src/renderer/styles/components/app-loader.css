@@ -129,12 +129,12 @@
 
 .app-loader-wordmark-text {
   display: block;
-  padding-left: 18px;
+  padding-left: 20px;
   white-space: nowrap;
   /* The app speaks in mono; the splash shouldn't switch voice. Stated
      outright rather than inherited — the splash outlives no stylesheet but
      its own. */
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 16px;
   font-weight: 500;
   line-height: 1.2;
@@ -311,7 +311,7 @@
 
 .app-loader-retry {
   margin-top: 4px;
-  padding: 6px 22px;
+  padding: 8px 24px;
   background: var(--accent-primary);
   color: var(--bg-deep);
   border: none;

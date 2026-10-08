@@ -798,7 +798,7 @@ function renderTreeView(structureData) {
     .attr('dy', -2)
     .attr('fill', 'var(--text-primary)')
     .attr('font-size', '11px')
-    .attr('font-family', 'var(--font-mono)')
+    .attr('font-family', 'var(--font-sans)')
     .text(d => d.data.name.length > 14 ? d.data.name.substring(0, 12) + '...' : d.data.name);
 
   moduleNodes.append('text')

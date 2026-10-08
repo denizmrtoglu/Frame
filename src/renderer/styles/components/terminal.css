@@ -1,8 +1,13 @@
 /* ==================== TERMINAL COMPONENT ==================== */
+/* A layout card (see #shell in layout.css); overflow: hidden clips the
+   tab bar and the views inside to the rounded corners. */
 #terminal {
   flex: 1;
   width: 100%;
-  border-radius: 0;
+  box-sizing: border-box;
+  background: var(--bg-primary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 
@@ -24,11 +29,10 @@
   align-items: center;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border-subtle);
-  /* VS Code's tab-strip height, square, one bottom border: the 32px
-     controls inside fit with room to spare and nothing in the bar changes
-     (compact-center-vs-code-density). */
+  /* Square, one bottom border (compact-center-vs-code-density); 43px —
+     VS Code's 35px plus the 8px the user added on 2026-10-07. */
   padding: 0 8px;
-  height: 35px;
+  height: 43px;
   border-radius: 0;
 }
 
@@ -113,14 +117,14 @@
   color: var(--text-secondary);
   min-width: 22px;
   text-align: right;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   white-space: nowrap;
 }
 
 .usage-reset {
   font-size: 9px;
   color: var(--text-muted);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   white-space: nowrap;
 }
 

@@ -61,22 +61,22 @@ const ANSI_VSCODE_LIGHT = {
 
 /** Frame Light's warm, contrast-tuned terminal colours. */
 const ANSI_FRAME_LIGHT = {
-  black: '#1c1a18',
+  black: '#1b1b1f',
   red: '#b84040',
   green: '#4a7c50',
   yellow: '#c07820',
   blue: '#4070a8',
   magenta: '#8b4b8b',
   cyan: '#2a7a8a',
-  white: '#5a5550',
-  brightBlack: '#8a8480',
+  white: '#55555c',
+  brightBlack: '#84848b',
   brightRed: '#d45555',
   brightGreen: '#5a9e62',
   brightYellow: '#d49030',
   brightBlue: '#5588c8',
   brightMagenta: '#a060a0',
   brightCyan: '#3a9aaa',
-  brightWhite: '#1c1a18'
+  brightWhite: '#1b1b1f'
 };
 
 const THEMES = Object.freeze({
@@ -85,14 +85,14 @@ const THEMES = Object.freeze({
     command: 'theme.dark',
     scheme: 'dark',
     ansi: ANSI_VSCODE_DARK,
-    terminal: { background: '#0a0908', foreground: '#c4bcac', cursor: '#8ff0ae' }
+    terminal: { background: '#161717', foreground: '#c4c6c6', cursor: '#8ff0ae' }
   },
   light: {
     label: 'Light',
     command: 'theme.light',
     scheme: 'light',
     ansi: ANSI_FRAME_LIGHT,
-    terminal: { background: '#f7f5f2', foreground: '#1c1a18', cursor: '#1c1a18' }
+    terminal: { background: '#f6f6f7', foreground: '#1b1b1f', cursor: '#1b1b1f' }
   },
   'dark-plus': {
     label: 'Dark+',

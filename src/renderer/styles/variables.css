@@ -6,19 +6,22 @@
    inherits the rest — the green accent and the semantic colours included. */
 :root,
 [data-scheme="dark"] {
-  /* Color Palette - Warm Charcoal with Green Accent (prototype palette) */
-  --bg-deep: #0c0b09;
-  --bg-primary: #14120e;
-  --bg-secondary: #1c1915;
-  --bg-tertiary: #242019;
-  --bg-elevated: #2a2620;
-  --bg-hover: #332e25;
+  /* Color Palette - neutral charcoal with a green accent, after WhatsApp
+     desktop's dark theme (no warm tint). */
+  --bg-deep: #161717;
+  --bg-primary: #1e1e1e;
+  --bg-secondary: #232626;
+  --bg-tertiary: #2a2d2d;
+  --bg-elevated: #2e3131;
+  --bg-hover: #353535;
 
   /* Text Colors */
-  --text-primary: #f2eee4;
-  --text-secondary: #c4bcac;
-  --text-tertiary: #948c7c;
-  --text-muted: #5c564a;
+  /* Every text token clears WCAG AA (4.5:1) on every surface up to
+     --bg-hover. */
+  --text-primary: #fafafa;
+  --text-secondary: #c4c6c6;
+  --text-tertiary: #b0b1b1;
+  --text-muted: #a2a0a0;
 
   /* Frame's mark — the four corner brackets, wherever they appear (app
      header, boot splash). Deliberately not the accent: the mark is the
@@ -32,6 +35,20 @@
   --accent-secondary: #6fd693;
   --accent-subtle: rgba(143, 240, 174, 0.15);
   --accent-glow: rgba(143, 240, 174, 0.08);
+
+  /* Selected buttons, tabs and rows: a neutral fill with primary text, no
+     green tint — a light grey that stands clear of --bg-hover (#353535).
+     Light keeps the accent tint (its own block below). */
+  --selected-bg: #4b4e4e;
+  --selected-fg: var(--text-primary);
+  --selected-border: var(--selected-bg);
+
+  /* Dropdown menus (components/menu.css): macOS-style translucent panel. */
+  --menu-bg: rgba(42, 44, 44, 0.82);
+  --menu-border: rgba(255, 255, 255, 0.14);
+  --menu-outline: rgba(0, 0, 0, 0.6);
+  --menu-hover: rgba(255, 255, 255, 0.10);
+  --menu-separator: rgba(255, 255, 255, 0.12);
 
   /* Semantic Colors */
   --success: #9bdca8;
@@ -61,9 +78,14 @@
   --diff-del-mark-fg: #ffebe9;
 
   /* Borders */
-  --border-subtle: #221e18;
-  --border-default: #2a2620;
-  --border-strong: #3a342b;
+  --border-subtle: #2a2d2d;
+  --divider: rgba(255, 255, 255, 0.16); /* every divider line, 1px */
+  --border-default: #343434;
+  --border-strong: #3b3e3e;
+  /* The layout cards' stroke (#sidebar rail + panel, #terminal, #dock, the
+     right panels): a very soft hairline that barely sets each card off the
+     --bg-deep ground, VS Code style. */
+  --card-border: rgba(255, 255, 255, 0.05);
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
@@ -73,9 +95,9 @@
 
   /* Spacing */
   --space-xs: 4px;
-  --space-sm: 6px;
-  --space-md: 10px;
-  --space-lg: 14px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
   --space-xl: 20px;
 
   /* Chrome */
@@ -100,6 +122,8 @@
   --radius-md: 5px;
   --radius-lg: 6px;
   --radius-xl: 8px;
+  /* The layout cards (see --card-border). */
+  --radius-card: 8px;
 
   /* Transitions */
   --transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
@@ -113,29 +137,41 @@
 
 /* ==================== LIGHT THEME ==================== */
 [data-scheme="light"] {
-  --bg-deep: #f0ede8;
-  --bg-primary: #f7f5f2;
-  --bg-secondary: #ede9e3;
-  --bg-tertiary: #e5e0d8;
-  --bg-elevated: #dbd5cb;
-  --bg-hover: #d4cdc2;
+  --bg-deep: #efeff1;
+  --bg-primary: #f6f6f7;
+  --bg-secondary: #e9e9ec;
+  --bg-tertiary: #e1e1e5;
+  --bg-elevated: #d6d6db;
+  --bg-hover: #e3e3e7;
+  /* Home composer and cards: a step above the ground, not stark white. */
+  --surface-card: #fdfdfd;
 
-  --text-primary: #1c1a18;
-  --text-secondary: #5a5550;
-  --text-tertiary: #8a8480;
-  --text-muted: #b0aba5;
+  --text-primary: #1b1b1f;
+  --text-secondary: #55555c;
+  --text-tertiary: #68686f;
+  --text-muted: #ababb1;
 
-  --brand-mark: #000000;
+  --brand-mark: #3a3a3f;
   --brand-mark-glow: rgba(0, 0, 0, 0.08);
 
-  /* Darkened until text in these colours clears WCAG AA (4.5:1) on its own
-     12% tint — the badges and chips throughout the app pair the two, and at
-     the previous values they measured 3.5–4.0 (status-bar spec's light pass).
-     The shift is ~12% darker: invisible as a hue, decisive as contrast. */
-  --accent-primary: #286b44;
-  --accent-secondary: #1f5a37;
-  --accent-subtle: rgba(47, 125, 79, 0.12);
-  --accent-glow: rgba(47, 125, 79, 0.08);
+  /* The light accent is #38946e (2026-10-07, chosen by eye). It measures
+     ~3.3:1 on the light grounds and ~3.1:1 on its own 12% tint, under the
+     4.5:1 AA bar for small text; the earlier #286b44 cleared it (status-bar
+     spec's light pass). */
+  --accent-primary: #38946e;
+  --accent-secondary: #2e7d5c;
+  --accent-subtle: rgba(56, 148, 110, 0.12);
+  --accent-glow: rgba(56, 148, 110, 0.08);
+
+  --selected-bg: rgba(24, 24, 27, 0.06); /* soft neutral; the green stays on the text and icon */
+  --selected-fg: var(--accent-primary);
+  --selected-border: var(--accent-primary);
+
+  --menu-bg: rgba(246, 246, 246, 0.86);
+  --menu-border: rgba(0, 0, 0, 0.12);
+  --menu-outline: rgba(0, 0, 0, 0.08);
+  --menu-hover: rgba(0, 0, 0, 0.07);
+  --menu-separator: rgba(0, 0, 0, 0.10);
 
   /* Document-type Colors (spec rail) */
   --doc-spec: #8f7326;
@@ -153,9 +189,14 @@
   --error-subtle: rgba(184, 64, 64, 0.12);
   --info: #376090;
 
-  --border-subtle: rgba(0, 0, 0, 0.07);
-  --border-default: rgba(0, 0, 0, 0.10);
-  --border-strong: rgba(0, 0, 0, 0.15);
+  /* One soft stroke for every line on the light ground — borders, dividers,
+     cards, badges, hover — solid, not alpha, so it reads the same over
+     every surface it crosses. */
+  --border-subtle: #dcdce1;
+  --divider: #dcdce1; /* every divider line, 1px */
+  --border-default: #dcdce1;
+  --border-strong: #dcdce1;
+  --card-border: #dcdce1;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.12);
@@ -187,13 +228,17 @@
   --bg-hover: #2a2d2e;
 
   --text-primary: #cccccc;
-  --text-secondary: #9d9d9d;
-  --text-tertiary: #808080;
-  --text-muted: #5a5a5a;
+  /* Same AA pass as the dark scheme; secondary moves up to stay above
+     tertiary. */
+  --text-secondary: #b3b3b3;
+  --text-tertiary: #a4a4a4;
+  --text-muted: #999999;
 
   --border-subtle: #2b2b2b;
+  --divider: rgba(255, 255, 255, 0.16); /* every divider line, 1px */
   --border-default: #2b2b2b;
   --border-strong: #3c3c3c;
+  --card-border: rgba(255, 255, 255, 0.05);
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.36);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.36);
@@ -211,15 +256,19 @@
   --bg-tertiary: #f2f2f2;
   --bg-elevated: #ebebeb;
   --bg-hover: #e8e8e8;
+  --surface-card: #ffffff;
 
   --text-primary: #3b3b3b;
   --text-secondary: #616161;
   --text-tertiary: #8b8b8b;
   --text-muted: #a6a6a6;
 
+  /* One soft stroke for every line (see the light scheme above). */
   --border-subtle: #e5e5e5;
+  --divider: #e5e5e5; /* every divider line, 1px */
   --border-default: #e5e5e5;
-  --border-strong: #cecece;
+  --border-strong: #e5e5e5;
+  --card-border: #e5e5e5;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.10);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.16);

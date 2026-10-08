@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -75,7 +75,7 @@
 .settings-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 18px 20px;
+  padding: 16px 20px 20px;
 }
 
 .settings-section {
@@ -99,7 +99,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -163,7 +163,7 @@
 .settings-danger-btn {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   font-family: inherit;
   color: var(--text-secondary);
@@ -188,7 +188,7 @@
 .settings-action-btn {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   font-family: inherit;
   color: var(--text-secondary);
@@ -214,18 +214,16 @@
 .settings-status-chip {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
-  border: 1px solid var(--border-default);
-  border-radius: 99px;
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-sm);
   white-space: nowrap;
 }
 
-/* Switch, shadcn-style: a borderless muted track that fills with the accent
-   when on, and a thumb in the scheme's ink (the deep surface once on). The
-   1px border stays, transparent, so the thumb's geometry is unchanged. */
+/* iOS-style switch */
 .settings-switch {
   position: relative;
   display: inline-block;
@@ -244,22 +242,11 @@
 .settings-switch-slider {
   position: absolute;
   inset: 0;
-  background: var(--border-strong);
-  border: 1px solid transparent;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-default);
   border-radius: 20px;
   cursor: pointer;
-  transition: background 0.18s, border-color 0.18s, box-shadow 0.18s;
-}
-
-/* The input is invisible, so the track wears its focus ring. */
-.settings-switch input:focus-visible + .settings-switch-slider {
-  border-color: var(--accent-primary);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent-primary) 35%, transparent);
-}
-
-.settings-switch input:disabled + .settings-switch-slider {
-  opacity: 0.5;
-  cursor: not-allowed;
+  transition: background 0.18s, border-color 0.18s;
 }
 
 .settings-switch-slider::before {
@@ -269,7 +256,7 @@
   height: 14px;
   left: 2px;
   top: 2px;
-  background: var(--text-primary);
+  background: var(--text-secondary);
   border-radius: 50%;
   transition: transform 0.18s, background 0.18s;
 }
@@ -281,7 +268,7 @@
 
 .settings-switch input:checked + .settings-switch-slider::before {
   transform: translateX(16px);
-  background: var(--bg-deep);
+  background: var(--bg-secondary);
 }
 
 /* About section */
@@ -321,7 +308,7 @@
   color: var(--text-primary);
   border: 1px solid var(--border-default);
   border-radius: 6px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -353,7 +340,7 @@
 
 .settings-update-banner {
   margin-top: 6px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   background: var(--accent-subtle);
   border: 1px solid var(--accent-primary);
   border-radius: 8px;

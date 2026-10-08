@@ -109,3 +109,6 @@
 
 /* 19. Orchestrator (conductor-led parallel spec execution overlay) */
 @import 'components/orchestrator.css';
+
+/* Shared dropdown-menu look — last, so it wins over each menu's own box */
+@import 'components/menu.css';

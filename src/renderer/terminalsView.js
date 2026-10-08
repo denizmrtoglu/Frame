@@ -332,19 +332,24 @@ class TerminalsView {
   _buildLayoutBar(prefs) {
     const bar = document.createElement('div');
     bar.className = 'tv-bar';
+    // The column count is a dropdown on the bar's right: the shared
+    // .ai-tool-picker box, whose native <select> opens Frame's own menu
+    // (selectMenu.js).
     bar.innerHTML = `
-      <span class="tv-bar-label">LAYOUT</span>
-      ${[1, 2, 3].map(n => `
-        <button class="tv-bar-btn ${prefs.cols === n ? 'on' : ''}" data-cols="${n}" title="${n} column${n > 1 ? 's' : ''}">${'▮'.repeat(n)} ${n}</button>
-      `).join('')}
-      <span class="tv-bar-hint">drag header to reorder · bottom edge to resize · ⤢ to enlarge</span>
+      <label class="ai-tool-picker tv-layout-picker" title="Columns">
+        <span class="ai-tool-picker-label">Layout</span>
+        <select class="ai-tool-select" tabindex="-1" aria-label="Columns">
+          ${[1, 2, 3].map(n => `<option value="${n}"${prefs.cols === n ? ' selected' : ''}>${n} column${n > 1 ? 's' : ''}</option>`).join('')}
+        </select>
+        <svg class="ai-tool-picker-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <polyline points="6 9 12 15 18 9"/>
+        </svg>
+      </label>
     `;
 
-    bar.querySelectorAll('[data-cols]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        this._updatePrefs({ cols: Number(btn.dataset.cols) });
-        this._rerender();
-      });
+    bar.querySelector('select').addEventListener('change', (e) => {
+      this._updatePrefs({ cols: Number(e.target.value) });
+      this._rerender();
     });
     return bar;
   }

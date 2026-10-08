@@ -52,7 +52,7 @@
 }
 
 .github-head-repo {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-tertiary);
   white-space: nowrap;
@@ -233,11 +233,11 @@
 
 .github-section-count {
   flex: 0 0 auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   font-weight: 500;
   color: var(--text-tertiary);
-  padding: 0 5px;
+  padding: 0 4px;
   border-radius: 8px;
   background: var(--bg-tertiary);
   line-height: 15px;
@@ -302,7 +302,7 @@
   align-items: center;
   gap: 6px;
   height: 22px;
-  padding: 0 var(--space-xs) 0 18px;
+  padding: 0 var(--space-xs) 0 20px;
   font-size: 12px;
   color: var(--text-primary);
   cursor: pointer;
@@ -319,7 +319,7 @@
 }
 
 .github-row.active {
-  background: var(--accent-subtle);
+  background: var(--selected-bg);
 }
 
 .github-row-icon {
@@ -343,7 +343,7 @@
 
 .github-row-num {
   flex: 0 0 auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-tertiary);
 }
@@ -408,7 +408,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   margin-left: auto;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 10px;
   color: var(--text-tertiary);
   text-align: right;
@@ -504,7 +504,7 @@
   height: 22px;
   display: flex;
   align-items: center;
-  padding: 0 var(--space-md) 0 18px;
+  padding: 0 var(--space-md) 0 20px;
   font-size: 11px;
   color: var(--text-tertiary);
   white-space: nowrap;

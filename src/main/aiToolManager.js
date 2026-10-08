@@ -9,7 +9,7 @@ const path = require('path');
 const { spawn } = require('child_process');
 const fsSafe = require('./fsSafe');
 const logger = require('./logger');
-const telemetry = require('./telemetry');
+const analytics = require('./analytics');
 // The login shell and probe budget are shared with envPath so the CLI probe
 // and the PATH repair consult the same shell and give up at the same time.
 const { loginShell, PROBE_TIMEOUT_MS } = require('./envPath');
@@ -164,7 +164,7 @@ function setActiveTool(toolId) {
     const changed = config.activeTool !== toolId;
     config.activeTool = toolId;
     saveConfig();
-    if (changed) telemetry.track('ai_tool_selected', { tool: toolId });
+    if (changed) analytics.track('ai_tool_selected', { tool: toolId });
 
     // Notify renderer about the change
     if (mainWindow && !mainWindow.isDestroyed()) {
@@ -326,7 +326,7 @@ const PROBE_FAILURE_CATEGORIES = {
 
 function trackProbeFailure(reason) {
   const category = PROBE_FAILURE_CATEGORIES[reason];
-  if (category) telemetry.track('error_occurred', { category });
+  if (category) analytics.track('error_occurred', { category });
 }
 
 /**

@@ -165,3 +165,17 @@ test('a lookup never runs Git, even when the map predates the last commit', (t) 
   assert.equal(fs.existsSync(marker), false);
   assert.match(r.stdout, /^⚠ Map: unverified \(no-working-view\) — run: node .*structure-lifecycle\.js --once/);
 });
+
+test('a function answer names its definition line, in the listing and in --json (STR-03b)', (t) => {
+  const structure = JSON.parse(JSON.stringify(STRUCTURE));
+  structure.modules['renderer/github/rowModels'].functions = { issueBranchName: { line: 57 } };
+  const dir = project(t, { structure });
+  const human = find(dir, ['issueBranchName', '--retrieval=v2']).stdout;
+  assert.match(human, /^ {2}src\/renderer\/github\/rowModels\.js:57 issueBranchName +— Row models {2}\[symbol\]$/m);
+  const env = envelope(find(dir, ['issueBranchName', '--json', '--retrieval=v2']));
+  assert.deepEqual([env.candidates[0].line, env.candidates[0].symbol], [57, 'issueBranchName']);
+  // a file-name answer has no line
+  const byName = envelope(find(dir, ['rowModels', '--json', '--retrieval=v2'])).candidates[0];
+  assert.equal(byName.line, undefined);
+  assert.match(find(dir, ['rowModels', '--retrieval=v2']).stdout, /^ {2}src\/renderer\/github\/rowModels\.js +— /m);
+});

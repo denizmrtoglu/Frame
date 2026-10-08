@@ -1,0 +1,21 @@
+{
+  "slug": "str-03b-retrieval-v2-promotion",
+  "title": "STR-03b — Retrieval v2 Promotion",
+  "phase": "done",
+  "generated_task_ids": [
+    "task-spec-str-03b-retrieval-v2-promotion-T01",
+    "task-spec-str-03b-retrieval-v2-promotion-T02",
+    "task-spec-str-03b-retrieval-v2-promotion-T03",
+    "task-spec-str-03b-retrieval-v2-promotion-T04",
+    "task-spec-str-03b-retrieval-v2-promotion-T05",
+    "task-spec-str-03b-retrieval-v2-promotion-T06",
+    "task-spec-str-03b-retrieval-v2-promotion-T07",
+    "task-spec-str-03b-retrieval-v2-promotion-T08",
+    "task-spec-str-03b-retrieval-v2-promotion-T09"
+  ],
+  "ai_tool": "claude-code",
+  "created_at": "2026-10-05T13:48:57Z",
+  "updated_at": "2026-10-07T16:44:15Z",
+  "last_phase_at": "2026-10-07T16:44:15Z",
+  "implement_mode": "custom"
+}

@@ -23,6 +23,11 @@
  *     searched, or a no-hint arm that recorded hook activity, is invalid
  *   - paired per-task differences between arms
  *
+ * STR-03b adds lookups — find-module calls, Grep/Glob, and Bash calls with a
+ * segment that starts a search (the hook's own rule) — and repeated lookups:
+ * the same normalized term looked up again. Retrieval runs are summarized
+ * per task kind (navigation, natural, question) as well as per arm.
+ *
  * Usage:
  *   node scripts/eval/score.js <resultsDir>           # summary table
  *   node scripts/eval/score.js <resultsDir> --json    # machine-readable
@@ -37,11 +42,53 @@ const SEARCH_TOOLS = new Set(['Grep', 'Glob']);
 const SEARCHY_BASH = /\b(grep|rg|find|fd|ag)\b/;
 
 const READ_TOOLS = new Set(['Read', 'NotebookRead']);
+const SEGMENT_SPLIT = /[;\n]|&&|\|\|/;
+const LEADING_SEARCH = /^\s*(?:grep|rg|ag|ack|find)\s/;
+const FIND_MODULE = /^\s*node\s+\S*find-module\.js\s+(.+)$/;
+
+/** A lookup's term, normalized so repeats compare equal ("publishStaged", '"publishStaged"'). */
+function lookupTerm(text) {
+  return String(text || '').toLowerCase().replace(/\\[bswd]/g, ' ').replace(/[^a-z0-9_./-]+/g, ' ').trim();
+}
+
+/** The term a search segment looks for: its quoted or first non-flag operand, or find's -name. */
+function searchTerm(segment) {
+  const name = segment.match(/\s-i?(?:name|path)\s+(['"]?)([^'"\s]+)\1/);
+  if (/^\s*find\s/.test(segment)) return name ? name[2] : '';
+  const quoted = segment.match(/(['"])(.*?)\1/);
+  if (quoted) return quoted[2];
+  const bare = segment.replace(/^\s*\S+\s+/, '').split(/\s+/).find((t) => t && !t.startsWith('-'));
+  return bare || '';
+}
+
+/**
+ * Lookups in one tool call: [{ via: 'find-module' | 'tool' | 'bash', term }].
+ * A Bash call may hold several (`find-module X && grep -rn X`).
+ */
+function lookupsOf(block) {
+  if (SEARCH_TOOLS.has(block.name)) return [{ via: 'tool', term: lookupTerm(block.input && (block.input.pattern || block.input.glob)) }];
+  if (block.name !== 'Bash' || !block.input) return [];
+  const cmd = String(block.input.command || '');
+  if (cmd.includes('<<')) return [];
+  const out = [];
+  for (const seg of cmd.split(SEGMENT_SPLIT)) {
+    const head = seg.split('|')[0];
+    const fm = FIND_MODULE.exec(head);
+    if (fm) {
+      const words = fm[1].split(/\s+/).filter((t) => t && !t.startsWith('--'));
+      out.push({ via: 'find-module', term: lookupTerm(words.join(' ')) });
+    } else if (LEADING_SEARCH.test(head)) {
+      out.push({ via: 'bash', term: lookupTerm(searchTerm(head)) });
+    }
+  }
+  return out;
+}
 const READY_BASH = /^\s*(?:cat|head|tail|less|sed\s+-n)\b/;
 
 function scoreTranscript(file, options = {}) {
   const stats = {
     searchBeforeFirstEdit: 0, toolCalls: 0, turns: 0, searchCalls: 0, readCalls: 0, filesRead: [],
+    lookups: 0, findModuleCalls: 0, repeatedLookups: 0, hookableLookups: 0,
     inputTokens: null, cacheCreationTokens: null, cacheReadTokens: null, totalInputTokens: null, outputTokens: null
   };
   if (!fs.existsSync(file)) return stats;
@@ -52,6 +99,7 @@ function scoreTranscript(file, options = {}) {
   };
 
   let sawEdit = false;
+  const seenTerms = new Set();
   for (const line of fs.readFileSync(file, 'utf-8').split('\n')) {
     if (!line.trim()) continue;
     let event;
@@ -67,6 +115,15 @@ function scoreTranscript(file, options = {}) {
         const isSearch = SEARCH_TOOLS.has(block.name) ||
           (block.name === 'Bash' && block.input && SEARCHY_BASH.test(String(block.input.command || '')));
 
+        const blockLookups = lookupsOf(block);
+        // a call that runs find-module is recorded by the hook, never answered
+        if (!blockLookups.some((l) => l.via === 'find-module')) stats.hookableLookups += blockLookups.length;
+        for (const l of blockLookups) {
+          stats.lookups++;
+          if (l.via === 'find-module') stats.findModuleCalls++;
+          if (l.term && seenTerms.has(l.term)) stats.repeatedLookups++;
+          if (l.term) seenTerms.add(l.term);
+        }
         if (isEdit) sawEdit = true;
         if (isSearch && !sawEdit) stats.searchBeforeFirstEdit++;
         if (isSearch) stats.searchCalls++;
@@ -104,8 +161,11 @@ function cellValidity(meta, stats) {
   if (!meta.retrievalArm) return { valid: true };
   if (meta.setupOk === false) return { valid: false, reason: 'setup-failed' };
   const records = meta.hookRecords || 0;
-  if (meta.arm === 'no-hint') return records === 0 ? { valid: true } : { valid: false, reason: 'hook-ran-in-no-hint-arm' };
-  if (stats.searchCalls > 0 && records === 0) return { valid: false, reason: 'hook-never-ran' };
+  if (meta.arm === 'no-hint' || meta.arm === 'no-engine') return records === 0 ? { valid: true } : { valid: false, reason: `hook-ran-in-${meta.arm}-arm` };
+  // find-module calls never get a hint (the hook records them), so only
+  // the other searches show whether the hook ran
+  const hookable = typeof stats.hookableLookups === 'number' ? stats.hookableLookups : stats.searchCalls;
+  if (hookable > 0 && records === 0) return { valid: false, reason: 'hook-never-ran' };
   return { valid: true };
 }
 
@@ -123,6 +183,7 @@ function scoreRun(runDir) {
   return {
     task: meta.task,
     arm: meta.arm,
+    kind: meta.kind || null,
     repeat: meta.repeat || 1,
     pass: Boolean(meta.checkPassed) && !meta.timedOut,
     timedOut: Boolean(meta.timedOut),
@@ -177,6 +238,9 @@ function aggregate(runs) {
   };
   return {
     invalid: runs.filter((r) => r.valid === false).length,
+    avgLookups: avg((r) => r.lookups || 0),
+    avgFindModuleCalls: avg((r) => r.findModuleCalls || 0),
+    avgRepeatedLookups: avg((r) => r.repeatedLookups || 0),
     avgSearchCalls: avg((r) => r.searchCalls || 0),
     avgReadCalls: avg((r) => r.readCalls || 0),
     filesFound: sum((r) => r.filesFound || 0),
@@ -224,17 +288,24 @@ function main() {
     summary[arm] = aggregate(armRuns);
   }
 
-  const retrievalArms = runs.some((r) => ['no-hint', 'legacy', 'v2'].includes(r.arm));
+  const retrievalArms = runs.some((r) => ['no-hint', 'no-engine', 'legacy', 'v2'].includes(r.arm));
   const comparisons = {};
+  const byKind = {};
   if (retrievalArms) {
-    for (const [a, b] of [['no-hint', 'legacy'], ['no-hint', 'v2'], ['legacy', 'v2']]) {
-      comparisons[`${b} vs ${a}`] = Object.fromEntries(['totalInputTokens', 'searchCalls', 'readCalls', 'durationMs', 'filesFound']
+    const present = new Set(runs.map((r) => r.arm));
+    for (const [a, b] of [['no-engine', 'v2'], ['no-hint', 'legacy'], ['no-hint', 'v2'], ['legacy', 'v2']].filter(([x, y]) => present.has(x) && present.has(y))) {
+      comparisons[`${b} vs ${a}`] = Object.fromEntries(['totalInputTokens', 'lookups', 'repeatedLookups', 'readCalls', 'durationMs', 'filesFound']
         .map((m) => [m, paired(runs, a, b, m)]));
     }
+    for (const run of runs.filter((r) => r.valid !== false)) {
+      const key = `${run.kind || 'navigation'} · ${run.arm}`;
+      (byKind[key] = byKind[key] || []).push(run);
+    }
+    for (const key of Object.keys(byKind)) byKind[key] = aggregate(byKind[key]);
   }
 
   if (args.includes('--json')) {
-    console.log(JSON.stringify({ summary, comparisons, runs }, null, 2));
+    console.log(JSON.stringify({ summary, byKind, comparisons, runs }, null, 2));
     return;
   }
 
@@ -252,6 +323,8 @@ function main() {
     ['total output tokens', ...arms.map(a => summary[a].totalOutputTokens)],
     ['avg input tokens (incl. cache)', ...arms.map(a => summary[a].avgTotalInputTokens === null ? 'unknown' : summary[a].avgTotalInputTokens.toFixed(0))],
     ['avg search / read calls', ...arms.map(a => `${summary[a].avgSearchCalls.toFixed(1)} / ${summary[a].avgReadCalls.toFixed(1)}`)],
+    ['avg lookups (find-module)', ...arms.map(a => `${summary[a].avgLookups.toFixed(1)} (${summary[a].avgFindModuleCalls.toFixed(1)})`)],
+    ['avg repeated lookups', ...arms.map(a => summary[a].avgRepeatedLookups.toFixed(1))],
     ['expected files found', ...arms.map(a => `${summary[a].filesFound}/${summary[a].filesExpected}`)],
     ['invalid cells', ...arms.map(a => summary[a].invalid)]
   ];
@@ -260,6 +333,14 @@ function main() {
   for (const [ri, row] of rows.entries()) {
     console.log(row.map((cell, i) => String(cell).padEnd(widths[i] + 2)).join(''));
     if (ri === 0) console.log(widths.map(w => '-'.repeat(w + 2)).join(''));
+  }
+
+  if (Object.keys(byKind).length) {
+    console.log('\nBy task kind (valid cells):');
+    for (const [key, k] of Object.entries(byKind).sort()) {
+      const tokens = k.avgTotalInputTokens === null ? 'unknown' : k.avgTotalInputTokens.toFixed(0);
+      console.log(`  ${key.padEnd(22)} pass ${k.passed}/${k.tasks} · lookups ${k.avgLookups.toFixed(1)} · repeats ${k.avgRepeatedLookups.toFixed(1)} · input tokens ${tokens} · ${k.avgDurationSec.toFixed(0)} s`);
+    }
   }
 
   for (const [name, metrics] of Object.entries(comparisons)) {
@@ -285,4 +366,4 @@ function main() {
 
 if (require.main === module) main();
 
-module.exports = { scoreTranscript, scoreRun, cellValidity, paired, aggregate };
+module.exports = { scoreTranscript, scoreRun, cellValidity, paired, aggregate, lookupsOf, lookupTerm };

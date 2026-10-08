@@ -20,8 +20,8 @@ const frameStore = require('./frameStore');
 const tasksManager = require('./tasksManager');
 const commandStaging = require('./commandStaging');
 const frameProject = require('./frameProject');
-const telemetry = require('./telemetry');
-const { diffSpecLifecycle, renameSpecLifecycle } = require('./telemetryEvents');
+const analytics = require('./analytics');
+const { diffSpecLifecycle, renameSpecLifecycle } = require('./analyticsEvents');
 const activityLog = require('./activityLog');
 const perfMonitor = require('./perfMonitor');
 
@@ -817,7 +817,7 @@ function buildSpecCommandFile(projectPath, slug, command, aiTool, description) {
   fs.mkdirSync(promptsDir, { recursive: true });
   const slugless = isSlugless(slug, command);
   // Staging a slug-less spec.new prompt is the one thing only Frame's own New
-  // Spec launcher does — it is the origin signal for the telemetry below.
+  // Spec launcher does — it is the origin signal for the analytics below.
   if (slugless) markSpecNewLaunch(projectPath);
   const filename = slugless
     ? uniquePromptFilename(promptsDir, specNewPromptFilename())
@@ -1382,7 +1382,7 @@ function stopWatching() {
 // `spec_phase_advanced` is read off the same push, because agents write
 // status.json themselves and no Frame write path ever saw their phases move.
 // The comparison — and what keeps checkouts, renames and flip-flops out of it
-// — lives in telemetryEvents.diffSpecLifecycle.
+// — lives in analyticsEvents.diffSpecLifecycle.
 //
 // projectPath → the state diffSpecLifecycle returned last. Absent = no look
 // yet this run: the first push seeds from what is on disk, nothing is
@@ -1451,10 +1451,10 @@ function trackSpecLifecycle(projectPath, specs) {
   const attributable = created.length === 1;
   for (const _slug of created) {
     const origin = attributable ? resolveSpecOrigin(projectPath) : null;
-    telemetry.track('spec_created', origin ? { origin } : undefined);
+    analytics.track('spec_created', origin ? { origin } : undefined);
   }
   for (const { phase } of advanced) {
-    telemetry.track('spec_phase_advanced', { phase });
+    analytics.track('spec_phase_advanced', { phase });
   }
 }
 

@@ -8,7 +8,7 @@
  * is byte-identical afterwards, because Frame no longer reads, consumes or
  * replaces anything at the project root.
  *
- * Electron and the telemetry package are stubbed (the specTasksSync pattern):
+ * Electron and the analytics package are stubbed (the specTasksSync pattern):
  * CI runs this suite with no node_modules.
  */
 
@@ -22,6 +22,7 @@ const crypto = require('crypto');
 const Module = require('node:module');
 const EXTERNAL_STUBS = {
   '@aptabase/electron/main': { initialize() {}, trackEvent() {} },
+  'posthog-node': { PostHog: class { capture() {} captureException() {} identify() {} shutdown() { return Promise.resolve(); } } },
   electron: {
     app: { getPath: () => os.tmpdir(), getVersion: () => '0.0.0-test' },
     ipcMain: { handle() {}, on() {} },

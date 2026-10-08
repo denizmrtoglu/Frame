@@ -8,7 +8,7 @@ const path = require('path');
 const os = require('os');
 const { execFile } = require('child_process');
 const { IPC } = require('../shared/ipcChannels');
-const telemetry = require('./telemetry');
+const analytics = require('./analytics');
 
 /** Run a git command async; rejects with stderr attached for classification. */
 function execGit(args, opts = {}) {
@@ -199,7 +199,7 @@ function togglePlugin(pluginId) {
 
   const success = writeJsonFile(SETTINGS_FILE, settings);
   if (success) {
-    telemetry.track('plugin_toggled', { action: !currentStatus ? 'enabled' : 'disabled' });
+    analytics.track('plugin_toggled', { action: !currentStatus ? 'enabled' : 'disabled' });
   }
 
   return {
@@ -222,7 +222,7 @@ let marketplaceFailureTracked = false;
 function trackMarketplaceFailure() {
   if (marketplaceFailureTracked) return;
   marketplaceFailureTracked = true;
-  telemetry.track('error_occurred', { category: 'plugin_marketplace_failed' });
+  analytics.track('error_occurred', { category: 'plugin_marketplace_failed' });
 }
 
 /** Classify a git failure into an actionable reason */

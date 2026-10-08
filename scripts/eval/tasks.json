@@ -64,7 +64,7 @@
     }
   ],
   "retrievalSuite": {
-    "_comment": "STR-03 matched-agent navigation suite (run-eval.js --retrieval-arms). Each prompt describes a file's behavior, never its name; the task is done when the marker line lands in that file and nowhere else. Arms differ only in the search hook (none / legacy / v2). Pinned to the retrieval corpus commit.",
+    "_comment": "STR-03 matched-agent suite (run-eval.js --retrieval-arms). Prompts describe behavior, never file names. kind: navigation (add a marker to the file that implements X; successCheck), natural (a conversational change request; successCheck on the change), question (no edit; passes when the final answer names an expected path). Arms differ only in the search hook (none / legacy / v2). Pinned to the retrieval corpus commit.",
     "pinnedCommit": "262f91bbc584e21fe464fd9adceba7a686ba6160",
     "tasks": [
       {
@@ -73,7 +73,8 @@
         "expectedFiles": [
           "src/templates/sample-project/src/auth/oauth.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-01' src/templates/sample-project/src/auth/oauth.js && [ \"$(git grep -l 'eval-nav: nav-01' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-01' src/templates/sample-project/src/auth/oauth.js && [ \"$(git grep -l 'eval-nav: nav-01' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-02",
@@ -81,7 +82,8 @@
         "expectedFiles": [
           "src/shared/gitRefNames.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-02' src/shared/gitRefNames.js && [ \"$(git grep -l 'eval-nav: nav-02' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-02' src/shared/gitRefNames.js && [ \"$(git grep -l 'eval-nav: nav-02' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-03",
@@ -89,7 +91,8 @@
         "expectedFiles": [
           "src/main/fsSafe.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-03' src/main/fsSafe.js && [ \"$(git grep -l 'eval-nav: nav-03' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-03' src/main/fsSafe.js && [ \"$(git grep -l 'eval-nav: nav-03' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-04",
@@ -97,7 +100,8 @@
         "expectedFiles": [
           "src/shared/uiZoom.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-04' src/shared/uiZoom.js && [ \"$(git grep -l 'eval-nav: nav-04' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-04' src/shared/uiZoom.js && [ \"$(git grep -l 'eval-nav: nav-04' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-05",
@@ -105,7 +109,8 @@
         "expectedFiles": [
           "src/main/envPath.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-05' src/main/envPath.js && [ \"$(git grep -l 'eval-nav: nav-05' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-05' src/main/envPath.js && [ \"$(git grep -l 'eval-nav: nav-05' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-06",
@@ -113,7 +118,8 @@
         "expectedFiles": [
           "scripts/structure-commit.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-06' scripts/structure-commit.js && [ \"$(git grep -l 'eval-nav: nav-06' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-06' scripts/structure-commit.js && [ \"$(git grep -l 'eval-nav: nav-06' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-07",
@@ -121,7 +127,8 @@
         "expectedFiles": [
           "scripts/redact.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-07' scripts/redact.js && [ \"$(git grep -l 'eval-nav: nav-07' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-07' scripts/redact.js && [ \"$(git grep -l 'eval-nav: nav-07' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-08",
@@ -129,7 +136,8 @@
         "expectedFiles": [
           "src/renderer/statusBar/branchPickerModel.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-08' src/renderer/statusBar/branchPickerModel.js && [ \"$(git grep -l 'eval-nav: nav-08' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-08' src/renderer/statusBar/branchPickerModel.js && [ \"$(git grep -l 'eval-nav: nav-08' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-09",
@@ -137,7 +145,8 @@
         "expectedFiles": [
           "src/main/updateChecker.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-09' src/main/updateChecker.js && [ \"$(git grep -l 'eval-nav: nav-09' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-09' src/main/updateChecker.js && [ \"$(git grep -l 'eval-nav: nav-09' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-10",
@@ -145,7 +154,8 @@
         "expectedFiles": [
           "src/renderer/paletteSources.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-10' src/renderer/paletteSources.js && [ \"$(git grep -l 'eval-nav: nav-10' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-10' src/renderer/paletteSources.js && [ \"$(git grep -l 'eval-nav: nav-10' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-11",
@@ -153,7 +163,8 @@
         "expectedFiles": [
           "src/renderer/home/registry.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-11' src/renderer/home/registry.js && [ \"$(git grep -l 'eval-nav: nav-11' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-11' src/renderer/home/registry.js && [ \"$(git grep -l 'eval-nav: nav-11' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
       },
       {
         "id": "nav-12",
@@ -161,7 +172,176 @@
         "expectedFiles": [
           "src/shared/docsHealth.js"
         ],
-        "successCheck": "grep -q 'eval-nav: nav-12' src/shared/docsHealth.js && [ \"$(git grep -l 'eval-nav: nav-12' | wc -l | tr -d ' ')\" = 1 ]"
+        "successCheck": "grep -q 'eval-nav: nav-12' src/shared/docsHealth.js && [ \"$(git grep -l 'eval-nav: nav-12' | wc -l | tr -d ' ')\" = 1 ]",
+        "kind": "navigation"
+      },
+      {
+        "id": "nat-01",
+        "kind": "natural",
+        "prompt": "The app looks for a newer release every six hours, which is more often than we need. Make that periodic check run every twelve hours instead.",
+        "expectedFiles": [
+          "src/main/updateChecker.js"
+        ],
+        "successCheck": "grep -qE 'RECHECK_INTERVAL_MS = (12 \\* 60 \\* 60 \\* 1000|43200000|12 \\* 3600000)' src/main/updateChecker.js"
+      },
+      {
+        "id": "nat-02",
+        "kind": "natural",
+        "prompt": "The prompt history log rotates once it reaches 5 MB per project. Raise that limit to 10 MB.",
+        "expectedFiles": [
+          "src/main/promptLogger.js"
+        ],
+        "successCheck": "grep -qE 'MAX_LOG_SIZE = (10 \\* 1024 \\* 1024|10485760)' src/main/promptLogger.js"
+      },
+      {
+        "id": "nat-03",
+        "kind": "natural",
+        "prompt": "When I drag the sidebar narrower it stops at 231 pixels. Make its minimum width 260 pixels.",
+        "expectedFiles": [
+          "src/renderer/sidebarResize.js"
+        ],
+        "successCheck": "grep -qE 'MIN_WIDTH = 260' src/renderer/sidebarResize.js"
+      },
+      {
+        "id": "nat-04",
+        "kind": "natural",
+        "prompt": "The warning tray in the status bar keeps up to 50 notices. Lower that to 30.",
+        "expectedFiles": [
+          "src/renderer/statusBar/noticeTrayModel.js"
+        ],
+        "successCheck": "grep -qE 'MAX_NOTICES = 30' src/renderer/statusBar/noticeTrayModel.js"
+      },
+      {
+        "id": "nat-05",
+        "kind": "natural",
+        "prompt": "Branch names created from GitHub issues cut the title part at 40 characters. Allow 60 characters.",
+        "expectedFiles": [
+          "src/renderer/github/rowModels.js"
+        ],
+        "successCheck": "grep -qE 'SLUG_MAX = 60' src/renderer/github/rowModels.js"
+      },
+      {
+        "id": "nat-06",
+        "kind": "natural",
+        "prompt": "The Claude usage numbers are cached for five minutes. Cache them for two minutes instead.",
+        "expectedFiles": [
+          "src/main/claudeUsageManager.js"
+        ],
+        "successCheck": "grep -qE 'USAGE_TTL_MS = (120000|2 \\* 60 \\* 1000|120 \\* 1000)' src/main/claudeUsageManager.js"
+      },
+      {
+        "id": "nat-07",
+        "kind": "natural",
+        "prompt": "The interface zoom only goes two steps above the default. Let it go up to three steps.",
+        "expectedFiles": [
+          "src/shared/uiZoom.js"
+        ],
+        "successCheck": "grep -qE 'MAX_STEP = 3' src/shared/uiZoom.js"
+      },
+      {
+        "id": "nat-08",
+        "kind": "natural",
+        "prompt": "Usage polling stops after three checks in a row find no access token. Let it try five times before it stops.",
+        "expectedFiles": [
+          "src/main/claudeUsageManager.js"
+        ],
+        "successCheck": "grep -qE 'MAX_TOKEN_MISSES = 5' src/main/claudeUsageManager.js"
+      },
+      {
+        "id": "nat-09",
+        "kind": "natural",
+        "prompt": "When git is missing, the branches feature shows a terse error. Change that message to: Git was not found. Install it and restart Frame.",
+        "expectedFiles": [
+          "src/main/gitBranchesManager.js"
+        ],
+        "successCheck": "grep -q 'Git was not found. Install it and restart Frame.' src/main/gitBranchesManager.js"
+      },
+      {
+        "id": "nat-10",
+        "kind": "natural",
+        "prompt": "The app's own log file rotates at 5 MB. Raise it to 8 MB.",
+        "expectedFiles": [
+          "src/main/logger.js"
+        ],
+        "successCheck": "grep -qE '(8 \\* 1024 \\* 1024|8388608)' src/main/logger.js"
+      },
+      {
+        "id": "q-01",
+        "kind": "question",
+        "prompt": "Which file schedules the structure map's background reconciliation, with its debounce and its once-a-minute full check? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "scripts/structure-lifecycle.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "scripts/structure-lifecycle.js"
+          ]
+        }
+      },
+      {
+        "id": "q-02",
+        "kind": "question",
+        "prompt": "Which file holds the list of color schemes the app and its terminals can switch between? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "src/renderer/themes.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "src/renderer/themes.js"
+          ]
+        }
+      },
+      {
+        "id": "q-03",
+        "kind": "question",
+        "prompt": "Which file renders the overlay that lists the keyboard shortcuts? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "src/renderer/cheatSheet.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "src/renderer/cheatSheet.js"
+          ]
+        }
+      },
+      {
+        "id": "q-04",
+        "kind": "question",
+        "prompt": "Which file provides the polling helper that pauses timers while no app window is visible? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "src/main/pollGate.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "src/main/pollGate.js"
+          ]
+        }
+      },
+      {
+        "id": "q-05",
+        "kind": "question",
+        "prompt": "Which file composes the feedback report and builds its email link? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "src/shared/feedbackReport.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "src/shared/feedbackReport.js"
+          ]
+        }
+      },
+      {
+        "id": "q-06",
+        "kind": "question",
+        "prompt": "Which file decides which Claude sessions the Home board offers to resume, and in what order? Answer with the repository-relative path of that file. Do not modify any files.",
+        "expectedFiles": [
+          "src/renderer/home/sessionRows.js"
+        ],
+        "answerCheck": {
+          "contains": [
+            "src/renderer/home/sessionRows.js"
+          ]
+        }
       }
     ]
   }

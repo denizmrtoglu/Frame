@@ -94,7 +94,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 6928,
+      "sizeBytes": 11723,
       "extraction": {
         "status": "parsed"
       },
@@ -290,7 +290,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 92853,
+      "sizeBytes": 93819,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -551,7 +551,7 @@
         "child_process",
         "fsSafe",
         "logger",
-        "telemetry",
+        "analytics",
         "envPath",
         "shared/ipcChannels"
       ],
@@ -692,6 +692,272 @@
           "saveConfig": "3712085e07110058",
           "setActiveTool": "e6166795d2a0ea8d",
           "setupIPC": "b41c7437e6910eb5"
+        }
+      }
+    },
+    "main/analytics": {
+      "file": "src/main/analytics.js",
+      "description": "Analytics",
+      "exports": [
+        "init",
+        "track",
+        "trackAppStarted",
+        "startActiveTimer",
+        "captureException",
+        "noticeState",
+        "setEnabled",
+        "isEnabled",
+        "isErrorReportingEnabled",
+        "migrateLegacySettings",
+        "enforceFailClosed",
+        "shutdown"
+      ],
+      "depends": [
+        "posthog-node",
+        "@aptabase/electron/main",
+        "node:crypto",
+        "electron",
+        "userSettings",
+        "analyticsEvents",
+        "pollGate"
+      ],
+      "functions": {
+        "init": {
+          "line": 88,
+          "purpose": "Initialize Aptabase and build the PostHog client."
+        },
+        "initAptabase": {
+          "line": 112
+        },
+        "distinctId": {
+          "line": 129,
+          "purpose": "This install's distinct id, resolved on first use and cached for the run."
+        },
+        "personProperties": {
+          "line": 148,
+          "purpose": "Person properties, sent once per run alongside the first event."
+        },
+        "track": {
+          "line": 161,
+          "params": [
+            "name",
+            "props"
+          ],
+          "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
+        },
+        "isErrorReportingEnabled": {
+          "line": 197,
+          "purpose": "Whether exception detail may be sent."
+        },
+        "captureException": {
+          "line": 214,
+          "params": [
+            "err"
+          ],
+          "purpose": "Send one exception, sanitized. No-op unless error reporting is explicitly on."
+        },
+        "noticeState": {
+          "line": 241,
+          "purpose": "Whether the disclosure notice is due, and the version to store when it is"
+        },
+        "startActiveTimer": {
+          "line": 262,
+          "purpose": "Start counting active time."
+        },
+        "trackAppStarted": {
+          "line": 275,
+          "purpose": "Anonymous event marking this launch."
+        },
+        "setEnabled": {
+          "line": 289,
+          "params": [
+            "enabled"
+          ],
+          "purpose": "Toggle analytics from Settings. Persists the new state, then re-resolves"
+        },
+        "migrateLegacySettings": {
+          "line": 308,
+          "purpose": "Copy settings forward from the names this feature used when it was called"
+        },
+        "enforceFailClosed": {
+          "line": 332,
+          "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
+        },
+        "isEnabled": {
+          "line": 343,
+          "purpose": "Effective enabled state. Default ON when the setting has never been"
+        },
+        "shutdown": {
+          "line": 359,
+          "purpose": "Flush the batcher and close the client, for the quit path."
+        }
+      },
+      "sizeBytes": 14849,
+      "extraction": {
+        "status": "parsed"
+      },
+      "provenance": {
+        "description": "94c116ee118a7299",
+        "purposes": {
+          "captureException": "9cb169eeec848b86",
+          "distinctId": "9c915fdaff2fafc5",
+          "enforceFailClosed": "ecf7a07c2aba26cb",
+          "init": "209680a766f4ec7c",
+          "isEnabled": "c193c02a32aa295b",
+          "isErrorReportingEnabled": "f650940efe39d9d6",
+          "migrateLegacySettings": "953fe743a0813ce2",
+          "noticeState": "09bcb4d505ea9526",
+          "personProperties": "0f5fbb80da306c1d",
+          "setEnabled": "d32777772151597e",
+          "shutdown": "6db4121e4d7045c2",
+          "startActiveTimer": "1132af442a4b3b3b",
+          "track": "2e86b64f1eda064b",
+          "trackAppStarted": "9c37f94c9015aeb9"
+        }
+      }
+    },
+    "main/analyticsEvents": {
+      "file": "src/main/analyticsEvents.js",
+      "description": "Analytics events — pure policy module",
+      "exports": [
+        "EVENTS",
+        "normalizeTool",
+        "validateEvent",
+        "effectiveEnabled",
+        "resolveInstallId",
+        "LEGACY_SETTING_KEYS",
+        "planLegacyMigration",
+        "sanitizeException",
+        "NOTICE_VERSION",
+        "shouldShowNotice",
+        "createActiveTimer",
+        "createRateLimiter",
+        "DEFAULT_RATE_LIMIT",
+        "diffSpecLifecycle",
+        "renameSpecLifecycle"
+      ],
+      "depends": [
+        "node:crypto",
+        "../scripts/redact"
+      ],
+      "functions": {
+        "normalizeTool": {
+          "line": 90,
+          "params": [
+            "id"
+          ],
+          "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
+        },
+        "validateEvent": {
+          "line": 105,
+          "params": [
+            "name",
+            "props"
+          ],
+          "purpose": "Validate an (event, props) pair against the registry."
+        },
+        "effectiveEnabled": {
+          "line": 143,
+          "params": [
+            "{ value",
+            "loadFailed }"
+          ],
+          "purpose": "Effective analytics state from the persisted setting plus settings-load"
+        },
+        "shouldShowNotice": {
+          "line": 173,
+          "params": [
+            "{ storedVersion",
+            "legacyShown",
+            "currentVersion }"
+          ],
+          "purpose": "Whether the disclosure notice should be shown."
+        },
+        "stripAbsolutePaths": {
+          "line": 201,
+          "params": [
+            "text"
+          ]
+        },
+        "sanitizeException": {
+          "line": 217,
+          "params": [
+            "err"
+          ],
+          "purpose": "Make an exception safe to send."
+        },
+        "createActiveTimer": {
+          "line": 242,
+          "params": [
+            "options"
+          ]
+        },
+        "planLegacyMigration": {
+          "line": 285,
+          "params": [
+            "snapshot"
+          ],
+          "purpose": "What the rename owes this install."
+        },
+        "resolveInstallId": {
+          "line": 327,
+          "params": [
+            "{ stored",
+            "enabled }",
+            "mint"
+          ],
+          "purpose": "Decide this launch's install id from what is stored and whether analytics"
+        },
+        "createRateLimiter": {
+          "line": 358,
+          "params": [
+            "options"
+          ],
+          "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
+        },
+        "stampedSince": {
+          "line": 418,
+          "params": [
+            "stamp",
+            "since"
+          ]
+        },
+        "diffSpecLifecycle": {
+          "line": 437,
+          "params": [
+            "previous",
+            "specs",
+            "now"
+          ],
+          "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
+        },
+        "renameSpecLifecycle": {
+          "line": 476,
+          "params": [
+            "state",
+            "oldSlug",
+            "newSlug"
+          ],
+          "purpose": "Carry a renamed spec's history to its new slug, so the rename does not read"
+        }
+      },
+      "sizeBytes": 21026,
+      "extraction": {
+        "status": "parsed"
+      },
+      "provenance": {
+        "description": "d2887845f6deb252",
+        "purposes": {
+          "createRateLimiter": "f272874802425832",
+          "diffSpecLifecycle": "3b2433f402a29a53",
+          "effectiveEnabled": "1d7ad3bc41041a9d",
+          "normalizeTool": "dc8a3cfd5b8b95ee",
+          "planLegacyMigration": "252eb4a6737ba78e",
+          "renameSpecLifecycle": "abb27ce2d87a63f8",
+          "resolveInstallId": "c3af5851e884d6db",
+          "sanitizeException": "20a013c9fb3b910b",
+          "shouldShowNotice": "c5887cebeb237764",
+          "validateEvent": "bf0ab6cb2283257c"
         }
       }
     },
@@ -995,22 +1261,23 @@
       "depends": [
         "electron",
         "logger",
+        "analytics",
         "shared/ipcChannels",
         "userSettings"
       ],
       "functions": {
         "init": {
-          "line": 21
+          "line": 24
         },
         "attachWindow": {
-          "line": 71,
+          "line": 78,
           "params": [
             "window"
           ],
           "purpose": "Wire per-window signals; called from createWindow."
         },
         "notify": {
-          "line": 85,
+          "line": 92,
           "params": [
             "source",
             "message"
@@ -1024,7 +1291,7 @@
           "MAIN_PROCESS_ERROR"
         ]
       },
-      "sizeBytes": 3478,
+      "sizeBytes": 3864,
       "extraction": {
         "status": "parsed"
       },
@@ -1476,7 +1743,7 @@
         "../scripts/activity-log",
         "specManager",
         "fileTree",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "init": {
@@ -1827,7 +2094,7 @@
           "FRAME_CONFIG_DATA"
         ]
       },
-      "sizeBytes": 71402,
+      "sizeBytes": 71396,
       "extraction": {
         "status": "parsed"
       },
@@ -3050,7 +3317,7 @@
         "uiZoom",
         "gitStatusManager",
         "gitDiffManager",
-        "telemetry",
+        "analytics",
         "specManager",
         "orchestrationManager",
         "structureLifecycle",
@@ -3058,26 +3325,26 @@
       ],
       "functions": {
         "confirmQuitWithLiveAgents": {
-          "line": 57,
+          "line": 58,
           "purpose": "Quitting (or closing the window) tears down every PTY — killing running"
         },
         "createWindow": {
-          "line": 75,
+          "line": 76,
           "purpose": "Create main application window"
         },
         "probeCoreDeps": {
-          "line": 176
+          "line": 177
         },
         "setupAllIPC": {
-          "line": 206,
+          "line": 207,
           "purpose": "Setup all IPC handlers"
         },
         "init": {
-          "line": 284,
+          "line": 297,
           "purpose": "Initialize application"
         },
         "initModulesWithWindow": {
-          "line": 330,
+          "line": 345,
           "params": [
             "window"
           ],
@@ -3088,8 +3355,10 @@
         "listens": [
           "GET_USER_SETTING",
           "SET_USER_SETTING",
-          "TELEMETRY_SET_ENABLED",
-          "TELEMETRY_TRACK",
+          "ANALYTICS_SET_ENABLED",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_EXCEPTION",
+          "ANALYTICS_NOTICE_STATE",
           "GET_LOG_INFO",
           "TERMINAL_INPUT",
           "RECONCILE_TERMINALS"
@@ -3098,7 +3367,7 @@
           "MAIN_PROCESS_ERROR"
         ]
       },
-      "sizeBytes": 14361,
+      "sizeBytes": 15545,
       "extraction": {
         "status": "parsed"
       },
@@ -3541,7 +3810,7 @@
         "ptyManager",
         "gitBranchesManager",
         "specManager",
-        "telemetry",
+        "analytics",
         "pollGate"
       ],
       "functions": {
@@ -3911,7 +4180,7 @@
         "os",
         "child_process",
         "shared/ipcChannels",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "execGit": {
@@ -4421,7 +4690,7 @@
         "shared/ipcChannels",
         "logger",
         "promptLogger",
-        "telemetry",
+        "analytics",
         "pollGate",
         "child_process",
         "fs"
@@ -4632,8 +4901,8 @@
         "tasksManager",
         "commandStaging",
         "frameProject",
-        "telemetry",
-        "telemetryEvents",
+        "analytics",
+        "analyticsEvents",
         "activityLog",
         "perfMonitor",
         "../scripts/toolVocabulary",
@@ -5369,7 +5638,8 @@
         "frameStore",
         "activityLog",
         "shared/ipcChannels",
-        "shared/frameConstants"
+        "shared/frameConstants",
+        "analytics"
       ],
       "functions": {
         "cacheKeyFor": {
@@ -5451,14 +5721,14 @@
           ]
         },
         "deleteTask": {
-          "line": 245,
+          "line": 252,
           "params": [
             "projectPath",
             "taskId"
           ]
         },
         "reorderTasks": {
-          "line": 264,
+          "line": 271,
           "params": [
             "projectPath",
             "order"
@@ -5466,42 +5736,42 @@
           "purpose": "Reorder tasks (used by the Kanban dashboard for drag-and-drop). The renderer"
         },
         "startWatching": {
-          "line": 322,
+          "line": 329,
           "params": [
             "projectPath"
           ]
         },
         "onMetaFileChange": {
-          "line": 371,
+          "line": 378,
           "params": [
             "listener"
           ]
         },
         "notifyMetaChange": {
-          "line": 375,
+          "line": 382,
           "params": [
             "projectPath",
             "filename"
           ]
         },
         "restartWatching": {
-          "line": 390,
+          "line": 397,
           "params": [
             "projectPath"
           ],
           "purpose": "Re-arm the watcher on the project's current meta directory. Migration moves"
         },
         "stopWatching": {
-          "line": 395
+          "line": 402
         },
         "setupIPC": {
-          "line": 405,
+          "line": 412,
           "params": [
             "ipcMain"
           ]
         },
         "getLastSelfWriteAt": {
-          "line": 465,
+          "line": 472,
           "purpose": "Timestamp of this module's last tasks.json write — exported so other"
         }
       },
@@ -5519,7 +5789,7 @@
           "TASK_UPDATED"
         ]
       },
-      "sizeBytes": 15628,
+      "sizeBytes": 16046,
       "extraction": {
         "status": "parsed"
       },
@@ -5533,158 +5803,6 @@
           "reorderTasks": "8233e26b366334e7",
           "restartWatching": "a3e83c31810d67bd",
           "sendTasksFileError": "9369701346948a50"
-        }
-      }
-    },
-    "main/telemetry": {
-      "file": "src/main/telemetry.js",
-      "description": "Telemetry",
-      "exports": [
-        "init",
-        "track",
-        "trackAppStarted",
-        "setEnabled",
-        "isEnabled",
-        "enforceFailClosed"
-      ],
-      "depends": [
-        "@aptabase/electron/main",
-        "userSettings",
-        "telemetryEvents"
-      ],
-      "functions": {
-        "init": {
-          "line": 40,
-          "purpose": "Initialize Aptabase. MUST be called before app.whenReady() because the"
-        },
-        "track": {
-          "line": 57,
-          "params": [
-            "name",
-            "props"
-          ],
-          "purpose": "Send a registered anonymous event. No-op if disabled or not initialized."
-        },
-        "trackAppStarted": {
-          "line": 74,
-          "purpose": "Anonymous event marking this launch."
-        },
-        "setEnabled": {
-          "line": 82,
-          "params": [
-            "enabled"
-          ],
-          "purpose": "Toggle telemetry from Settings. Persists the new state. Aptabase is"
-        },
-        "enforceFailClosed": {
-          "line": 100,
-          "purpose": "Make a failed settings load's fail-closed state stick. Called right after"
-        },
-        "isEnabled": {
-          "line": 111,
-          "purpose": "Effective enabled state. Default ON when the setting has never been"
-        }
-      },
-      "sizeBytes": 4335,
-      "extraction": {
-        "status": "parsed"
-      },
-      "provenance": {
-        "description": "e87c57f595420aa9",
-        "purposes": {
-          "enforceFailClosed": "ecf7a07c2aba26cb",
-          "init": "42ba849be1952f08",
-          "isEnabled": "c193c02a32aa295b",
-          "setEnabled": "4a841b01bfb46099",
-          "track": "2e86b64f1eda064b",
-          "trackAppStarted": "9c37f94c9015aeb9"
-        }
-      }
-    },
-    "main/telemetryEvents": {
-      "file": "src/main/telemetryEvents.js",
-      "description": "Telemetry events — pure policy module",
-      "exports": [
-        "EVENTS",
-        "normalizeTool",
-        "validateEvent",
-        "effectiveEnabled",
-        "createRateLimiter",
-        "DEFAULT_RATE_LIMIT",
-        "diffSpecLifecycle",
-        "renameSpecLifecycle"
-      ],
-      "depends": [],
-      "functions": {
-        "normalizeTool": {
-          "line": 63,
-          "params": [
-            "id"
-          ],
-          "purpose": "Collapse a tool id to the fixed dashboard enum. User-defined custom tool"
-        },
-        "validateEvent": {
-          "line": 78,
-          "params": [
-            "name",
-            "props"
-          ],
-          "purpose": "Validate an (event, props) pair against the registry."
-        },
-        "effectiveEnabled": {
-          "line": 102,
-          "params": [
-            "{ value",
-            "loadFailed }"
-          ],
-          "purpose": "Effective telemetry state from the persisted setting plus settings-load"
-        },
-        "createRateLimiter": {
-          "line": 128,
-          "params": [
-            "options"
-          ],
-          "purpose": "A rolling-window limiter. `check(now)` decides one event and returns"
-        },
-        "stampedSince": {
-          "line": 188,
-          "params": [
-            "stamp",
-            "since"
-          ]
-        },
-        "diffSpecLifecycle": {
-          "line": 207,
-          "params": [
-            "previous",
-            "specs",
-            "now"
-          ],
-          "purpose": "Compare one push of a project's specs with this run's earlier looks at it."
-        },
-        "renameSpecLifecycle": {
-          "line": 246,
-          "params": [
-            "state",
-            "oldSlug",
-            "newSlug"
-          ],
-          "purpose": "Carry a renamed spec's history to its new slug, so the rename does not read"
-        }
-      },
-      "sizeBytes": 10358,
-      "extraction": {
-        "status": "parsed"
-      },
-      "provenance": {
-        "description": "2fd1c473a30f50f2",
-        "purposes": {
-          "createRateLimiter": "f272874802425832",
-          "diffSpecLifecycle": "3b2433f402a29a53",
-          "effectiveEnabled": "1f3cf0fb32313e34",
-          "normalizeTool": "dc8a3cfd5b8b95ee",
-          "renameSpecLifecycle": "abb27ce2d87a63f8",
-          "validateEvent": "bf0ab6cb2283257c"
         }
       }
     },
@@ -5836,7 +5954,7 @@
         "path",
         "electron",
         "fsSafe",
-        "telemetry"
+        "analytics"
       ],
       "functions": {
         "init": {
@@ -6016,7 +6134,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 216296,
+      "sizeBytes": 217739,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -6028,7 +6146,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 3747,
+      "sizeBytes": 3778,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -6405,107 +6523,107 @@
           "purpose": "The spec.implement path: modal → record implement_mode → stage → dispatch."
         },
         "_isSpecCreatorLane": {
-          "line": 615,
+          "line": 620,
           "params": [
             "terminalId"
           ],
           "purpose": "Still open, and still carrying the transient name we gave it."
         },
         "_onSpecData": {
-          "line": 631,
+          "line": 636,
           "params": [
             "specs"
           ],
           "purpose": "A new slug appeared — attach it to the lane that produced it."
         },
         "_bindSpecCreatorLane": {
-          "line": 651,
+          "line": 656,
           "params": [
             "terminalId",
             "slug"
           ]
         },
         "dispatchSpecNew": {
-          "line": 687,
+          "line": 692,
           "params": [
             "description"
           ],
           "purpose": "Hand the user's free-form text to the standard `spec.new` flow."
         },
         "getSpecLaneInfo": {
-          "line": 775,
+          "line": 780,
           "params": [
             "slug"
           ],
           "purpose": "Live info about the lane a spec is assigned to, or null when unassigned"
         },
         "getTaskLaneInfo": {
-          "line": 799,
+          "line": 804,
           "params": [
             "taskId"
           ],
           "purpose": "Live info about the lane working on a task, or null. Unlike specs there"
         },
         "specStatusDotHtml": {
-          "line": 820,
+          "line": 825,
           "params": [
             "slug"
           ],
           "purpose": "Activity dot for spec/task rows and detail headers: pulsing while the"
         },
         "taskStatusDotHtml": {
-          "line": 824,
+          "line": 829,
           "params": [
             "taskId"
           ]
         },
         "_activityDotHtml": {
-          "line": 828,
+          "line": 833,
           "params": [
             "info"
           ]
         },
         "onSpecLaneActivity": {
-          "line": 845,
+          "line": 850,
           "params": [
             "callback"
           ],
           "purpose": "Subscribe to spec-lane activity. Callback: (slug) — consumers re-read"
         },
         "_notifySpecLane": {
-          "line": 853,
+          "line": 858,
           "params": [
             "slug"
           ]
         },
         "onTaskLaneActivity": {
-          "line": 876,
+          "line": 881,
           "params": [
             "callback"
           ],
           "purpose": "Subscribe to task-lane activity. Callback: (taskId|null) — null means"
         },
         "_notifyTaskLane": {
-          "line": 884,
+          "line": 889,
           "params": [
             "taskId"
           ]
         },
         "_assignedLane": {
-          "line": 902,
+          "line": 907,
           "params": [
             "slug"
           ],
           "purpose": "Assigned lane for a slug, validated against open terminals — a closed"
         },
         "_laneName": {
-          "line": 912,
+          "line": 917,
           "params": [
             "terminalId"
           ]
         },
         "_askContinueOrNew": {
-          "line": 921,
+          "line": 926,
           "params": [
             "frameName",
             "specName"
@@ -6513,14 +6631,14 @@
           "purpose": "\"Continue in <Frame> / Open a new Frame\" — always asked when the spec"
         },
         "_waitForAgentReady": {
-          "line": 962,
+          "line": 967,
           "params": [
             "terminalId"
           ],
           "purpose": "Cold-start readiness gate: resolves true once laneStatus sees a known"
         },
         "_fail": {
-          "line": 991,
+          "line": 996,
           "params": [
             "terminalId",
             "message"
@@ -6533,12 +6651,13 @@
           "TERMINAL_DESTROYED"
         ],
         "emits": [
-          "TELEMETRY_TRACK",
-          "TELEMETRY_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
           "SPEC_AGENT_ACTIVITY"
         ]
       },
-      "sizeBytes": 41248,
+      "sizeBytes": 41538,
       "extraction": {
         "status": "parsed"
       },
@@ -6654,6 +6773,35 @@
           "supportsFeature": "bf5e9de1178737e1",
           "updateUI": "be311522b380cd37"
         }
+      }
+    },
+    "renderer/analyticsNotice": {
+      "file": "src/renderer/analyticsNotice.js",
+      "description": "Analytics Notice Banner",
+      "exports": [
+        "init"
+      ],
+      "depends": [
+        "electron",
+        "shared/ipcChannels"
+      ],
+      "functions": {
+        "init": {
+          "line": 31,
+          "params": [
+            "openSettings"
+          ]
+        },
+        "dismiss": {
+          "line": 60
+        }
+      },
+      "sizeBytes": 2518,
+      "extraction": {
+        "status": "parsed"
+      },
+      "provenance": {
+        "description": "e8f5bd6a1459bcb7"
       }
     },
     "renderer/appHeader": {
@@ -7316,6 +7464,8 @@
         "lucideIcon"
       ],
       "depends": [
+        "electron",
+        "shared/ipcChannels",
         "dock/dockState",
         "dnd/sortable",
         "tooltip",
@@ -7331,7 +7481,7 @@
       ],
       "functions": {
         "lucideIcon": {
-          "line": 44,
+          "line": 46,
           "params": [
             "data",
             "size = 14"
@@ -7339,7 +7489,7 @@
           "purpose": "Inline SVG for a lucide icon's data (the shape sectionRail.js uses)."
         },
         "emptyState": {
-          "line": 53,
+          "line": 55,
           "params": [
             "title",
             "message"
@@ -7347,7 +7497,7 @@
           "purpose": "The dock's inline empty state — the shape decisionsView.renderEmpty uses."
         },
         "panelTab": {
-          "line": 72,
+          "line": 74,
           "params": [
             "{ label",
             "icon",
@@ -7357,116 +7507,122 @@
           "purpose": "A tab hosting one of the legacy side panels (D9). The element keeps its"
         },
         "loadState": {
-          "line": 190
+          "line": 192
         },
         "persist": {
-          "line": 198
+          "line": 200
         },
         "init": {
-          "line": 208
+          "line": 210
         },
         "available": {
-          "line": 280,
+          "line": 282,
           "params": [
             "position = state.position"
           ],
           "purpose": "The center's extent on the dock's axis, for the size ceiling."
         },
         "applySize": {
-          "line": 289
+          "line": 291
         },
         "apply": {
-          "line": 306,
+          "line": 308,
           "params": [
             "{ refit = false } = {}"
           ],
           "purpose": "Paint `state`: side class, size, open/closed, active tab, mounted"
         },
         "mountTab": {
-          "line": 344,
+          "line": 346,
           "params": [
             "tab"
           ]
         },
         "unmountTab": {
-          "line": 358
+          "line": 364
         },
         "refitCenter": {
-          "line": 373,
+          "line": 379,
           "purpose": "Terminals refit through the existing fit path (D13)."
         },
         "refitTab": {
-          "line": 380,
+          "line": 386,
           "purpose": "The active tab's own refit (Structure re-renders its graph to the new box)."
         },
         "emit": {
-          "line": 391
+          "line": 397
         },
         "snapshotState": {
-          "line": 402
+          "line": 408
         },
         "bindResize": {
-          "line": 408,
+          "line": 414,
           "params": [
             "handle"
           ]
         },
         "ensureReady": {
-          "line": 468
+          "line": 474
         },
         "open": {
-          "line": 477,
+          "line": 483,
           "params": [
             "tab"
           ],
           "purpose": "Open on `tab` (or the last tab). A tab switch on an open dock is not a size change."
         },
         "close": {
-          "line": 484
+          "line": 490
         },
         "toggle": {
-          "line": 492,
+          "line": 498,
           "purpose": "⌘J: open ↔ closed, reopening on the last tab at the last size."
         },
         "toggleTab": {
-          "line": 498,
+          "line": 504,
           "params": [
             "tab"
           ],
           "purpose": "Status-bar / menu semantics: on it → close; on another → switch; closed → open on it."
         },
         "setPosition": {
-          "line": 505,
+          "line": 511,
           "params": [
             "position"
           ]
         },
         "isOpen": {
-          "line": 513
+          "line": 519
         },
         "activeTab": {
-          "line": 517
+          "line": 523
         },
         "position": {
-          "line": 521
+          "line": 527
         },
         "remountActive": {
-          "line": 530,
+          "line": 536,
           "purpose": "Re-run the active tab's mount (the project changed under an open"
         },
         "tabOrder": {
-          "line": 538,
+          "line": 544,
           "purpose": "The strip's current order of tab ids (the user's arrangement)."
         },
         "onChange": {
-          "line": 543,
+          "line": 549,
           "params": [
             "fn"
           ],
           "purpose": "Follow the dock: fn({ open, position, tab, order }) after every change."
         }
       },
-      "sizeBytes": 18489,
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "ANALYTICS_TRACK"
+        ]
+      },
+      "sizeBytes": 18854,
       "extraction": {
         "status": "parsed"
       },
@@ -8049,7 +8205,7 @@
       "ipc": {
         "listens": [],
         "emits": [
-          "TELEMETRY_TRACK"
+          "ANALYTICS_TRACK"
         ]
       },
       "sizeBytes": 15853,
@@ -8327,19 +8483,19 @@
       ],
       "functions": {
         "init": {
-          "line": 45
+          "line": 47
         },
         "initAboutSection": {
-          "line": 104
+          "line": 124
         },
         "runCheck": {
-          "line": 189,
+          "line": 209,
           "params": [
             "userInitiated"
           ]
         },
         "renderUpdateState": {
-          "line": 228,
+          "line": 248,
           "params": [
             "{ checked",
             "found",
@@ -8351,32 +8507,39 @@
           ]
         },
         "showUpdateBanner": {
-          "line": 252,
+          "line": 272,
           "params": [
             "info"
           ]
         },
         "hideUpdateBanner": {
-          "line": 263
+          "line": 283
         },
         "hideSidebarDot": {
-          "line": 267
+          "line": 287
         },
         "formatRelative": {
-          "line": 273,
+          "line": 293,
           "params": [
             "date"
           ]
         },
         "initZoomSelect": {
-          "line": 289,
+          "line": 309,
           "purpose": "Fill the Interface size select from the shared ladder — one option per"
         },
         "syncZoomFromMain": {
-          "line": 308
+          "line": 332
+        },
+        "syncErrorReportingAvailability": {
+          "line": 348,
+          "params": [
+            "analyticsOn"
+          ],
+          "purpose": "Error reporting is gated on analytics in main (analytics.captureException"
         },
         "syncToggleFromSettings": {
-          "line": 318
+          "line": 355
         }
       },
       "ipc": {
@@ -8385,16 +8548,22 @@
           "OPEN_SETTINGS",
           "UPDATE_AVAILABLE"
         ],
-        "emits": []
+        "emits": [
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK",
+          "ANALYTICS_TRACK"
+        ]
       },
-      "sizeBytes": 11647,
+      "sizeBytes": 14043,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "description": "1dffdbc6d50a7e19",
         "purposes": {
-          "initZoomSelect": "cbe76526d4d65826"
+          "initZoomSelect": "cbe76526d4d65826",
+          "syncErrorReportingAvailability": "f99d7b4f4c5c647a"
         }
       }
     },
@@ -9459,30 +9628,30 @@
           "purpose": "End the tour and remember it. `outcome` is 'finished' or 'skipped'. A write"
         },
         "hasProject": {
-          "line": 152
+          "line": 155
         },
         "start": {
-          "line": 160,
+          "line": 163,
           "purpose": "Start (or restart) the tour from the first step that applies: step 1 with"
         },
         "close": {
-          "line": 179,
+          "line": 182,
           "purpose": "Leave the tour: remove the layer and every listener it bound."
         },
         "next": {
-          "line": 189
+          "line": 192
         },
         "ensureNodes": {
-          "line": 200
+          "line": 203
         },
         "isVisible": {
-          "line": 228,
+          "line": 231,
           "params": [
             "el"
           ]
         },
         "resolveTarget": {
-          "line": 242,
+          "line": 245,
           "params": [
             "step",
             "{ reveal = false } = {}"
@@ -9490,47 +9659,47 @@
           "purpose": "The step's first usable target, with its entry."
         },
         "isAvailable": {
-          "line": 255,
+          "line": 258,
           "params": [
             "step"
           ]
         },
         "revealNav": {
-          "line": 259,
+          "line": 262,
           "params": [
             "view"
           ]
         },
         "show": {
-          "line": 272,
+          "line": 275,
           "params": [
             "i"
           ]
         },
         "skipMissing": {
-          "line": 293,
+          "line": 296,
           "params": [
             "i"
           ],
           "purpose": "A step whose target is gone: log it once, move on, never end the tour on it."
         },
         "countedSteps": {
-          "line": 312,
+          "line": 315,
           "purpose": "The steps this run of the tour counts: step 1 only if it began without a project."
         },
         "renderCard": {
-          "line": 316,
+          "line": 319,
           "params": [
             "step",
             "i"
           ]
         },
         "focusCard": {
-          "line": 363,
+          "line": 366,
           "purpose": "Put focus on the card's primary control so Enter, → and Escape reach it."
         },
         "el": {
-          "line": 369,
+          "line": 372,
           "params": [
             "tag",
             "className",
@@ -9538,37 +9707,43 @@
           ]
         },
         "onCardClick": {
-          "line": 376,
+          "line": 379,
           "params": [
             "e"
           ]
         },
         "onCardKeydown": {
-          "line": 395,
+          "line": 398,
           "params": [
             "e"
           ],
           "purpose": "Bound on the card, not the document: the keys answer only while focus is in"
         },
         "position": {
-          "line": 412,
+          "line": 415,
           "purpose": "Measure the current target and move the cutout and the card to it."
         },
         "queueReposition": {
-          "line": 449,
+          "line": 452,
           "purpose": "Coalesce bursts (a sidebar drag, a scroll) into one measurement per frame."
         },
         "observeTarget": {
-          "line": 458,
+          "line": 461,
           "params": [
             "target"
           ]
         },
         "bindWhileOpen": {
-          "line": 465
+          "line": 468
         }
       },
-      "sizeBytes": 16813,
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "ANALYTICS_TRACK"
+        ]
+      },
+      "sizeBytes": 17021,
       "extraction": {
         "status": "parsed"
       },
@@ -10247,7 +10422,7 @@
         "doneWindow",
         "frameSettingsModal",
         "feedbackPanel",
-        "telemetryNotice",
+        "analyticsNotice",
         "healthNotice",
         "specDrivenHint",
         "docsHealthHint",
@@ -10293,6 +10468,13 @@
         "startAiSession": {
           "line": 995,
           "purpose": "Start the selected AI tool (Claude Code / Codex CLI / etc.) in a fresh"
+        },
+        "forwardException": {
+          "line": 1020,
+          "params": [
+            "err"
+          ],
+          "purpose": "Renderer exceptions reach the same opt-in channel the main process uses."
         }
       },
       "ipc": {
@@ -10303,16 +10485,18 @@
           "UPDATE_AVAILABLE"
         ],
         "emits": [
-          "REFRESH_GIT_STATUS"
+          "REFRESH_GIT_STATUS",
+          "ANALYTICS_EXCEPTION"
         ]
       },
-      "sizeBytes": 35834,
+      "sizeBytes": 36642,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "description": "15084cdcaeca3e5f",
         "purposes": {
+          "forwardException": "50c359f5f5349218",
           "init": "963690fd5a00420d",
           "registerCommands": "a3e9675a98b7208e",
           "revealSidebarTab": "0ebc0110a1121c81",
@@ -11045,7 +11229,7 @@
           "ORCH_STATE"
         ],
         "emits": [
-          "TELEMETRY_TRACK",
+          "ANALYTICS_TRACK",
           "ORCH_WORKER_LANE"
         ]
       },
@@ -12322,14 +12506,20 @@
           "purpose": "Resume a session in a terminal of its own."
         },
         "formatRelativeTime": {
-          "line": 209,
+          "line": 213,
           "params": [
             "dateString"
           ],
           "purpose": "Format a date string to relative time"
         }
       },
-      "sizeBytes": 7637,
+      "ipc": {
+        "listens": [],
+        "emits": [
+          "ANALYTICS_TRACK"
+        ]
+      },
+      "sizeBytes": 7860,
       "extraction": {
         "status": "parsed"
       },
@@ -14204,6 +14394,18 @@
         "reason": "no-extractor"
       }
     },
+    "renderer/styles/components/analytics-notice.css": {
+      "file": "src/renderer/styles/components/analytics-notice.css",
+      "description": "",
+      "exports": [],
+      "depends": [],
+      "functions": {},
+      "sizeBytes": 2580,
+      "extraction": {
+        "status": "unsupported",
+        "reason": "no-extractor"
+      }
+    },
     "renderer/styles/components/app-header.css": {
       "file": "src/renderer/styles/components/app-header.css",
       "description": "",
@@ -14462,7 +14664,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 7552,
+      "sizeBytes": 8092,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14511,18 +14713,6 @@
       "depends": [],
       "functions": {},
       "sizeBytes": 35709,
-      "extraction": {
-        "status": "unsupported",
-        "reason": "no-extractor"
-      }
-    },
-    "renderer/styles/components/telemetry-notice.css": {
-      "file": "src/renderer/styles/components/telemetry-notice.css",
-      "description": "",
-      "exports": [],
-      "depends": [],
-      "functions": {},
-      "sizeBytes": 2580,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -15347,35 +15537,6 @@
           "showEditTaskModal": "141c034673750303",
           "toggle": "aa012d4264de5d2c"
         }
-      }
-    },
-    "renderer/telemetryNotice": {
-      "file": "src/renderer/telemetryNotice.js",
-      "description": "Telemetry Notice Banner",
-      "exports": [
-        "init"
-      ],
-      "depends": [
-        "electron",
-        "shared/ipcChannels"
-      ],
-      "functions": {
-        "init": {
-          "line": 21,
-          "params": [
-            "openSettings"
-          ]
-        },
-        "dismiss": {
-          "line": 48
-        }
-      },
-      "sizeBytes": 1921,
-      "extraction": {
-        "status": "parsed"
-      },
-      "provenance": {
-        "description": "00ef406cce3b4f98"
       }
     },
     "renderer/terminal": {
@@ -16480,7 +16641,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 11950,
+      "sizeBytes": 15847,
       "extraction": {
         "status": "parsed"
       },
@@ -16494,7 +16655,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 55037,
+      "sizeBytes": 90930,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -16506,7 +16667,14 @@
       "exports": [
         "shuffled",
         "hookActivity",
-        "RETRIEVAL_ARMS"
+        "finalAnswer",
+        "answerPasses",
+        "repositorySnapshot",
+        "snapshotDiff",
+        "withoutFindModule",
+        "withSearchHook",
+        "RETRIEVAL_ARMS",
+        "ALL_RETRIEVAL_ARMS"
       ],
       "depends": [
         "fs",
@@ -16516,10 +16684,31 @@
       ],
       "functions": {
         "parseArgs": {
-          "line": 60
+          "line": 68
+        },
+        "withoutFindModule": {
+          "line": 104,
+          "params": [
+            "text"
+          ],
+          "purpose": "Instructions without the find-module route: the \"Fast file lookup\" block and any line naming it."
+        },
+        "withSearchHook": {
+          "line": 114,
+          "params": [
+            "settings",
+            "command"
+          ],
+          "purpose": "The project's hook settings with the search hint replaced: removed"
+        },
+        "readJsonFile": {
+          "line": 130,
+          "params": [
+            "file"
+          ]
         },
         "shuffled": {
-          "line": 84,
+          "line": 135,
           "params": [
             "items",
             "seed"
@@ -16527,7 +16716,7 @@
           "purpose": "Deterministic shuffle (mulberry32) so a run order can be reproduced."
         },
         "setupRetrievalArm": {
-          "line": 106,
+          "line": 157,
           "params": [
             "wt",
             "arm",
@@ -16535,28 +16724,92 @@
           ],
           "purpose": "Retrieval-arm setup: the same map for every arm (this checkout's"
         },
+        "finalAnswer": {
+          "line": 184,
+          "params": [
+            "transcript"
+          ],
+          "purpose": "The agent's final answer: the `result` text of the last result event."
+        },
+        "answerPasses": {
+          "line": 197,
+          "params": [
+            "task",
+            "transcript"
+          ],
+          "purpose": "Whether a question task's answer names one of its accepted paths."
+        },
+        "repositorySnapshot": {
+          "line": 204,
+          "params": [
+            "cwd = ROOT_DIR"
+          ],
+          "purpose": "What a run must leave exactly as it found it."
+        },
+        "snapshotDiff": {
+          "line": 217,
+          "params": [
+            "before",
+            "after"
+          ],
+          "purpose": "The differences between two snapshots, as readable lines ([] when clean)."
+        },
+        "setupNoEngine": {
+          "line": 230,
+          "params": [
+            "wt"
+          ],
+          "purpose": "`no-engine`: no search hint, no find-module, no find-module instructions."
+        },
+        "setupV2": {
+          "line": 249,
+          "params": [
+            "wt",
+            "activityHome"
+          ],
+          "purpose": "`v2`: this checkout's engine files, a current map and index, engine v2, and its search hint."
+        },
+        "sleepMs": {
+          "line": 290,
+          "params": [
+            "ms"
+          ]
+        },
+        "startLifecycle": {
+          "line": 295,
+          "params": [
+            "wt"
+          ],
+          "purpose": "Start this checkout's lifecycle worker on a cell and wait until its first reconciliation settled."
+        },
+        "stopLifecycle": {
+          "line": 311,
+          "params": [
+            "child"
+          ]
+        },
         "hookActivity": {
-          "line": 131,
+          "line": 318,
           "params": [
             "activityHome"
           ],
           "purpose": "Search-hook records a cell produced: { records, injected }."
         },
         "git": {
-          "line": 156,
+          "line": 343,
           "params": [
             "cmd",
             "cwd"
           ]
         },
         "setupHooks": {
-          "line": 166,
+          "line": 353,
           "params": [
             "wt"
           ]
         },
         "runOne": {
-          "line": 191,
+          "line": 378,
           "params": [
             "task",
             "arm",
@@ -16568,18 +16821,27 @@
           ]
         },
         "main": {
-          "line": 290
+          "line": 487
         }
       },
-      "sizeBytes": 13923,
+      "sizeBytes": 24410,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
+          "answerPasses": "8d07407aeef64be4",
+          "finalAnswer": "fb17c2abbc6b0ba0",
           "hookActivity": "4631feb261596931",
+          "repositorySnapshot": "b7880e36b157ef56",
+          "setupNoEngine": "40aedd4732666472",
           "setupRetrievalArm": "783c6bac4f5c86a2",
-          "shuffled": "a75b35feb454edac"
+          "setupV2": "36e63c62ffacadf1",
+          "shuffled": "a75b35feb454edac",
+          "snapshotDiff": "0db094a1581f719c",
+          "startLifecycle": "8a96829399ca5af1",
+          "withSearchHook": "b9ffd815cee3e151",
+          "withoutFindModule": "aef65034cbdccf97"
         }
       }
     },
@@ -16611,35 +16873,35 @@
           "purpose": "Load the corpus; a split whose hash does not match was edited after freezing."
         },
         "parseCli": {
-          "line": 71,
+          "line": 72,
           "params": [
             "stdout"
           ],
           "purpose": "Candidate files from find-module output: the --json envelope, or the human listing."
         },
         "parseHook": {
-          "line": 89,
+          "line": 90,
           "params": [
             "stdout"
           ],
           "purpose": "Hinted files and the raw context from a hook's stdout ('' = no hint)."
         },
         "quantile": {
-          "line": 109,
+          "line": 110,
           "params": [
             "values",
             "q"
           ]
         },
         "summarize": {
-          "line": 122,
+          "line": 123,
           "params": [
             "results"
           ],
           "purpose": "results: [{ case, cli: [files], cliMs, hooks: { claude: { files, context, ms }, codex: {…} } }]"
         },
         "evaluateGates": {
-          "line": 186,
+          "line": 187,
           "params": [
             "summary",
             "baseline = null",
@@ -16649,39 +16911,39 @@
           "purpose": "The A5 gates for one engine's held-out summary. `baseline` is legacy's"
         },
         "timed": {
-          "line": 212,
+          "line": 217,
           "params": [
             "args",
             "options"
           ]
         },
         "baseEnv": {
-          "line": 218,
+          "line": 223,
           "params": [
             "project",
             "activityHome"
           ]
         },
         "setEngine": {
-          "line": 222,
+          "line": 227,
           "params": [
             "project",
             "engine"
           ]
         },
         "availableEngines": {
-          "line": 235,
+          "line": 240,
           "purpose": "Engines this checkout can run: legacy always; v2 once the shared engine exists."
         },
         "cliSupportsJson": {
-          "line": 241,
+          "line": 246,
           "params": [
             "project",
             "env"
           ]
         },
         "hookPayloads": {
-          "line": 250,
+          "line": 255,
           "params": [
             "c",
             "sessionId",
@@ -16689,7 +16951,7 @@
           ]
         },
         "runCase": {
-          "line": 264,
+          "line": 269,
           "params": [
             "c",
             "engine",
@@ -16699,34 +16961,52 @@
           ]
         },
         "applyMutation": {
-          "line": 280,
+          "line": 285,
           "params": [
             "base",
             "mutate"
           ]
         },
         "buildMap": {
-          "line": 289,
+          "line": 294,
           "params": [
             "project",
             "env"
           ]
         },
         "exportPinned": {
-          "line": 308,
+          "line": 313,
           "params": [
             "commit"
           ]
         },
         "syntheticProject": {
-          "line": 315,
+          "line": 320,
           "params": [
             "count"
           ],
           "purpose": "A synthetic project of `count` JavaScript files in nested packages."
         },
+        "sleepMs": {
+          "line": 334,
+          "params": [
+            "ms"
+          ]
+        },
+        "measureWithWorker": {
+          "line": 342,
+          "params": [
+            "dir",
+            "env",
+            "engine",
+            "count",
+            "queries",
+            "fileAnswers"
+          ],
+          "purpose": "Start the lifecycle worker (--watch) on the project, wait for its lookup"
+        },
         "runScale": {
-          "line": 329,
+          "line": 379,
           "params": [
             "engine",
             "activityHome",
@@ -16735,22 +17015,22 @@
           ]
         },
         "parseArgs": {
-          "line": 355,
+          "line": 411,
           "params": [
             "argv"
           ]
         },
         "printReport": {
-          "line": 373,
+          "line": 429,
           "params": [
             "report"
           ]
         },
         "main": {
-          "line": 398
+          "line": 457
         }
       },
-      "sizeBytes": 20432,
+      "sizeBytes": 23790,
       "extraction": {
         "status": "parsed"
       },
@@ -16759,6 +17039,7 @@
           "availableEngines": "d7a3b42e8e1d0229",
           "evaluateGates": "948f7fa8250c71c8",
           "loadCases": "c4906eb41cfc462c",
+          "measureWithWorker": "c7a0f68641628b54",
           "parseCli": "4090dfdc9064bc07",
           "parseHook": "fcfc1b3dfcb70ab2",
           "summarize": "38f21892ccfab5b8",
@@ -16774,22 +17055,45 @@
         "scoreRun",
         "cellValidity",
         "paired",
-        "aggregate"
+        "aggregate",
+        "lookupsOf",
+        "lookupTerm"
       ],
       "depends": [
         "fs",
         "path"
       ],
       "functions": {
+        "lookupTerm": {
+          "line": 50,
+          "params": [
+            "text"
+          ],
+          "purpose": "A lookup's term, normalized so repeats compare equal (\"publishStaged\", '\"publishStaged\"')."
+        },
+        "searchTerm": {
+          "line": 55,
+          "params": [
+            "segment"
+          ],
+          "purpose": "The term a search segment looks for: its quoted or first non-flag operand, or find's -name."
+        },
+        "lookupsOf": {
+          "line": 68,
+          "params": [
+            "block"
+          ],
+          "purpose": "Lookups in one tool call: [{ via: 'find-module' | 'tool' | 'bash', term }]."
+        },
         "scoreTranscript": {
-          "line": 42,
+          "line": 88,
           "params": [
             "file",
             "options = {}"
           ]
         },
         "cellValidity": {
-          "line": 103,
+          "line": 160,
           "params": [
             "meta",
             "stats"
@@ -16797,13 +17101,13 @@
           "purpose": "Whether a retrieval-arm cell measured what its arm intends. Returns"
         },
         "scoreRun": {
-          "line": 112,
+          "line": 172,
           "params": [
             "runDir"
           ]
         },
         "paired": {
-          "line": 146,
+          "line": 207,
           "params": [
             "runs",
             "a",
@@ -16813,23 +17117,26 @@
           "purpose": "Paired per-task comparison of arm `b` against arm `a` on valid cells:"
         },
         "aggregate": {
-          "line": 169,
+          "line": 230,
           "params": [
             "runs"
           ]
         },
         "main": {
-          "line": 200
+          "line": 264
         }
       },
-      "sizeBytes": 12560,
+      "sizeBytes": 16860,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
           "cellValidity": "a2468a06292c5481",
-          "paired": "49da72b4b2b66533"
+          "lookupTerm": "70cf40bb1bb0b014",
+          "lookupsOf": "5693a0ed1e190393",
+          "paired": "49da72b4b2b66533",
+          "searchTerm": "500eea52ef3966a7"
         }
       }
     },
@@ -16839,7 +17146,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 12163,
+      "sizeBytes": 18971,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -16926,13 +17233,13 @@
           ]
         },
         "main": {
-          "line": 204
+          "line": 206
         },
         "readCuration": {
-          "line": 282
+          "line": 288
         }
       },
-      "sizeBytes": 11585,
+      "sizeBytes": 11832,
       "extraction": {
         "status": "parsed"
       },
@@ -16967,7 +17274,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 4013,
+      "sizeBytes": 5125,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -17339,52 +17646,53 @@
         "structure-read",
         "structure-retrieval",
         "activity-log",
-        "toolVocabulary"
+        "toolVocabulary",
+        "net"
       ],
       "functions": {
         "toPosix": {
-          "line": 56,
+          "line": 57,
           "params": [
             "p"
           ]
         },
         "readStdin": {
-          "line": 58
+          "line": 59
         },
         "readJson": {
-          "line": 62,
+          "line": 63,
           "params": [
             "p"
           ]
         },
         "resolveRoot": {
-          "line": 68,
+          "line": 69,
           "params": [
             "hookCwd"
           ]
         },
         "finderCliPath": {
-          "line": 91,
+          "line": 92,
           "params": [
             "root"
           ]
         },
         "stateFile": {
-          "line": 99,
+          "line": 100,
           "params": [
             "root",
             "sessionId"
           ]
         },
         "loadState": {
-          "line": 104,
+          "line": 105,
           "params": [
             "root",
             "sessionId"
           ]
         },
         "saveState": {
-          "line": 112,
+          "line": 114,
           "params": [
             "root",
             "sessionId",
@@ -17392,23 +17700,23 @@
           ]
         },
         "cleanupState": {
-          "line": 120,
+          "line": 122,
           "params": [
             "root"
           ]
         },
         "setHookCli": {
-          "line": 166,
+          "line": 168,
           "params": [
             "payload"
           ],
           "purpose": "Called once, from the entry point, with the parsed payload."
         },
         "hookHost": {
-          "line": 170
+          "line": 172
         },
         "note": {
-          "line": 174,
+          "line": 176,
           "params": [
             "root",
             "ev",
@@ -17416,7 +17724,7 @@
           ]
         },
         "quiet": {
-          "line": 190,
+          "line": 192,
           "params": [
             "root",
             "reason"
@@ -17424,33 +17732,33 @@
           "purpose": "Record a quiet path and return, so call sites stay single-expression."
         },
         "emit": {
-          "line": 194,
+          "line": 196,
           "params": [
             "context"
           ]
         },
         "searchSegments": {
-          "line": 216,
+          "line": 218,
           "params": [
             "cmd"
           ]
         },
         "extractPattern": {
-          "line": 235,
+          "line": 237,
           "params": [
             "seg"
           ],
           "purpose": "Pull the pattern operand out of one search segment (already known to start"
         },
         "candidates": {
-          "line": 251,
+          "line": 253,
           "params": [
             "raw"
           ],
           "purpose": "A raw pattern (regex, glob, or plain word) → the concept words worth"
         },
         "patternFrom": {
-          "line": 266,
+          "line": 268,
           "params": [
             "toolName",
             "input"
@@ -17458,17 +17766,17 @@
           "purpose": "The raw pattern of a search call: null when the call is not a search at"
         },
         "keywordsFrom": {
-          "line": 286,
+          "line": 288,
           "params": [
             "toolName",
             "input"
           ]
         },
         "loadIntentMap": {
-          "line": 301
+          "line": 303
         },
         "render": {
-          "line": 308,
+          "line": 310,
           "params": [
             "root",
             "structure",
@@ -17477,14 +17785,14 @@
           ]
         },
         "engineFor": {
-          "line": 334,
+          "line": 336,
           "params": [
             "root"
           ],
           "purpose": "project.retrieval.engine, else the shipped default; anything else is the default."
         },
         "existsInProject": {
-          "line": 342,
+          "line": 344,
           "params": [
             "root",
             "rel"
@@ -17492,7 +17800,7 @@
           "purpose": "A hinted file must be a regular file inside the project right now."
         },
         "legacyMode": {
-          "line": 354,
+          "line": 356,
           "params": [
             "root",
             "input",
@@ -17500,33 +17808,57 @@
           ]
         },
         "loadIndex": {
-          "line": 375,
+          "line": 377,
           "params": [
             "root"
           ],
           "purpose": "The index to answer from: a current lookup.json, else the map compiled in memory."
         },
         "fingerprint": {
-          "line": 385,
+          "line": 387,
           "params": [
             "paths"
           ]
         },
         "shownQuery": {
-          "line": 392,
+          "line": 394,
           "params": [
             "pattern"
           ],
           "purpose": "One line of the query, safe to show and to paste as a shell argument."
         },
         "shellQuote": {
-          "line": 396,
+          "line": 398,
           "params": [
             "text"
           ]
         },
+        "findModuleQuery": {
+          "line": 413,
+          "params": [
+            "toolName",
+            "input"
+          ],
+          "purpose": "The query of a `node …/find-module.js <query>` call on Bash, else null."
+        },
+        "lookupKey": {
+          "line": 436,
+          "params": [
+            "text"
+          ],
+          "purpose": "The same normalized form for a find-module query and a search pattern."
+        },
+        "recordLookup": {
+          "line": 440,
+          "params": [
+            "root",
+            "sessionId",
+            "query",
+            "revision"
+          ]
+        },
         "renderV2": {
-          "line": 400,
+          "line": 451,
           "params": [
             "root",
             "result",
@@ -17534,8 +17866,16 @@
             "descriptor"
           ]
         },
+        "askWorker": {
+          "line": 489,
+          "params": [
+            "root",
+            "query"
+          ],
+          "purpose": "Ask the running lifecycle worker (STR-03b): one JSON line over the local"
+        },
         "v2Mode": {
-          "line": 430,
+          "line": 539,
           "params": [
             "root",
             "input",
@@ -17543,23 +17883,26 @@
           ]
         },
         "searchMode": {
-          "line": 462,
+          "line": 589,
           "params": [
             "input"
           ]
         }
       },
-      "sizeBytes": 21053,
+      "sizeBytes": 26730,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "purposes": {
+          "askWorker": "b9a0082e7bf3f798",
           "candidates": "a9ed75e60ec11d73",
           "engineFor": "dd31c17caca3abfa",
           "existsInProject": "5dddbd190b145640",
           "extractPattern": "2c7cae15c16d94d2",
+          "findModuleQuery": "679d121672326d9c",
           "loadIndex": "2f9196b0793b2ccf",
+          "lookupKey": "1fa1b453d43d98ef",
           "patternFrom": "79c2136a033352ff",
           "quiet": "3e8f4a1504407442",
           "setHookCli": "c07ecdee8595a6cf",
@@ -19010,6 +19353,7 @@
         "SCHEDULER_DEFAULTS",
         "reconcile",
         "startWorker",
+        "startLookupServer",
         "createWatcher",
         "classify",
         "resolveGitDirs",
@@ -19032,7 +19376,8 @@
         "structure-read",
         "structure-retrieval",
         "structure-commit",
-        "activity-log"
+        "activity-log",
+        "net"
       ],
       "functions": {
         "createScheduler": {
@@ -19168,25 +19513,33 @@
           ],
           "purpose": "Run the lifecycle for one checkout until stopped."
         },
+        "startLookupServer": {
+          "line": 812,
+          "params": [
+            "root",
+            "options = {}"
+          ],
+          "purpose": "Answer lookups from the index this worker published (STR-03b), over a"
+        },
         "resolveProjectRoot": {
-          "line": 799
+          "line": 935
         },
         "writeLine": {
-          "line": 808,
+          "line": 944,
           "params": [
             "stream",
             "value"
           ]
         },
         "runOnce": {
-          "line": 812,
+          "line": 948,
           "params": [
             "root",
             "json"
           ]
         },
         "runLongLived": {
-          "line": 834,
+          "line": 970,
           "params": [
             "root",
             "supervised"
@@ -19194,10 +19547,10 @@
           "purpose": "--watch: foreground coordinator with its own timer until SIGINT/SIGTERM."
         },
         "main": {
-          "line": 876
+          "line": 1012
         }
       },
-      "sizeBytes": 31557,
+      "sizeBytes": 36559,
       "extraction": {
         "status": "parsed"
       },
@@ -19212,6 +19565,7 @@
           "reconcile": "eb06502300c7b411",
           "resolveGitDirs": "bc24c5fffc5a0032",
           "runLongLived": "b1f7d3c740156dce",
+          "startLookupServer": "197495f27801e192",
           "startWorker": "d32dcd9da1f83cb2",
           "writeLifecycle": "8b41315bf3542a50"
         }
@@ -19348,6 +19702,9 @@
         "indexFromMap",
         "lookupPath",
         "curationPath",
+        "lookupAddress",
+        "lookupEndpointPath",
+        "LOOKUP_PROTOCOL",
         "normalizeQuery",
         "retrieve",
         "legacyRetrieve",
@@ -19365,44 +19722,46 @@
       "depends": [
         "fs",
         "path",
-        "structure-read"
+        "structure-read",
+        "crypto",
+        "os"
       ],
       "functions": {
         "fold": {
-          "line": 68,
+          "line": 69,
           "params": [
             "text"
           ],
           "purpose": "Case- and accent-insensitive search form; Turkish letters fold to ASCII."
         },
         "splitWords": {
-          "line": 78,
+          "line": 79,
           "params": [
             "text"
           ],
           "purpose": "Identifier words: camelCase, snake_case, kebab-case, dotted and path parts."
         },
         "normalizeQuery": {
-          "line": 95,
+          "line": 96,
           "params": [
             "raw"
           ],
           "purpose": "A raw query → its search units. Regex syntax is dropped, alternations"
         },
         "basenameOf": {
-          "line": 126,
+          "line": 128,
           "params": [
             "file"
           ]
         },
         "stripExt": {
-          "line": 130,
+          "line": 132,
           "params": [
             "name"
           ]
         },
         "compileIndex": {
-          "line": 144,
+          "line": 147,
           "params": [
             "structure",
             "curation = {}",
@@ -19410,8 +19769,15 @@
           ],
           "purpose": "Compile the lookup index from a map (STR-02c read view) and the curated"
         },
+        "foldedPaths": {
+          "line": 239,
+          "params": [
+            "index"
+          ],
+          "purpose": "The index's paths in search form, computed once per index object."
+        },
         "matchUnit": {
-          "line": 229,
+          "line": 249,
           "params": [
             "index",
             "unit",
@@ -19420,7 +19786,7 @@
           "purpose": "Every match one unit has: Map(fileId → best tier) plus the concepts it named."
         },
         "retrieve": {
-          "line": 290,
+          "line": 310,
           "params": [
             "index",
             "query",
@@ -19429,7 +19795,7 @@
           "purpose": "Rank the files that explain the query."
         },
         "retrieveUnits": {
-          "line": 302,
+          "line": 322,
           "params": [
             "index",
             "allUnits",
@@ -19439,39 +19805,39 @@
           ]
         },
         "lookupPath": {
-          "line": 386,
+          "line": 419,
           "params": [
             "root"
           ]
         },
         "curationPath": {
-          "line": 391,
+          "line": 424,
           "params": [
             "dir = __dirname"
           ],
           "purpose": "intent-map.json beside the running scripts (scripts/ or .frame/bin/)."
         },
         "readCuration": {
-          "line": 395,
+          "line": 428,
           "params": [
             "file"
           ]
         },
         "signatureOf": {
-          "line": 403,
+          "line": 436,
           "params": [
             "file"
           ]
         },
         "sameSignature": {
-          "line": 412,
+          "line": 445,
           "params": [
             "a",
             "b"
           ]
         },
         "publishLookup": {
-          "line": 424,
+          "line": 457,
           "params": [
             "root",
             "options = {}"
@@ -19479,7 +19845,7 @@
           "purpose": "Compile and atomically publish lookup.json from the map at `mapPath`"
         },
         "loadLookup": {
-          "line": 470,
+          "line": 503,
           "params": [
             "root",
             "options = {}"
@@ -19487,15 +19853,27 @@
           "purpose": "Read the published index for a lookup. Never compiles, never writes."
         },
         "indexFromMap": {
-          "line": 508,
+          "line": 541,
           "params": [
             "root",
             "options = {}"
           ],
           "purpose": "Compile an index in memory from the read view — the fallback when no"
         },
+        "lookupAddress": {
+          "line": 576,
+          "params": [
+            "root"
+          ]
+        },
+        "lookupEndpointPath": {
+          "line": 587,
+          "params": [
+            "root"
+          ]
+        },
         "legacyRetrieve": {
-          "line": 541,
+          "line": 600,
           "params": [
             "structure",
             "curation",
@@ -19504,7 +19882,7 @@
           "purpose": "Today's behavior, kept selectable as the rollback path (STR-03 D2):"
         },
         "legacyHookLookup": {
-          "line": 594,
+          "line": 653,
           "params": [
             "index",
             "intentMap",
@@ -19512,7 +19890,7 @@
           ]
         }
       },
-      "sizeBytes": 25912,
+      "sizeBytes": 28500,
       "extraction": {
         "status": "parsed"
       },
@@ -19522,6 +19900,7 @@
           "compileIndex": "60c20164d8c3a443",
           "curationPath": "37dd7da1d8d13d69",
           "fold": "475b654bf901e6d9",
+          "foldedPaths": "c6dde37b59b40cc7",
           "indexFromMap": "f0606664e619eacc",
           "legacyRetrieve": "01c5d2059f3b0d6f",
           "loadLookup": "824e133bd24d973a",
@@ -20277,32 +20656,32 @@
       "depends": [],
       "functions": {
         "isRegistered": {
-          "line": 427,
+          "line": 429,
           "params": [
             "name"
           ]
         },
         "kindOf": {
-          "line": 431,
+          "line": 433,
           "params": [
             "name"
           ]
         },
         "isSuppression": {
-          "line": 435,
+          "line": 437,
           "params": [
             "name"
           ]
         },
         "fieldPasses": {
-          "line": 439,
+          "line": 441,
           "params": [
             "spec",
             "value"
           ]
         },
         "validateEvent": {
-          "line": 462,
+          "line": 464,
           "params": [
             "name",
             "fields"
@@ -20310,7 +20689,7 @@
           "purpose": "Validate an (event, fields) pair against the registry."
         },
         "formatLabel": {
-          "line": 479,
+          "line": 481,
           "params": [
             "name",
             "fields"
@@ -20318,7 +20697,7 @@
           "purpose": "The one-line sentence the panel's default view shows, or null when the"
         },
         "buildRecord": {
-          "line": 500,
+          "line": 502,
           "params": [
             "name",
             "fields"
@@ -20326,7 +20705,7 @@
           "purpose": "Build the record the append contract writes: the validated fields plus the"
         }
       },
-      "sizeBytes": 22748,
+      "sizeBytes": 22912,
       "extraction": {
         "status": "parsed"
       },
@@ -20826,14 +21205,14 @@
           ]
         },
         "getReferenceTemplate": {
-          "line": 455,
+          "line": 458,
           "params": [
             "projectName"
           ],
           "purpose": "REFERENCE.md template — the reference-on-demand companion to the lean"
         },
         "getStructureTemplate": {
-          "line": 722,
+          "line": 731,
           "params": [
             "projectName",
             "project"
@@ -20841,21 +21220,21 @@
           "purpose": "STRUCTURE.json template"
         },
         "getNotesTemplate": {
-          "line": 750,
+          "line": 759,
           "params": [
             "projectName"
           ],
           "purpose": "PROJECT_NOTES.md template"
         },
         "getTasksTemplate": {
-          "line": 770,
+          "line": 779,
           "params": [
             "projectName"
           ],
           "purpose": "tasks.json template"
         },
         "getQuickstartTemplate": {
-          "line": 816,
+          "line": 825,
           "params": [
             "projectName",
             "project"
@@ -20863,24 +21242,24 @@
           "purpose": "QUICKSTART.md template"
         },
         "getFrameConfigTemplate": {
-          "line": 899,
+          "line": 908,
           "params": [
             "projectName"
           ],
           "purpose": ".frame/config.json template"
         },
         "getClaudeRuleTemplate": {
-          "line": 942,
+          "line": 951,
           "params": [
             "agentsText"
           ],
           "purpose": "`.claude/rules/frame.md` — the file Claude Code loads at session start."
         },
         "getFrameGitignoreBlock": {
-          "line": 957
+          "line": 966
         },
         "getGenericWrapperTemplate": {
-          "line": 1110,
+          "line": 1119,
           "params": [
             "toolCommand",
             "promptFlag = ''"
@@ -20888,38 +21267,38 @@
           "purpose": "Generic AI tool wrapper template"
         },
         "getStructureHookSnippet": {
-          "line": 1156
+          "line": 1165
         },
         "getStructurePreCommitHookTemplate": {
-          "line": 1193,
+          "line": 1202,
           "purpose": "Full pre-commit hook file content for the \"no existing hook\" case."
         },
         "classifyStructureHook": {
-          "line": 1222,
+          "line": 1231,
           "params": [
             "text"
           ],
           "purpose": "'current' when `text` is today's template, 'previous' when it is an"
         },
         "getOrchBusHeader": {
-          "line": 1241,
+          "line": 1250,
           "purpose": "Orchestration command-channel scripts (.frame/bin/)"
         },
         "getOrchRequestScript": {
-          "line": 1253,
+          "line": 1262,
           "params": [
             "type"
           ]
         },
         "getOrchStatusScript": {
-          "line": 1273
+          "line": 1282
         },
         "getOrchBinScripts": {
-          "line": 1291,
+          "line": 1300,
           "purpose": "Map of filename → script body for the orchestration bin scripts. The"
         }
       },
-      "sizeBytes": 55440,
+      "sizeBytes": 55957,
       "extraction": {
         "status": "parsed"
       },
@@ -20986,7 +21365,7 @@
       ],
       "depends": [],
       "functions": {},
-      "sizeBytes": 11799,
+      "sizeBytes": 11930,
       "extraction": {
         "status": "parsed"
       },
@@ -21815,7 +22194,7 @@
         "src/shared/activityEvents"
       ],
       "functions": {},
-      "sizeBytes": 11171,
+      "sizeBytes": 11202,
       "extraction": {
         "status": "parsed"
       },
@@ -21849,6 +22228,33 @@
       },
       "provenance": {
         "description": "a806f9f813564656"
+      }
+    },
+    "test/analytics.test": {
+      "file": "test/analytics.test.js",
+      "description": "Analytics policy tests — fail-closed opt-out decision.",
+      "exports": [],
+      "depends": [
+        "node:test",
+        "node:assert/strict",
+        "src/main/analyticsEvents",
+        "fs",
+        "path"
+      ],
+      "functions": {
+        "seed": {
+          "line": 418,
+          "params": [
+            "specs"
+          ]
+        }
+      },
+      "sizeBytes": 21440,
+      "extraction": {
+        "status": "parsed"
+      },
+      "provenance": {
+        "description": "9d61943b8b213ee4"
       }
     },
     "test/branchPickerModel.test": {
@@ -21977,7 +22383,7 @@
         "src/shared/frameTemplates"
       ],
       "functions": {},
-      "sizeBytes": 8280,
+      "sizeBytes": 8412,
       "extraction": {
         "status": "parsed"
       },
@@ -22002,18 +22408,18 @@
       ],
       "functions": {
         "installedHome": {
-          "line": 45,
+          "line": 46,
           "purpose": "A CODEX_HOME with Frame's hooks installed."
         },
         "withActivity": {
-          "line": 52,
+          "line": 53,
           "params": [
             "records"
           ],
           "purpose": "Point the activity root at a temp dir and optionally seed one record."
         }
       },
-      "sizeBytes": 8282,
+      "sizeBytes": 8414,
       "extraction": {
         "status": "parsed"
       },
@@ -22042,11 +22448,11 @@
       ],
       "functions": {
         "mkProject": {
-          "line": 43,
+          "line": 44,
           "purpose": "A project with one spec, so getCommandPrompt has a status.json to read."
         }
       },
-      "sizeBytes": 8428,
+      "sizeBytes": 8560,
       "extraction": {
         "status": "parsed"
       },
@@ -22313,7 +22719,7 @@
           ]
         }
       },
-      "sizeBytes": 9262,
+      "sizeBytes": 10227,
       "extraction": {
         "status": "parsed"
       },
@@ -22835,19 +23241,19 @@
       ],
       "functions": {
         "writeUserFiles": {
-          "line": 60,
+          "line": 61,
           "params": [
             "dir"
           ]
         },
         "hashFile": {
-          "line": 68,
+          "line": 69,
           "params": [
             "file"
           ]
         },
         "snapshotTree": {
-          "line": 73,
+          "line": 74,
           "params": [
             "dir",
             "{ excludeFrameOwned = true } = {}"
@@ -22855,14 +23261,14 @@
           "purpose": "Every file in the tree → sha256, excluding paths Frame is allowed to own."
         },
         "fakeWorkers": {
-          "line": 665,
+          "line": 666,
           "purpose": "A fake `--supervised` child that records what the supervisor sends."
         },
         "resetWorkers": {
-          "line": 690
+          "line": 691
         }
       },
-      "sizeBytes": 36584,
+      "sizeBytes": 36716,
       "extraction": {
         "status": "parsed"
       },
@@ -22901,48 +23307,48 @@
       ],
       "functions": {
         "git": {
-          "line": 60,
+          "line": 61,
           "params": [
             "cwd",
             "args"
           ]
         },
         "makeLegacyProject": {
-          "line": 86,
+          "line": 87,
           "params": [
             "{ commit = true } = {}"
           ],
           "purpose": "A project as Frame's pre-overlay init left it."
         },
         "hashFile": {
-          "line": 121,
+          "line": 122,
           "params": [
             "file"
           ]
         },
         "snapshotTree": {
-          "line": 126,
+          "line": 127,
           "params": [
             "dir"
           ],
           "purpose": "Every file in the tree → sha256, with `.git/` internals left out."
         },
         "frameLayout": {
-          "line": 143,
+          "line": 144,
           "params": [
             "dir"
           ],
           "purpose": "The paths under `.frame/`, so two projects' artifact sets can be compared."
         },
         "fakeWorkers": {
-          "line": 311,
+          "line": 312,
           "purpose": "A fake `--supervised` child that records what the supervisor sends."
         },
         "resetWorkers": {
-          "line": 336
+          "line": 337
         }
       },
-      "sizeBytes": 21181,
+      "sizeBytes": 21313,
       "extraction": {
         "status": "parsed"
       },
@@ -23135,26 +23541,26 @@
       ],
       "functions": {
         "git": {
-          "line": 37,
+          "line": 38,
           "params": [
             "cwd",
             "args"
           ]
         },
         "readJson": {
-          "line": 41,
+          "line": 42,
           "params": [
             "file"
           ]
         },
         "hookCommands": {
-          "line": 45,
+          "line": 46,
           "params": [
             "file"
           ]
         }
       },
-      "sizeBytes": 8720,
+      "sizeBytes": 8852,
       "extraction": {
         "status": "parsed"
       },
@@ -23413,14 +23819,14 @@
       ],
       "functions": {
         "git": {
-          "line": 41,
+          "line": 42,
           "params": [
             "cwd",
             "args"
           ]
         },
         "makeLegacyProject": {
-          "line": 68,
+          "line": 69,
           "params": [
             "{ withClaudeBlock = true",
             "commit = false } = {}"
@@ -23428,7 +23834,7 @@
           "purpose": "A project as Frame's pre-overlay init left it."
         }
       },
-      "sizeBytes": 31429,
+      "sizeBytes": 31561,
       "extraction": {
         "status": "parsed"
       },
@@ -23539,7 +23945,8 @@
         "path",
         "child_process",
         "crypto",
-        "scripts/structure-retrieval"
+        "scripts/structure-retrieval",
+        "net"
       ],
       "functions": {
         "runHook": {
@@ -23556,7 +23963,7 @@
           ]
         },
         "withReceipt": {
-          "line": 239,
+          "line": 248,
           "params": [
             "root",
             "{ dirty = []",
@@ -23565,19 +23972,42 @@
           ]
         },
         "v2Project": {
-          "line": 307,
+          "line": 316,
           "params": [
             "structure = V2_STRUCTURE"
           ]
         },
         "runCodex": {
-          "line": 317,
+          "line": 326,
           "params": [
             "input"
           ]
+        },
+        "runHookEnv": {
+          "line": 454,
+          "params": [
+            "input",
+            "env"
+          ]
+        },
+        "runHookAsync": {
+          "line": 516,
+          "params": [
+            "input"
+          ]
+        },
+        "fakeWorker": {
+          "line": 527,
+          "params": [
+            "root",
+            "{ reply",
+            "silent = false",
+            "pid = process.pid",
+            "algorithm = retrieval.ALGORITHM } = {}"
+          ]
         }
       },
-      "sizeBytes": 21693,
+      "sizeBytes": 29600,
       "extraction": {
         "status": "parsed"
       },
@@ -23728,7 +24158,7 @@
           ]
         }
       },
-      "sizeBytes": 30143,
+      "sizeBytes": 31086,
       "extraction": {
         "status": "parsed"
       },
@@ -23777,7 +24207,7 @@
       ],
       "functions": {
         "cell": {
-          "line": 154,
+          "line": 174,
           "params": [
             "t",
             "{ meta",
@@ -23785,7 +24215,7 @@
           ]
         }
       },
-      "sizeBytes": 14299,
+      "sizeBytes": 21768,
       "extraction": {
         "status": "parsed"
       },
@@ -23881,7 +24311,7 @@
       ],
       "functions": {
         "runHook": {
-          "line": 52,
+          "line": 53,
           "params": [
             "input",
             "{ raw = null",
@@ -23889,7 +24319,7 @@
           ]
         },
         "mkProject": {
-          "line": 63,
+          "line": 64,
           "params": [
             "specs = [{ slug",
             "title",
@@ -23898,7 +24328,7 @@
           "purpose": "A project with one spec in `phase`, and the command templates staged."
         }
       },
-      "sizeBytes": 12055,
+      "sizeBytes": 12187,
       "extraction": {
         "status": "parsed"
       },
@@ -24100,13 +24530,13 @@
       ],
       "functions": {
         "writeOverrideTemplate": {
-          "line": 65,
+          "line": 66,
           "params": [
             "content"
           ]
         },
         "writeSpec": {
-          "line": 71,
+          "line": 72,
           "params": [
             "slug",
             "title",
@@ -24114,7 +24544,7 @@
           ]
         }
       },
-      "sizeBytes": 8440,
+      "sizeBytes": 8572,
       "extraction": {
         "status": "parsed"
       },
@@ -24137,13 +24567,13 @@
       ],
       "functions": {
         "specDir": {
-          "line": 52,
+          "line": 53,
           "params": [
             "slug"
           ]
         },
         "writeConductorSpec": {
-          "line": 59,
+          "line": 60,
           "params": [
             "slug",
             "extra = {}"
@@ -24151,13 +24581,13 @@
           "purpose": "A spec folder as Frame's conductor writes it: no slug, no task ids."
         },
         "readStatus": {
-          "line": 74,
+          "line": 75,
           "params": [
             "slug"
           ]
         }
       },
-      "sizeBytes": 7349,
+      "sizeBytes": 7481,
       "extraction": {
         "status": "parsed"
       },
@@ -24185,22 +24615,22 @@
       ],
       "functions": {
         "specDir": {
-          "line": 60
+          "line": 61
         },
         "writeTasksMd": {
-          "line": 64,
+          "line": 65,
           "params": [
             "content"
           ]
         },
         "writeStatus": {
-          "line": 69
+          "line": 70
         },
         "readSpecTasks": {
-          "line": 83
+          "line": 84
         }
       },
-      "sizeBytes": 11490,
+      "sizeBytes": 11622,
       "extraction": {
         "status": "parsed"
       },
@@ -24494,7 +24924,9 @@
         "scripts/structure-state",
         "src/main/structureLifecycle",
         "src/main/structureBootstrap",
-        "scripts/activity-log"
+        "scripts/activity-log",
+        "net",
+        "scripts/structure-retrieval"
       ],
       "functions": {
         "fakeClock": {
@@ -24562,9 +24994,16 @@
           "params": [
             "files"
           ]
+        },
+        "askSocket": {
+          "line": 892,
+          "params": [
+            "address",
+            "request"
+          ]
         }
       },
-      "sizeBytes": 38349,
+      "sizeBytes": 41934,
       "extraction": {
         "status": "parsed"
       },
@@ -24682,7 +25121,7 @@
           ]
         }
       },
-      "sizeBytes": 18299,
+      "sizeBytes": 20907,
       "extraction": {
         "status": "parsed"
       },
@@ -24817,33 +25256,6 @@
       },
       "provenance": {
         "description": "494edc14d60ce825"
-      }
-    },
-    "test/telemetry.test": {
-      "file": "test/telemetry.test.js",
-      "description": "Telemetry policy tests — fail-closed opt-out decision.",
-      "exports": [],
-      "depends": [
-        "node:test",
-        "node:assert/strict",
-        "src/main/telemetryEvents",
-        "fs",
-        "path"
-      ],
-      "functions": {
-        "seed": {
-          "line": 186,
-          "params": [
-            "specs"
-          ]
-        }
-      },
-      "sizeBytes": 11255,
-      "extraction": {
-        "status": "parsed"
-      },
-      "provenance": {
-        "description": "02f0cdc3a91d93c8"
       }
     },
     "test/themes.test": {
@@ -25788,6 +26200,28 @@
         "direction": "",
         "description": ""
       }
+    },
+    "analytics": {
+      "ANALYTICS_SET_ENABLED": {
+        "name": "analytics-set-enabled",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_TRACK": {
+        "name": "analytics-track",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_EXCEPTION": {
+        "name": "analytics-exception",
+        "direction": "",
+        "description": ""
+      },
+      "ANALYTICS_NOTICE_STATE": {
+        "name": "analytics-notice-state",
+        "direction": "",
+        "description": ""
+      }
     }
   },
   "dataFlow": [],
@@ -25833,6 +26267,18 @@
         "module": "renderer/aiToolSelector",
         "file": "src/renderer/aiToolSelector.js",
         "description": "AI Tool Selector Module"
+      }
+    ],
+    "analytics": [
+      {
+        "module": "main/analytics",
+        "file": "src/main/analytics.js",
+        "description": "Analytics"
+      },
+      {
+        "module": "renderer/analyticsNotice",
+        "file": "src/renderer/analyticsNotice.js",
+        "description": "Analytics Notice Banner"
       }
     ],
     "branch": [
@@ -25960,9 +26406,9 @@
     ],
     "events": [
       {
-        "module": "main/telemetryEvents",
-        "file": "src/main/telemetryEvents.js",
-        "description": "Telemetry events — pure policy module"
+        "module": "main/analyticsEvents",
+        "file": "src/main/analyticsEvents.js",
+        "description": "Analytics events — pure policy module"
       },
       {
         "module": "shared/activityEvents",
@@ -26581,18 +27027,6 @@
         "description": "Tasks Panel Module"
       }
     ],
-    "telemetry": [
-      {
-        "module": "main/telemetry",
-        "file": "src/main/telemetry.js",
-        "description": "Telemetry"
-      },
-      {
-        "module": "renderer/telemetryNotice",
-        "file": "src/renderer/telemetryNotice.js",
-        "description": "Telemetry Notice Banner"
-      }
-    ],
     "terminal": [
       {
         "module": "main/pty",
@@ -26777,6 +27211,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "6b110d69cb9b3b2a52cf0711bbe5fbf40cedec915942cccc354fb45da9e13e9c"
+    "revision": "98b7c32c843f856defa924304c16b106a133c8d480bfcd01a7bd1f63a16e1110"
   }
 }

@@ -654,3 +654,15 @@ test('cli: --full and file updates publish lookup.json; a failed index never fai
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+test('templates: a find-module answer is enough to open the file; grep is for searching inside it (STR-03b)', () => {
+  const agents = templates.getAgentsTemplate('demo');
+  assert.match(agents, /find-module\.js <keyword> +# concept, file name or function → files/);
+  assert.match(agents, /Its answer is enough to open the file — a function answer comes with its\nline\. Use grep to search inside a file, not to find it again\./);
+  const reference = templates.getReferenceTemplate('demo');
+  const section = reference.slice(reference.indexOf('### Looking Files Up'), reference.indexOf('### What to Edit'));
+  for (const needle of ['`path:line name`', 'one file must match every word', '`find-module` already answered', 'answers\n  hints from memory']) {
+    assert.ok(section.includes(needle), `reference mentions ${needle}`);
+  }
+  assert.deepEqual(require('../src/shared/docsHealth').namedPaths(section), ['.frame/config.json']);
+});

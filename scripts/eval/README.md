@@ -243,3 +243,71 @@ node scripts/eval/score.js scripts/eval/results/<run>
 
 **Status: not run yet.** No token saving is claimed for v2. A hint firing
 does not show that work was saved; only this paired measurement can.
+
+## STR-03b — heldOut2 result and promotion decision — 2026-10-07
+
+What changed since the STR-03 run:
+- hooks need one file to carry every word;
+- function answers carry their line;
+- a hint stays quiet after `find-module` answered the same lookup;
+- the lifecycle worker answers hooks over a local socket.
+
+`heldOut2` is a new English-only split, frozen before those changes: 132 cases, 106 answerable, 26 negative. It ran once for both engines. Same machine (Apple M2, Darwin 24.6.0, node v20.20.0) and pin. This round is English only; Turkish queries are not measured and are deferred to a later spec.
+
+| heldOut2 (132) | legacy | v2 | Gate |
+|---|---|---|---|
+| Exact recall (87) | 69.0% | **100%** | 100% ✓ |
+| recall@5 | 67.9% | **92.5%** | ≥ 90% ✓ |
+| precision@1 | 53.6% | **92.3%** | ≥ 90% ✓ |
+| Hint precision (Claude / Codex) | 65.9% | 97.8% (88 of 90) | ≥ 98% ✗ |
+| Hint recall | 50.9% | 83.0% | — |
+| False hints on negatives | 30.8% | 7.7% (2 of 26) | ≤ 2% ✗ |
+| Hook p95, this repository | 37 ms | 40 ms | ≤ 50 ms ✓ |
+| Hook p95, 10k files, lookup.json | 60 ms | 51 ms | — |
+| Hook p95, 10k files, running worker | — | **34 ms** (same answers 30/30) | ≤ 50 ms ✓ |
+| CLI p95 | 31 ms | 37 ms | ≤ 150 ms ✓ |
+| Max payload | 809 chars | 660 chars | ≤ 1,800 ✓ |
+
+**Decision: the default stays `legacy`.** v2 passes every gate except the two
+about wrong hints, and it misses those by two hints. Both wrong hints come
+from one rule: the partial-concept tier (6) applied to a code identifier.
+- `useState` (a negative) contains the concept `state`, so the hint offered
+  `dockState.js`, `sectionState.js` and `accessState.js`.
+- After `pollGate.js` was removed, its own name contains `gate`, so the hint
+  offered the gate group.
+
+The engine was not changed after this run.
+
+Candidate for the next round, to be validated on a new split: the hook stops
+at tier 5 (path, concept, synonym, file name, symbol) and leaves partial
+concepts to `find-module`, or it allows them only for a query that is not a
+single camelCase identifier.
+
+## STR-03b — Opus without the engine vs v2 (pilot) — 2026-10-07
+
+Question: what does Opus do, spend and take to find code when Frame's search engine is not there, compared with v2?
+- **`no-engine`** removes the search hint, `find-module` and the find-module instructions. The rest of Frame stays.
+- **`v2`** runs this checkout's engine with the lifecycle worker answering hints.
+
+Setup: 16 tasks (10 natural English change requests, 6 question-only) × 2 arms × 1 repeat, `claude --model opus`, seed 7, pinned 262f91b. All 32 cells were valid and passed. The repository was unchanged afterwards.
+
+| Per task, average | no-engine | v2 | Change |
+|---|---|---|---|
+| Input tokens (incl. cache) | 169,095 | 137,858 | **−18.5%** |
+| Output tokens | 1,397 | 1,093 | −21.8% |
+| Time | 29.7 s | 22.7 s | **−23.6%** |
+| Agent turns | 8.8 | 7.4 | −15.9% |
+| Tool calls | 5.1 | 4.1 | −20.3% |
+| Lookups (find-module + searches) | 5.25 | 4.81 | −8.4% |
+| Success | 16/16 | 16/16 | — |
+
+| By kind | no-engine | v2 | Change |
+|---|---|---|---|
+| Natural requests: input tokens | 205,507 | 174,161 | −15.3% |
+| Natural requests: time | 40.3 s | 31.7 s | −21.3% |
+| Questions: input tokens | 108,408 | 77,352 | −28.6% |
+| Questions: time | 12.0 s | 7.7 s | −35.8% |
+
+Paired by task, v2 used fewer input tokens on 14 of 16 tasks and less time on 12 of 16.
+
+How to read it: one repeat per cell is a pilot, not a verdict. One no-engine natural cell took 116 s against 13 s with v2, which inflates the time average. In natural requests, repeated lookups did not go down (1.9 vs 2.1). In v2 the agents mostly followed AGENTS and ran `find-module` first, so the hint itself rarely fired: the gain here comes from the lookup answering directly. Five repeats would settle the size of the effect (`--repeat 5`).

@@ -51,12 +51,29 @@ test('the corpus has the planned size and coverage, with families disjoint acros
   }
 });
 
+test('heldOut2 (STR-03b) is English only, frozen, sized as planned and disjoint from development and the spent split', () => {
+  const { splits } = bench.loadCases();
+  const held2 = splits.heldOut2.cases;
+  assert.ok(held2.length >= 120, `${held2.length} cases`);
+  assert.ok(held2.filter((c) => c.tags.includes('negative')).length >= 25);
+  assert.ok(held2.filter((c) => c.tags.includes('natural')).length >= 10, 'natural phrasing without file names');
+  for (const c of held2) {
+    assert.ok(!/[^\x00-\x7F]/.test(c.query), `${c.id}: English only — ${c.query}`);
+    assert.ok(!c.tags.includes('turkish'), c.id);
+  }
+  const devFamilies = new Set(splits.development.cases.map((c) => c.family).filter((f) => f !== 'negative'));
+  assert.deepEqual(held2.filter((c) => devFamilies.has(c.family)).map((c) => c.id), []);
+  const spent = new Set(splits.heldOut.cases.filter((c) => c.family !== 'negative').map((c) => c.query.toLowerCase()));
+  assert.deepEqual(held2.filter((c) => c.family !== 'negative' && spent.has(c.query.toLowerCase())).map((c) => c.id), []);
+  for (const c of held2) assert.equal(c.tags.includes('negative'), c.expect.length === 0, c.id);
+});
+
 test('every expected file exists at the pinned commit', (t) => {
   const corpus = bench.loadCases();
   const r = spawnSync('git', ['ls-tree', '-r', '--name-only', corpus.pinnedCommit], { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   if (r.status !== 0) return t.skip('pinned commit not available (shallow clone)');
   const files = new Set(r.stdout.split('\n'));
-  for (const c of [...corpus.splits.development.cases, ...corpus.splits.heldOut.cases]) {
+  for (const c of Object.values(corpus.splits).flatMap((split) => split.cases)) {
     for (const f of c.expect) assert.ok(files.has(f), `${c.id}: ${f}`);
     if (c.mutate && c.mutate.remove) assert.ok(files.has(c.mutate.remove));
     if (c.mutate && c.mutate.rename) assert.ok(files.has(c.mutate.rename[0]));
@@ -134,6 +151,9 @@ test('gates pass only when every limit holds, recall never drops below legacy, a
   assert.deepEqual(failed({ hooks: { claude: { ...good.hooks.claude, falseHintRate: 0.03 } } }), ['false-hints:claude']);
   assert.deepEqual(failed({ hooks: { claude: { ...good.hooks.claude, maxChars: 1801 } } }), ['payload:claude']);
   assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 51 }]), ['hook-p95:10000-files']);
+  // STR-03b: with a running worker measured, its socket latency decides
+  assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 70, hookSocketP95Ms: 38 }]), []);
+  assert.deepEqual(failed({}, null, [{ files: 10000, hookP95Ms: 30, hookSocketP95Ms: 55 }]), ['hook-p95:10000-files']);
   assert.deepEqual(failed({ cliP95Ms: 151 }), ['cli-p95']);
 });
 
@@ -199,6 +219,8 @@ test('a cell is invalid when its hook did not run as the arm intends', () => {
   const v = (meta, stats = { searchCalls: 1 }) => score.cellValidity({ retrievalArm: true, setupOk: true, ...meta }, stats);
   assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }), { valid: false, reason: 'hook-never-ran' });
   assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 0 }), { valid: true }, 'no search, nothing to hint');
+  assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 2, hookableLookups: 0 }), { valid: true }, 'only calls running find-module: nothing for the hook to answer');
+  assert.deepEqual(v({ arm: 'v2', hookRecords: 0 }, { searchCalls: 3, hookableLookups: 1 }), { valid: false, reason: 'hook-never-ran' });
   assert.deepEqual(v({ arm: 'legacy', hookRecords: 3 }), { valid: true });
   assert.deepEqual(v({ arm: 'no-hint', hookRecords: 1 }), { valid: false, reason: 'hook-ran-in-no-hint-arm' });
   assert.deepEqual(v({ arm: 'no-hint', hookRecords: 0 }), { valid: true });
@@ -220,17 +242,25 @@ test('paired comparison averages repeats per task, uses valid cells only, and co
   assert.deepEqual([p.lower, p.higher, p.same], [1, 1, 0]);
 });
 
-test('the navigation suite: at least 12 tasks, files named only by behavior, checks bound to the expected file', (t) => {
+test('the retrieval suite: navigation, natural and question tasks, files named only by behavior, checks bound to the expected file', (t) => {
   const suite = require('../scripts/eval/tasks.json').retrievalSuite;
-  assert.ok(suite.tasks.length >= 12);
+  assert.ok(suite.tasks.length >= 28);
   const r = spawnSync('git', ['ls-tree', '-r', '--name-only', suite.pinnedCommit], { cwd: REPO_ROOT, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
   const files = r.status === 0 ? new Set(r.stdout.split('\n')) : null;
+  const kinds = suite.tasks.reduce((a, t) => ({ ...a, [t.kind]: (a[t.kind] || 0) + 1 }), {});
+  assert.deepEqual(kinds, { navigation: 12, natural: 10, question: 6 });
   for (const task of suite.tasks) {
     assert.equal(task.expectedFiles.length, 1);
     const file = task.expectedFiles[0];
     const stem = path.basename(file).replace(/\.[^.]+$/, '');
     assert.ok(!task.prompt.toLowerCase().includes(stem.toLowerCase()), `${task.id}: the prompt must not name ${stem}`);
-    assert.ok(task.successCheck.includes(file) && task.successCheck.includes(`eval-nav: ${task.id}`), task.id);
+    if (task.kind === 'navigation') assert.ok(task.successCheck.includes(file) && task.successCheck.includes(`eval-nav: ${task.id}`), task.id);
+    if (task.kind === 'natural') assert.ok(task.successCheck.includes(file), `${task.id}: the check reads the expected file`);
+    if (task.kind === 'question') {
+      assert.deepEqual(task.answerCheck.contains, [file]);
+      assert.equal(task.successCheck, undefined, 'a question is decided by its answer');
+      assert.match(task.prompt, /Do not modify any files\.$/);
+    }
     if (files) assert.ok(files.has(file), `${task.id}: ${file} at the pinned commit`);
   }
   if (!files) t.diagnostic('pinned commit unavailable; file existence not checked');
@@ -254,4 +284,87 @@ test('hook activity counts only search-hint records', (t) => {
     { ev: 'hint.injected', mode: 'pre-edit' }, { ev: 'watch.fired' }
   ].map((r) => JSON.stringify(r)).join('\n') + '\n{"partial');
   assert.deepEqual(runEval.hookActivity(home), { records: 2, injected: 1 });
+});
+
+/* ----------------------- STR-03b: lookups, answers, cleanliness ----------------------- */
+
+test('lookups count find-module, search tools and search-leading Bash segments; repeats compare normalized terms', () => {
+  const b = (command) => ({ name: 'Bash', input: { command } });
+  assert.deepEqual(score.lookupsOf(b('node .frame/bin/find-module.js publishStaged --json')), [{ via: 'find-module', term: 'publishstaged' }]);
+  assert.deepEqual(score.lookupsOf(b('node scripts/find-module.js publishStaged && grep -rn "publishStaged" scripts/')).map((l) => l.via), ['find-module', 'bash']);
+  assert.deepEqual(score.lookupsOf(b('npm test | grep fail')), [], 'output filtering is not a lookup');
+  assert.deepEqual(score.lookupsOf(b("find . -name '*.md'")), [{ via: 'bash', term: '.md' }]);
+  assert.deepEqual(score.lookupsOf({ name: 'Grep', input: { pattern: '\\bpublishStaged\\b' } }), [{ via: 'tool', term: 'publishstaged' }]);
+  assert.deepEqual(score.lookupsOf(b("cat <<'EOF'\ngrep x\nEOF")), [], 'heredocs are data');
+});
+
+test('a transcript counts lookups and the repeats that follow an answer', (t) => {
+  const dir = cell(t, {
+    meta: { task: 'q', arm: 'v2', kind: 'question', retrievalArm: true, setupOk: true, hookRecords: 1, expectedFiles: ['src/a.js'], checkPassed: true },
+    events: [
+      tool('Bash', { command: 'node scripts/find-module.js publishStaged' }),
+      tool('Grep', { pattern: 'publishStaged' }),
+      tool('Bash', { command: 'grep -rn "other" src/' }),
+      { type: 'result', result: 'It is src/a.js', usage: { input_tokens: 10, output_tokens: 1 } }
+    ]
+  });
+  const r = score.scoreRun(dir);
+  assert.deepEqual([r.lookups, r.findModuleCalls, r.repeatedLookups, r.hookableLookups, r.kind], [3, 1, 1, 2, 'question']);
+});
+
+test('a question passes when the final answer names an accepted path', () => {
+  const transcript = [
+    JSON.stringify({ type: 'assistant', message: { content: [{ type: 'text', text: 'maybe src/b.js' }] } }),
+    JSON.stringify({ type: 'result', result: 'The file is `src/renderer/themes.js`.' })
+  ].join('\n');
+  assert.equal(runEval.finalAnswer(transcript), 'The file is `src/renderer/themes.js`.');
+  assert.equal(runEval.answerPasses({ answerCheck: { contains: ['src/renderer/themes.js'] } }, transcript), true);
+  assert.equal(runEval.answerPasses({ answerCheck: { contains: ['src/b.js'] } }, transcript), false, 'only the final answer counts');
+  assert.equal(runEval.answerPasses({ expectedFiles: ['x.js'] }, ''), false);
+});
+
+test('a run that changes status, branches or worktrees is reported', () => {
+  const before = { status: ' M a\n', branches: 'main 1\n', worktrees: 'worktree /r\n' };
+  assert.deepEqual(runEval.snapshotDiff(before, { ...before }), []);
+  assert.deepEqual(runEval.snapshotDiff(before, { ...before, branches: 'main 1\neval-x 2\n', status: '' }), ['status -  M a', 'branches + eval-x 2']);
+  const snap = runEval.repositorySnapshot();
+  assert.deepEqual(Object.keys(snap), ['status', 'branches', 'worktrees']);
+  assert.ok(!snap.status.startsWith('ERROR'));
+});
+
+/* ----------------------- STR-03b: the no-engine and v2 arms ----------------------- */
+
+test('no-engine instructions lose the find-module route and nothing else', () => {
+  const text = [
+    '## Project Navigation', '',
+    '**Fast file lookup** — before manual grep/glob, run:', '',
+    '```bash', 'node .frame/bin/find-module.js <keyword>   # concept → files', 'node .frame/bin/find-module.js --list', '```', '',
+    '**Spec history** — run spec-context.', 'See also find-module for files.', 'Keep this line.'
+  ].join('\n');
+  const out = runEval.withoutFindModule(text);
+  assert.ok(!/find-module/.test(out));
+  assert.ok(!/Fast file lookup/.test(out));
+  assert.match(out, /\*\*Spec history\*\* — run spec-context\.\nKeep this line\./);
+});
+
+test('the search hook is removed or replaced once; every other hook stays', () => {
+  const settings = { hooks: {
+    PreToolUse: [
+      { matcher: 'Edit|Write', hooks: [{ type: 'command', command: 'node scripts/spec-hint.js pre-edit' }] },
+      { matcher: 'Grep|Glob|Bash', hooks: [{ type: 'command', command: 'node scripts/module-hint.js search' }] }
+    ],
+    SessionStart: [{ hooks: [{ type: 'command', command: 'node scripts/docs-hint.js session-start' }] }]
+  } };
+  const removed = runEval.withSearchHook(settings, null);
+  assert.ok(!/module-hint/.test(JSON.stringify(removed)));
+  assert.equal(removed.hooks.PreToolUse.length, 1);
+  assert.equal(removed.hooks.SessionStart.length, 1);
+
+  const command = 'FRAME_ACTIVITY_HOME="/tmp/a b" node scripts/module-hint.js search';
+  const replaced = runEval.withSearchHook(settings, command);
+  const commands = Object.values(replaced.hooks).flat().flatMap((g) => g.hooks.map((h) => h.command));
+  assert.equal(commands.filter((c) => /module-hint/.test(c)).length, 1, 'exactly one search hook');
+  assert.ok(commands.includes(command));
+  assert.equal(runEval.withSearchHook({}, command).hooks.PreToolUse[0].matcher, 'Grep|Glob|Bash', 'added when none was registered');
+  assert.ok(runEval.ALL_RETRIEVAL_ARMS.includes('no-engine'));
 });

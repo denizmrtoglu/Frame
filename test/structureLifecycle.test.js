@@ -883,3 +883,71 @@ test('the worker publishes lookup.json with the working view and refreshes it wh
     fs.rmSync(dir, { recursive: true, force: true });
   }
 });
+
+/* ---------------- STR-03b: the worker answers lookups over a local socket ---------------- */
+
+const net = require('net');
+const retrievalLib = require('../scripts/structure-retrieval');
+
+function askSocket(address, request) {
+  return new Promise((resolve, reject) => {
+    const socket = net.createConnection({ path: address });
+    let buffer = '';
+    socket.setEncoding('utf8');
+    socket.on('connect', () => socket.write(`${typeof request === 'string' ? request : JSON.stringify(request)}\n`));
+    socket.on('data', (c) => { buffer += c; });
+    socket.on('end', () => {
+      try { resolve(JSON.parse(buffer)); } catch (e) { reject(e); }
+    });
+    socket.on('error', reject);
+  });
+}
+
+test('a long-lived worker serves lookups from memory, matching lookup.json, and cleans up on stop', async () => {
+  const dir = project({ 'src/gadget.js': '// Gadget maker\nfunction buildGadget() {}\nmodule.exports = { buildGadget };\n' });
+  const worker = lifecycle.startWorker(dir, { periodicMs: 3600000, forcePerDirectory: true, serveLookup: true });
+  const endpointFile = retrievalLib.lookupEndpointPath(dir);
+  try {
+    assert.ok(worker.ok);
+    await worker.idle();
+    assert.ok(await waitFor(() => fs.existsSync(endpointFile)), 'endpoint announced');
+    const endpoint = JSON.parse(fs.readFileSync(endpointFile, 'utf8'));
+    assert.equal(endpoint.pid, process.pid);
+    assert.equal(endpoint.algorithm, retrievalLib.ALGORITHM);
+    assert.equal(endpoint.address, retrievalLib.lookupAddress(dir));
+    assert.ok(process.platform === 'win32' || endpoint.address.length < 104, 'fits a Unix socket path');
+
+    const reply = await askSocket(endpoint.address, { v: 1, query: 'buildGadget', mode: 'hook' });
+    assert.equal(reply.ok, true);
+    const fromFile = retrievalLib.retrieve(retrievalLib.loadLookup(dir).index, 'buildGadget', { mode: 'hook' });
+    assert.deepEqual(reply.result.answer.map((c) => [c.path, c.line]), fromFile.answer.map((c) => [c.path, c.line]));
+    assert.deepEqual(reply.result.answer.map((c) => c.path), ['src/gadget.js']);
+
+    const quiet = await askSocket(endpoint.address, { v: 1, query: 'maker', mode: 'hook' });
+    assert.deepEqual([quiet.result.status, quiet.weak], ['no-match', true], 'a description word: quiet, but weak');
+    assert.deepEqual(await askSocket(endpoint.address, '{ not json'), { v: 1, ok: false, reason: 'bad-request' });
+    assert.equal((await askSocket(endpoint.address, { v: 99, query: 'x' })).reason, 'bad-request');
+
+    // a new file reaches the served index after the next reconciliation
+    fs.writeFileSync(path.join(dir, 'src', 'widget.js'), '// Widget\nfunction buildWidget() {}\n');
+    worker.requestReconcile('test');
+    await worker.idle();
+    assert.deepEqual((await askSocket(endpoint.address, { v: 1, query: 'buildWidget', mode: 'hook' })).result.answer.map((c) => c.path), ['src/widget.js']);
+  } finally {
+    worker.stop();
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+  assert.ok(!fs.existsSync(endpointFile), 'endpoint removed');
+  if (process.platform !== 'win32') assert.ok(!fs.existsSync(retrievalLib.lookupAddress(dir)), 'socket removed');
+});
+
+test('--once never starts a lookup server', () => {
+  const dir = project({ 'src/a.js': '// A\n' });
+  try {
+    const run = spawnSync('node', [path.join(SCRIPTS, 'structure-lifecycle.js'), '--once'], { env: { ...process.env, FRAME_PROJECT_ROOT: dir } });
+    assert.equal(run.status, 0);
+    assert.ok(!fs.existsSync(retrievalLib.lookupEndpointPath(dir)));
+  } finally {
+    fs.rmSync(dir, { recursive: true, force: true });
+  }
+});

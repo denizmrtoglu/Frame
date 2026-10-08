@@ -303,7 +303,7 @@ test('loadLookup reports missing, invalid and oversize indexes without reading p
 
 test('an index above the hook cap is published, flagged oversize, and refused to hooks', (t) => {
   const modules = {};
-  for (let i = 0; i < 9000; i++) modules[`m${i}`] = mod(`src/area${i % 50}/widgetNumber${i}.js`, `Widget number ${i} with a long description to grow the index`, { functions: { [`handleWidget${i}`]: {} } });
+  for (let i = 0; i < 14000; i++) modules[`m${i}`] = mod(`src/area${i % 50}/widgetNumber${i}.js`, `Widget number ${i} with a long description to grow the index`, { functions: { [`handleWidget${i}`]: {} } });
   const { dir, working, curation } = lookupProject(t);
   fs.writeFileSync(working, JSON.stringify({ modules, intentIndex: {} }));
   const r = R.publishLookup(dir, { curationPath: curation });
@@ -321,4 +321,44 @@ test('indexFromMap compiles the read view in memory and refuses a map above the 
   assert.deepEqual(R.retrieve(r.index, 'first', { mode: 'hook' }).candidates, [], 'no alpha concept in the intentIndex');
   assert.equal(R.indexFromMap(dir, { maxBytes: 10 }).state, 'oversize');
   assert.equal(fs.existsSync(R.lookupPath(dir)), false, 'never writes');
+});
+
+/* --------------------------- STR-03b: engine rules --------------------------- */
+
+test('a hook needs one file to carry every word; the CLI still ranks partial coverage', () => {
+  assert.equal(hook('github zoom').status, 'no-match', 'no single file is both');
+  assert.ok(cli('github zoom').candidates.length >= 4, 'the CLI keeps the relaxation');
+  // githubPanel carries "sidebar" only in its description, which is not hook evidence
+  assert.equal(hook('github sidebar').status, 'no-match');
+  // one file carrying both words still answers in a hook
+  assert.deepEqual(paths(hook('githubManager checkGhAuth')), ['src/main/githubManager.js']);
+});
+
+test('function candidates carry their definition line and the symbol as asked', () => {
+  const withLines = R.compileIndex({
+    modules: {
+      a: mod('src/a.js', 'A', { functions: { buildThing: { line: 42 } }, exports: ['buildThing', 'CONSTANT'], ipc: { listens: ['RUN_TASK'], emits: [] } })
+    },
+    intentIndex: {}
+  }, {});
+  const fn = R.retrieve(withLines, 'buildThing', { mode: 'cli' }).candidates[0];
+  assert.deepEqual([fn.path, fn.line, fn.symbol, fn.evidence], ['src/a.js', 42, 'buildThing', 'symbol']);
+  assert.equal(R.retrieve(withLines, 'BUILDTHING', { mode: 'hook' }).candidates[0].line, 42, 'case-insensitive');
+  assert.equal(R.retrieve(withLines, 'CONSTANT', { mode: 'cli' }).candidates[0].line, undefined, 'exports carry no line');
+  assert.equal(R.retrieve(withLines, 'RUN_TASK', { mode: 'cli' }).candidates[0].line, undefined, 'IPC channels carry no line');
+  assert.equal(R.retrieve(withLines, 'a.js', { mode: 'cli' }).candidates[0].line, undefined, 'only symbol evidence has a line');
+});
+
+test('paths match by scanning the file list, with no path postings in the index', () => {
+  assert.ok(!Object.keys(index.terms).some((k) => k.startsWith('1:')));
+  assert.equal(cli('src/main/frameStore.js').candidates[0].evidence, 'path');
+  assert.equal(cli('SRC/Main/FrameStore.js').candidates[0].path, 'src/main/frameStore.js', 'case-insensitive');
+  assert.equal(cli('main/frameStore.js').candidates[0].evidence, 'path', 'suffix at a directory boundary');
+  assert.notEqual((cli('ain/frameStore.js').candidates[0] || {}).evidence, 'path', 'not mid-name');
+  const root = R.compileIndex({ modules: { m: mod('main.js', 'Root entry') }, intentIndex: {} }, {});
+  assert.equal(R.retrieve(root, 'main.js', { mode: 'cli' }).candidates[0].evidence, 'path', 'a root file by its exact path');
+});
+
+test('the algorithm version moved, so indexes compiled under the old rules are stale', () => {
+  assert.equal(R.ALGORITHM, 'str03-v2.2');
 });

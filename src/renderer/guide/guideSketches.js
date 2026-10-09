@@ -546,7 +546,7 @@ const KINDS = {
    * families; the values mirror variables.css).
    */
   themes(focused) {
-    const ACCENT = { dark: '#8ff0ae', light: '#286b44' };
+    const ACCENT = { dark: '#8ff0ae', light: '#38946e' };
     const current = document.documentElement.getAttribute('data-theme');
     const swatch = (id) => {
       const t = themes.THEMES[id];

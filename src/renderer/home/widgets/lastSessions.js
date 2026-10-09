@@ -47,7 +47,6 @@ module.exports = {
     this.ctx = ctx;
     this.card = widgetShell({
       id: 'sessions',
-      icon: RotateCcw,
       title: 'Last Sessions',
       onOpen: () => this._openPanel()
     });

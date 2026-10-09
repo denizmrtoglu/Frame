@@ -21,7 +21,7 @@ const { escapeHtml } = require('./../../htmlUtils');
 const notify = require('./../../notify');
 const homeData = require('./../homeData');
 
-const PLACEHOLDER = 'e.g. Add a dark mode toggle to the settings page and remember the choice between sessions';
+const PLACEHOLDER = 'Give your prompt, e.g. Add a dark mode toggle';
 
 module.exports = {
   id: 'agents',
@@ -42,8 +42,8 @@ module.exports = {
     // The picker is the shared .ai-tool-picker (the terminal header's): the
     // <label> is the visible box, the native <select> underneath stays the
     // interactive element, so clicking anywhere on the box opens it.
-    // The greeting sits centred over the box, and the agent picker just
-    // under its bottom-left corner — Start stays inside, where you type.
+    // The greeting sits over the box; the agent picker and Start share the
+    // box's bottom row, picker left, Start right.
     this.el.innerHTML = `
       <div class="home-composer-stack">
         <h1 class="home-composer-title">Welcome to Frame!</h1>
@@ -51,22 +51,16 @@ module.exports = {
           <textarea class="home-composer-input" rows="5" spellcheck="false"
                     aria-label="Prompt for the agent" placeholder="${escapeHtml(PLACEHOLDER)}"></textarea>
           <div class="home-composer-controls">
-            <span class="home-composer-shortcut">${process.platform === 'darwin' ? '⌘' : 'Ctrl'} ↵ to start</span>
-            <button type="button" class="primary-btn home-agent-start" title="Start the agent in a new terminal">
-              <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" aria-hidden="true">
-                <path d="M8 5v14l11-7z"/>
+            <label class="ai-tool-picker" title="Agent — Start launches this one">
+              <span class="ai-tool-picker-label">Agent</span>
+              <select class="ai-tool-select home-agent-tool" aria-label="Agent"></select>
+              <svg class="ai-tool-picker-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"/>
               </svg>
-              <span>Start</span>
-            </button>
+            </label>
+            <button type="button" class="primary-btn home-agent-start" title="Start the agent in a new terminal">Start</button>
           </div>
         </div>
-        <label class="ai-tool-picker" title="Agent — Start launches this one">
-          <span class="ai-tool-picker-label">Agent</span>
-          <select class="ai-tool-select home-agent-tool" aria-label="Agent"></select>
-          <svg class="ai-tool-picker-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <polyline points="6 9 12 15 18 9"/>
-          </svg>
-        </label>
       </div>
     `;
 

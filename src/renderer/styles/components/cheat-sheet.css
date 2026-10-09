@@ -46,7 +46,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 12px 18px;
+  padding: 12px 20px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -60,7 +60,7 @@
 .cheat-sheet-search {
   flex: 1;
   max-width: 280px;
-  padding: 7px 12px;
+  padding: 8px 12px;
   border: 1px solid var(--border-default);
   border-radius: 6px;
   background: var(--bg-tertiary);
@@ -87,7 +87,7 @@
 }
 
 .cheat-sheet-group {
-  padding: 6px 18px 4px;
+  padding: 8px 20px 4px;
 }
 
 .cheat-sheet-group-title {
@@ -108,7 +108,7 @@
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  padding: 6px 0;
+  padding: 8px 0;
   font-size: 12px;
   color: var(--text-primary);
   border-bottom: 1px solid var(--border-subtle);
@@ -129,9 +129,9 @@
 .cheat-sheet-shortcut {
   font-size: 11px;
   color: var(--text-secondary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-sans);
   flex-shrink: 0;
-  padding: 2px 7px;
+  padding: 4px 8px;
   border: 1px solid var(--border-default);
   border-radius: 5px;
   background: var(--bg-tertiary);
@@ -139,14 +139,14 @@
 }
 
 .cheat-sheet-empty {
-  padding: 28px 18px;
+  padding: 28px 20px;
   text-align: center;
   color: var(--text-tertiary);
   font-size: 12px;
 }
 
 .cheat-sheet-footer {
-  padding: 10px 18px;
+  padding: 12px 20px;
   border-top: 1px solid var(--border-default);
   font-size: 11px;
   color: var(--text-tertiary);
@@ -156,10 +156,10 @@
 }
 
 .cheat-sheet-footer kbd {
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-sans);
   background: var(--bg-tertiary);
   border: 1px solid var(--border-default);
   border-radius: 4px;
-  padding: 1px 6px;
+  padding: 0 8px;
   font-size: 10px;
 }

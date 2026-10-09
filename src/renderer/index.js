@@ -33,6 +33,7 @@ const editor = require('./editor');
 const sidebarResize = require('./sidebarResize');
 const appHeader = require('./appHeader');
 const aiToolSelector = require('./aiToolSelector');
+const selectMenu = require('./selectMenu');
 const commandRegistry = require('./commandRegistry');
 const commandPalette = require('./commandPalette');
 const cheatSheet = require('./cheatSheet');
@@ -93,6 +94,9 @@ function init() {
   aiToolSelector.init((tool) => {
     console.log('AI tool changed to:', tool.name);
   });
+
+  // Every <select> opens Frame's dropdown instead of the OS popup
+  selectMenu.init();
 
   // Connect state with multiTerminalUI for project-terminal session management
   state.setMultiTerminalUI(multiTerminalUI);

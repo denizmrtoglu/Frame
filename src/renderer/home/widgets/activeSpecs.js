@@ -29,7 +29,6 @@ module.exports = {
   mount(el) {
     this.card = widgetShell({
       id: 'specs',
-      icon: AlignJustify,
       title: 'Active Specs',
       onOpen: () => require('./../../specsDashboard').show()
     });

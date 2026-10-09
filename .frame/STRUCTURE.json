@@ -1,7 +1,7 @@
 {
   "version": "1.1",
   "description": "Auto-generated module structure",
-  "lastUpdated": "2026-10-07",
+  "lastUpdated": "2026-10-08",
   "architecture": {},
   "modules": {
     ".claude/settings.json": {
@@ -290,7 +290,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 94287,
+      "sizeBytes": 93819,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -10104,10 +10104,9 @@
           "purpose": "Local, like every other renderer module's copy — six of them exist and the"
         },
         "widgetShell": {
-          "line": 45,
+          "line": 44,
           "params": [
             "{ id",
-            "icon",
             "title",
             "actionLabel",
             "actionIcon = Plus",
@@ -10118,7 +10117,7 @@
           "purpose": "Build one widget's card."
         },
         "statsHtml": {
-          "line": 83,
+          "line": 81,
           "params": [
             "pairs",
             "variant = ''"
@@ -10126,7 +10125,7 @@
           "purpose": "A compact \"12 feature · 6 fix\" strip. Counts lead, because the number is"
         },
         "tally": {
-          "line": 92,
+          "line": 90,
           "params": [
             "items",
             "keyOf"
@@ -10134,14 +10133,14 @@
           "purpose": "Count by key, biggest first, with a tail past the fourth."
         },
         "moreHtml": {
-          "line": 106,
+          "line": 104,
           "params": [
             "extra"
           ],
           "purpose": "Never truncate a list silently — say how much is not shown."
         }
       },
-      "sizeBytes": 4578,
+      "sizeBytes": 4450,
       "extraction": {
         "status": "parsed"
       },
@@ -10168,7 +10167,6 @@
         "defaultEnabled",
         "isAvailable",
         "mount(el) {\n    this.card = widgetShell({\n      id",
-        "icon",
         "title",
         "onOpen"
       ],
@@ -10181,7 +10179,7 @@
         "../../specSection"
       ],
       "functions": {},
-      "sizeBytes": 3416,
+      "sizeBytes": 3390,
       "extraction": {
         "status": "parsed"
       },
@@ -10201,7 +10199,6 @@
         "defaultEnabled",
         "isAvailable",
         "mount(el) {\n    this.card = widgetShell({\n      id",
-        "icon",
         "title",
         "onOpen"
       ],
@@ -10215,7 +10212,7 @@
         "../../specsDashboard"
       ],
       "functions": {},
-      "sizeBytes": 5996,
+      "sizeBytes": 5977,
       "extraction": {
         "status": "parsed"
       },
@@ -10237,9 +10234,9 @@
         "mount(el",
         "ctx) {\n    this.ctx = ctx;\n    this._starting = false;\n\n    this.el = document.createElement('div');\n    this.el.className = 'home-composer';\n    // The picker is the shared .ai-tool-picker (the terminal header's)",
         "the native <select> underneath stays the\n    // interactive element",
-        "so clicking anywhere on the box opens it.\n    // The greeting sits centred over the box",
-        "and the agent picker just\n    // under its bottom-left corner — Start stays inside",
-        "where you type.\n    this.el.innerHTML = `\n      <div class=\"home-composer-stack\">\n        <h1 class=\"home-composer-title\">Welcome to Frame!</h1>\n        <div class=\"home-composer-box\">\n          <textarea class=\"home-composer-input\" rows=\"5\" spellcheck=\"false\"\n                    aria-label=\"Prompt for the agent\" placeholder=\"${escapeHtml(PLACEHOLDER)"
+        "so clicking anywhere on the box opens it.\n    // The greeting sits over the box; the agent picker and Start share the\n    // box's bottom row",
+        "picker left",
+        "Start right.\n    this.el.innerHTML = `\n      <div class=\"home-composer-stack\">\n        <h1 class=\"home-composer-title\">Welcome to Frame!</h1>\n        <div class=\"home-composer-box\">\n          <textarea class=\"home-composer-input\" rows=\"5\" spellcheck=\"false\"\n                    aria-label=\"Prompt for the agent\" placeholder=\"${escapeHtml(PLACEHOLDER)"
       ],
       "depends": [
         "lucide",
@@ -10249,7 +10246,7 @@
         "../../agentDispatch"
       ],
       "functions": {},
-      "sizeBytes": 6887,
+      "sizeBytes": 6533,
       "extraction": {
         "status": "parsed"
       },
@@ -10280,7 +10277,7 @@
         "../../terminal"
       ],
       "functions": {},
-      "sizeBytes": 4375,
+      "sizeBytes": 4352,
       "extraction": {
         "status": "parsed"
       },
@@ -10409,6 +10406,7 @@
         "sidebarResize",
         "appHeader",
         "aiToolSelector",
+        "selectMenu",
         "commandRegistry",
         "commandPalette",
         "cheatSheet",
@@ -10441,38 +10439,38 @@
       ],
       "functions": {
         "init": {
-          "line": 64,
+          "line": 65,
           "purpose": "Initialize all modules"
         },
         "setupButtonHandlers": {
-          "line": 317,
+          "line": 321,
           "purpose": "Setup button click handlers"
         },
         "setupProjectSwitcher": {
-          "line": 425,
+          "line": 429,
           "purpose": "Wire the current-project dropdown: build the project list on open, switch on"
         },
         "setupUpdateDot": {
-          "line": 535,
+          "line": 539,
           "purpose": "Show the sidebar's update banner (version + arrow, click-to-act) when a"
         },
         "revealSidebarTab": {
-          "line": 561,
+          "line": 565,
           "params": [
             "tabName"
           ],
           "purpose": "Show the sidebar (if hidden) and switch to the given tab. Used by focus"
         },
         "registerCommands": {
-          "line": 587,
+          "line": 591,
           "purpose": "Register every app command with the central registry. Commands are the"
         },
         "startAiSession": {
-          "line": 991,
+          "line": 995,
           "purpose": "Start the selected AI tool (Claude Code / Codex CLI / etc.) in a fresh"
         },
         "forwardException": {
-          "line": 1016,
+          "line": 1020,
           "params": [
             "err"
           ],
@@ -10491,7 +10489,7 @@
           "ANALYTICS_EXCEPTION"
         ]
       },
-      "sizeBytes": 36509,
+      "sizeBytes": 36642,
       "extraction": {
         "status": "parsed"
       },
@@ -11746,7 +11744,7 @@
           "REMOVE_PROJECT_FROM_WORKSPACE"
         ]
       },
-      "sizeBytes": 20113,
+      "sizeBytes": 20047,
       "extraction": {
         "status": "parsed"
       },
@@ -12367,6 +12365,86 @@
         }
       }
     },
+    "renderer/selectMenu": {
+      "file": "src/renderer/selectMenu.js",
+      "description": "Select Menu Module",
+      "exports": [
+        "init",
+        "close"
+      ],
+      "depends": [],
+      "functions": {
+        "init": {
+          "line": 16
+        },
+        "anchorFor": {
+          "line": 21,
+          "params": [
+            "select"
+          ],
+          "purpose": "The box the menu hangs under: a picker's styled label, else the select."
+        },
+        "onMouseDown": {
+          "line": 25,
+          "params": [
+            "e"
+          ]
+        },
+        "open": {
+          "line": 46,
+          "params": [
+            "select"
+          ]
+        },
+        "place": {
+          "line": 83,
+          "params": [
+            "menu",
+            "anchor"
+          ],
+          "purpose": "Under the anchor, left-aligned, at least as wide; flips up when short."
+        },
+        "highlight": {
+          "line": 98,
+          "params": [
+            "index"
+          ]
+        },
+        "choose": {
+          "line": 106,
+          "params": [
+            "select",
+            "value"
+          ]
+        },
+        "onKeydown": {
+          "line": 114,
+          "params": [
+            "e"
+          ]
+        },
+        "onScroll": {
+          "line": 137,
+          "params": [
+            "e"
+          ]
+        },
+        "close": {
+          "line": 141
+        }
+      },
+      "sizeBytes": 5277,
+      "extraction": {
+        "status": "parsed"
+      },
+      "provenance": {
+        "description": "f57e41e7a5fbf9e5",
+        "purposes": {
+          "anchorFor": "9aa51a7605fd597b",
+          "place": "a417eef24a82a12b"
+        }
+      }
+    },
     "renderer/sessionsPanel": {
       "file": "src/renderer/sessionsPanel.js",
       "description": "Sessions Panel",
@@ -12950,7 +13028,7 @@
           "UPDATE_TASK"
         ]
       },
-      "sizeBytes": 33160,
+      "sizeBytes": 33334,
       "extraction": {
         "status": "parsed"
       },
@@ -13098,7 +13176,7 @@
           "UPDATE_TASK"
         ]
       },
-      "sizeBytes": 20151,
+      "sizeBytes": 20325,
       "extraction": {
         "status": "parsed"
       },
@@ -13338,7 +13416,7 @@
           "UPDATE_TASK"
         ]
       },
-      "sizeBytes": 34321,
+      "sizeBytes": 34495,
       "extraction": {
         "status": "parsed"
       },
@@ -14310,7 +14388,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 3015,
+      "sizeBytes": 2991,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14334,7 +14412,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 13116,
+      "sizeBytes": 13842,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14358,7 +14436,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 3254,
+      "sizeBytes": 3230,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14370,7 +14448,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 2532,
+      "sizeBytes": 2519,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14394,7 +14472,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 8637,
+      "sizeBytes": 8627,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14406,7 +14484,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 9093,
+      "sizeBytes": 8845,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14418,7 +14496,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 6537,
+      "sizeBytes": 6524,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14430,7 +14508,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 5265,
+      "sizeBytes": 5263,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14442,7 +14520,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 1786,
+      "sizeBytes": 1754,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14454,7 +14532,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 12169,
+      "sizeBytes": 12167,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14466,7 +14544,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 34683,
+      "sizeBytes": 34666,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14478,7 +14556,19 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 33455,
+      "sizeBytes": 36802,
+      "extraction": {
+        "status": "unsupported",
+        "reason": "no-extractor"
+      }
+    },
+    "renderer/styles/components/menu.css": {
+      "file": "src/renderer/styles/components/menu.css",
+      "description": "",
+      "exports": [],
+      "depends": [],
+      "functions": {},
+      "sizeBytes": 4334,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14502,7 +14592,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 12573,
+      "sizeBytes": 12569,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14514,7 +14604,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 103934,
+      "sizeBytes": 103982,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14622,7 +14712,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 35715,
+      "sizeBytes": 35709,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14634,7 +14724,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 3864,
+      "sizeBytes": 4065,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14646,7 +14736,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 15712,
+      "sizeBytes": 16038,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14682,7 +14772,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 19515,
+      "sizeBytes": 20778,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14706,7 +14796,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 12551,
+      "sizeBytes": 12443,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14718,7 +14808,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 3408,
+      "sizeBytes": 3518,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -14730,7 +14820,7 @@
       "exports": [],
       "depends": [],
       "functions": {},
-      "sizeBytes": 7575,
+      "sizeBytes": 9715,
       "extraction": {
         "status": "unsupported",
         "reason": "no-extractor"
@@ -15413,7 +15503,7 @@
           "UPDATE_TASK"
         ]
       },
-      "sizeBytes": 19895,
+      "sizeBytes": 20065,
       "extraction": {
         "status": "parsed"
       },
@@ -15670,6 +15760,13 @@
         },
         "installGlobalDropGuard": {
           "line": 48
+        },
+        "terminalName": {
+          "line": 63,
+          "params": [
+            "n"
+          ],
+          "purpose": "A terminal's default name, number first (\"1st Terminal\", \"2nd Terminal\"):"
         }
       },
       "ipc": {
@@ -15686,14 +15783,15 @@
           "TERMINAL_RESIZE_ID"
         ]
       },
-      "sizeBytes": 27618,
+      "sizeBytes": 28003,
       "extraction": {
         "status": "parsed"
       },
       "provenance": {
         "description": "5503a1b34dbada83",
         "purposes": {
-          "getTerminalTheme": "c1851af8b213ec21"
+          "getTerminalTheme": "c1851af8b213ec21",
+          "terminalName": "1c4c500d3f4e3dbd"
         }
       }
     },
@@ -15740,7 +15838,7 @@
           "THEME_CHANGED"
         ]
       },
-      "sizeBytes": 21066,
+      "sizeBytes": 21560,
       "extraction": {
         "status": "parsed"
       },
@@ -15787,7 +15885,7 @@
           ]
         }
       },
-      "sizeBytes": 26107,
+      "sizeBytes": 26487,
       "extraction": {
         "status": "parsed"
       },
@@ -22285,7 +22383,7 @@
         "src/shared/frameTemplates"
       ],
       "functions": {},
-      "sizeBytes": 8280,
+      "sizeBytes": 8412,
       "extraction": {
         "status": "parsed"
       },
@@ -22310,18 +22408,18 @@
       ],
       "functions": {
         "installedHome": {
-          "line": 45,
+          "line": 46,
           "purpose": "A CODEX_HOME with Frame's hooks installed."
         },
         "withActivity": {
-          "line": 52,
+          "line": 53,
           "params": [
             "records"
           ],
           "purpose": "Point the activity root at a temp dir and optionally seed one record."
         }
       },
-      "sizeBytes": 8282,
+      "sizeBytes": 8414,
       "extraction": {
         "status": "parsed"
       },
@@ -22350,11 +22448,11 @@
       ],
       "functions": {
         "mkProject": {
-          "line": 43,
+          "line": 44,
           "purpose": "A project with one spec, so getCommandPrompt has a status.json to read."
         }
       },
-      "sizeBytes": 8428,
+      "sizeBytes": 8560,
       "extraction": {
         "status": "parsed"
       },
@@ -23143,19 +23241,19 @@
       ],
       "functions": {
         "writeUserFiles": {
-          "line": 60,
+          "line": 61,
           "params": [
             "dir"
           ]
         },
         "hashFile": {
-          "line": 68,
+          "line": 69,
           "params": [
             "file"
           ]
         },
         "snapshotTree": {
-          "line": 73,
+          "line": 74,
           "params": [
             "dir",
             "{ excludeFrameOwned = true } = {}"
@@ -23163,14 +23261,14 @@
           "purpose": "Every file in the tree → sha256, excluding paths Frame is allowed to own."
         },
         "fakeWorkers": {
-          "line": 665,
+          "line": 666,
           "purpose": "A fake `--supervised` child that records what the supervisor sends."
         },
         "resetWorkers": {
-          "line": 690
+          "line": 691
         }
       },
-      "sizeBytes": 36584,
+      "sizeBytes": 36716,
       "extraction": {
         "status": "parsed"
       },
@@ -23209,48 +23307,48 @@
       ],
       "functions": {
         "git": {
-          "line": 60,
+          "line": 61,
           "params": [
             "cwd",
             "args"
           ]
         },
         "makeLegacyProject": {
-          "line": 86,
+          "line": 87,
           "params": [
             "{ commit = true } = {}"
           ],
           "purpose": "A project as Frame's pre-overlay init left it."
         },
         "hashFile": {
-          "line": 121,
+          "line": 122,
           "params": [
             "file"
           ]
         },
         "snapshotTree": {
-          "line": 126,
+          "line": 127,
           "params": [
             "dir"
           ],
           "purpose": "Every file in the tree → sha256, with `.git/` internals left out."
         },
         "frameLayout": {
-          "line": 143,
+          "line": 144,
           "params": [
             "dir"
           ],
           "purpose": "The paths under `.frame/`, so two projects' artifact sets can be compared."
         },
         "fakeWorkers": {
-          "line": 311,
+          "line": 312,
           "purpose": "A fake `--supervised` child that records what the supervisor sends."
         },
         "resetWorkers": {
-          "line": 336
+          "line": 337
         }
       },
-      "sizeBytes": 21181,
+      "sizeBytes": 21313,
       "extraction": {
         "status": "parsed"
       },
@@ -23443,26 +23541,26 @@
       ],
       "functions": {
         "git": {
-          "line": 37,
+          "line": 38,
           "params": [
             "cwd",
             "args"
           ]
         },
         "readJson": {
-          "line": 41,
+          "line": 42,
           "params": [
             "file"
           ]
         },
         "hookCommands": {
-          "line": 45,
+          "line": 46,
           "params": [
             "file"
           ]
         }
       },
-      "sizeBytes": 8720,
+      "sizeBytes": 8852,
       "extraction": {
         "status": "parsed"
       },
@@ -23721,14 +23819,14 @@
       ],
       "functions": {
         "git": {
-          "line": 41,
+          "line": 42,
           "params": [
             "cwd",
             "args"
           ]
         },
         "makeLegacyProject": {
-          "line": 68,
+          "line": 69,
           "params": [
             "{ withClaudeBlock = true",
             "commit = false } = {}"
@@ -23736,7 +23834,7 @@
           "purpose": "A project as Frame's pre-overlay init left it."
         }
       },
-      "sizeBytes": 31429,
+      "sizeBytes": 31561,
       "extraction": {
         "status": "parsed"
       },
@@ -24213,7 +24311,7 @@
       ],
       "functions": {
         "runHook": {
-          "line": 52,
+          "line": 53,
           "params": [
             "input",
             "{ raw = null",
@@ -24221,7 +24319,7 @@
           ]
         },
         "mkProject": {
-          "line": 63,
+          "line": 64,
           "params": [
             "specs = [{ slug",
             "title",
@@ -24230,7 +24328,7 @@
           "purpose": "A project with one spec in `phase`, and the command templates staged."
         }
       },
-      "sizeBytes": 12055,
+      "sizeBytes": 12187,
       "extraction": {
         "status": "parsed"
       },
@@ -24432,13 +24530,13 @@
       ],
       "functions": {
         "writeOverrideTemplate": {
-          "line": 65,
+          "line": 66,
           "params": [
             "content"
           ]
         },
         "writeSpec": {
-          "line": 71,
+          "line": 72,
           "params": [
             "slug",
             "title",
@@ -24446,7 +24544,7 @@
           ]
         }
       },
-      "sizeBytes": 8440,
+      "sizeBytes": 8572,
       "extraction": {
         "status": "parsed"
       },
@@ -24469,13 +24567,13 @@
       ],
       "functions": {
         "specDir": {
-          "line": 52,
+          "line": 53,
           "params": [
             "slug"
           ]
         },
         "writeConductorSpec": {
-          "line": 59,
+          "line": 60,
           "params": [
             "slug",
             "extra = {}"
@@ -24483,13 +24581,13 @@
           "purpose": "A spec folder as Frame's conductor writes it: no slug, no task ids."
         },
         "readStatus": {
-          "line": 74,
+          "line": 75,
           "params": [
             "slug"
           ]
         }
       },
-      "sizeBytes": 7349,
+      "sizeBytes": 7481,
       "extraction": {
         "status": "parsed"
       },
@@ -24517,22 +24615,22 @@
       ],
       "functions": {
         "specDir": {
-          "line": 60
+          "line": 61
         },
         "writeTasksMd": {
-          "line": 64,
+          "line": 65,
           "params": [
             "content"
           ]
         },
         "writeStatus": {
-          "line": 69
+          "line": 70
         },
         "readSpecTasks": {
-          "line": 83
+          "line": 84
         }
       },
-      "sizeBytes": 11490,
+      "sizeBytes": 11622,
       "extraction": {
         "status": "parsed"
       },
@@ -26528,6 +26626,18 @@
         "description": "IPC Channel Constants"
       }
     ],
+    "menu": [
+      {
+        "module": "main/menu",
+        "file": "src/main/menu.js",
+        "description": "Application Menu Module"
+      },
+      {
+        "module": "renderer/selectMenu",
+        "file": "src/renderer/selectMenu.js",
+        "description": "Select Menu Module"
+      }
+    ],
     "migration": [
       {
         "module": "main/layoutMigration",
@@ -27027,8 +27137,8 @@
     "extraction": {
       "coverage": "complete",
       "counts": {
-        "parsed": 295,
-        "unsupported": 83,
+        "parsed": 296,
+        "unsupported": 84,
         "partial": 0
       }
     },
@@ -27074,9 +27184,9 @@
       }
     },
     "counts": {
-      "visitedEntries": 466,
+      "visitedEntries": 468,
       "traversedDirectories": 80,
-      "eligibleFiles": 378,
+      "eligibleFiles": 380,
       "unreadable": 0,
       "binaryFiles": 5,
       "symlinks": 0,
@@ -27093,7 +27203,7 @@
         "config": 0,
         "depth": 0
       },
-      "indexedFiles": 378,
+      "indexedFiles": 380,
       "legacyGroups": 0
     },
     "diagnostics": {
@@ -27101,6 +27211,6 @@
       "truncated": false,
       "samples": []
     },
-    "revision": "2d26793869a6b8a93b4c3286db4771905ca8adc726a3512958abf69deef9c36f"
+    "revision": "98b7c32c843f856defa924304c16b106a133c8d480bfcd01a7bd1f63a16e1110"
   }
 }

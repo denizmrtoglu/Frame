@@ -52,7 +52,7 @@
   color: var(--text-secondary);
   cursor: pointer;
   font-size: 11px;
-  padding: 2px 7px;
+  padding: 4px 8px;
 }
 
 .activity-filter-btn:hover {
@@ -104,10 +104,10 @@
 
 .activity-row-time {
   color: var(--text-secondary);
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-sans);
   font-size: 10.5px;
   flex: 0 0 auto;
-  padding-top: 1px;
+  padding-top: 0;
   opacity: 0.75;
 }
 
@@ -128,7 +128,7 @@
 
 .activity-row-detail {
   color: var(--text-secondary);
-  font-family: var(--font-mono, monospace);
+  font-family: var(--font-sans);
   font-size: 10.5px;
   opacity: 0.8;
   margin-top: 1px;

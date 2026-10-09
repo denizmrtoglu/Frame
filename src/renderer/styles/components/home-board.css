@@ -6,9 +6,9 @@
 }
 
 .lane-board {
-  /* Same left edge as the view header and the terminal
-     (compact-center-vs-code-density D1); widget gaps are unchanged. */
-  padding: 12px;
+  /* 24px on the sides and bottom: the cards and the composer box share
+     one edge, and the card gutters match it. */
+  padding: 12px 24px 24px;
   height: 100%;
   box-sizing: border-box;
   flex: 1;
@@ -38,8 +38,10 @@
 .home-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
-  gap: var(--space-md);
+  /* Composer takes its own height; the cards take the rest, 24px under
+     the box (the grid gap). */
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 24px;
   flex: 1;
   min-height: 460px;
 }
@@ -101,8 +103,9 @@
   background: none;
   border: none;
   border-bottom: 1px solid var(--border-subtle);
-  /* Room for the card's rounded corners. */
-  padding: 10px 16px;
+  /* 16px all round, the inset every text on Home starts from (the
+     composer's prompt and controls, the card body below). */
+  padding: 16px;
   color: var(--text-primary);
   font: inherit;
   cursor: pointer;
@@ -110,12 +113,7 @@
 }
 
 .home-card-header:hover {
-  background: var(--bg-hover);
-}
-
-.home-card-icon {
-  display: flex;
-  color: var(--accent-primary);
+  background: var(--selected-bg);
 }
 
 .home-card-title {
@@ -124,22 +122,27 @@
   font-weight: 700;
 }
 
+/* Neutral, not the accent: a quiet grey chip with an outline, so the
+   count reads as data rather than as a call to action. */
 .home-card-count {
   font-size: 11px;
-  color: var(--accent-primary);
-  background: var(--accent-subtle);
-  border-radius: 99px;
-  padding: 0 7px;
-  line-height: 16px;
+  color: var(--text-secondary);
+  background: var(--bg-tertiary);
+  box-shadow: inset 0 0 0 1px var(--border-strong);
+  /* Square-cornered, 16px: a one-digit count is a 16×16 tile (12px line +
+     2px 4px padding), longer counts widen it. */
+  border-radius: 4px;
+  box-sizing: border-box;
+  min-width: 16px;
+  padding: 2px 4px;
+  font-weight: 700;
+  line-height: 12px;
+  text-align: center;
 }
 
 .home-card-open {
   display: flex;
   margin-left: auto;
-  color: var(--success);
-}
-
-.home-card-header:hover .home-card-open {
   color: var(--accent-primary);
 }
 
@@ -149,7 +152,9 @@
   flex: 1;
   min-height: 0;
   overflow-y: auto;
-  padding: 6px 10px; /* rows' 6px + 10px = the header's 16px */
+  /* With the rows' / notes' own 4px 8px, text sits 16px in from the
+     card's edge and the header's rule — the header's 16px. */
+  padding: 12px 8px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -157,7 +162,7 @@
 
 .home-card-empty,
 .home-card-note {
-  padding: 6px;
+  padding: 4px 8px;
   font-size: 11px;
   color: var(--text-tertiary);
   font-family: var(--font-sans);
@@ -169,7 +174,7 @@
   color: var(--success);
   background: color-mix(in srgb, var(--success) 18%, transparent);
   border-radius: 999px;
-  padding: 1px 8px;
+  padding: 0 8px;
 }
 
 .home-card-row {
@@ -180,7 +185,7 @@
   background: none;
   border: none;
   border-radius: var(--radius-sm);
-  padding: 5px 6px;
+  padding: 4px 8px;
   color: var(--text-secondary);
   font: inherit;
   font-size: 11px;
@@ -225,7 +230,7 @@
    thing is to someone who has not made one yet. Sans-serif and a little
    looser than a row — this is prose, not data. */
 .home-card-onboard {
-  padding: 6px;
+  padding: 4px 8px;
   font-family: var(--font-sans);
   font-size: 11px;
   line-height: 1.5;
@@ -242,7 +247,7 @@
 
 .home-card-onboard-lead {
   color: var(--text-secondary);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 /* Stat strip: the count leads because that is what the eye came for. */
@@ -251,7 +256,7 @@
   flex-wrap: wrap;
   gap: 4px 12px;
   flex: none;
-  padding: 4px 6px 6px;
+  padding: 4px 8px 8px;
 }
 
 .home-card-stats + .home-card-stats {
@@ -314,7 +319,7 @@
   color: var(--text-tertiary);
   background: var(--bg-elevated);
   border-radius: 99px;
-  padding: 1px 7px;
+  padding: 0 8px;
 }
 
 .home-card-cat.cat-fix {
@@ -366,7 +371,7 @@
   background: color-mix(in srgb, var(--warning, #e5a50a) 12%, transparent);
   border: 1px solid color-mix(in srgb, var(--warning, #e5a50a) 32%, transparent);
   border-radius: 8px;
-  padding: 5px 8px;
+  padding: 4px 8px;
   color: var(--warning, #e5a50a);
   font: inherit;
   font-size: 10px;
@@ -390,7 +395,7 @@
 }
 
 .home-card-more {
-  padding: 4px 6px;
+  padding: 4px 8px;
   font-size: 10px;
   color: var(--text-tertiary);
 }
@@ -427,7 +432,7 @@
   color: var(--text-primary);
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-sm);
-  padding: 1px 5px;
+  padding: 0 4px;
   outline: none;
 }
 
@@ -443,7 +448,7 @@
   background: var(--accent-subtle);
   border: 1px solid var(--accent-border, rgba(143, 240, 174, 0.25));
   border-radius: 99px;
-  padding: 2px 9px;
+  padding: 4px 8px;
   transition: opacity 0.25s ease;
 }
 
@@ -593,7 +598,7 @@
   color: var(--text-secondary);
   background: var(--bg-elevated);
   border-radius: 99px;
-  padding: 0 7px;
+  padding: 0 8px;
   line-height: 16px;
 }
 
@@ -602,17 +607,24 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
+  /* Home and Terminals never shrink; the page chips after them do. */
+  flex-shrink: 0;
   background: none;
   border: none;
-  color: var(--text-secondary);
+  /* Primary text even at rest, so the two main places stand out. */
+  color: var(--text-primary);
   cursor: pointer;
-  padding: 4px 8px;
+  /* One fixed height for every bar chip (Home, Terminals, a terminal), so
+     hover and the selected wash are the same box whatever is inside. */
+  box-sizing: border-box;
+  height: 28px;
+  padding: 0 8px;
   border-radius: var(--radius-sm);
 }
 
 .btn-lane-home-label {
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .btn-lane-home:hover {
@@ -624,14 +636,14 @@
    changes between views */
 .btn-lane-home.current,
 .lane-bar-section.current {
-  color: var(--text-primary);
-  background: var(--bg-elevated);
+  color: var(--selected-fg);
+  background: var(--selected-bg);
 }
 
 .lane-bar-divider {
   width: 1px;
-  height: 16px;
-  background: var(--border-subtle);
+  height: 20px;
+  background: var(--divider);
   margin: 0 2px;
   flex-shrink: 0;
 }
@@ -645,7 +657,9 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 4px 6px 4px 8px;
+  box-sizing: border-box;
+  height: 28px; /* same as .btn-lane-home */
+  padding: 0 8px;
   border-radius: var(--radius-sm);
   min-width: 0;
   max-width: 180px;
@@ -670,7 +684,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 2px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   color: var(--text-muted);
   flex-shrink: 0;
@@ -681,6 +695,26 @@
   background: var(--bg-hover);
 }
 
+/* ─── Pages: the second kind of tab ─────────────────────── */
+/* Home and Terminals are places, filled when current. A page — a terminal
+   enlarged, a spec / task drawer, a section tab — is something opened, so it
+   is a bordered chip after its own divider: outlined at rest, a stronger
+   outline and the primary text when current, never the selected fill. */
+
+.lane-bar-page {
+  border: 1px solid var(--border-strong);
+}
+
+.lane-bar-page:hover {
+  background: var(--bg-hover);
+}
+
+.lane-bar-section.lane-bar-page.current {
+  color: var(--text-primary);
+  background: var(--bg-tertiary);
+  border-color: color-mix(in srgb, var(--text-muted) 70%, transparent);
+}
+
 /* ─── Terminals, the head of that group ─────────────────── */
 /* It wears the sidebar's own mark — the same `›_` the Work group's Terminals
    row carries — and the mono face its chips are set in. Two surfaces naming
@@ -688,19 +722,23 @@
    group only reads as one if its head matches its members. */
 
 .lane-bar-terminals {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
+  flex-shrink: 0;
+  color: var(--text-primary);
 }
 
 .lane-bar-terminals .lane-bar-section-label {
-  font-size: 11px;
-  font-weight: 500;
+  /* Bold and Home's size: Terminals is where the user lives — every
+     terminal at once — so it reads as a main place, not a chip. */
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .lane-bar-terminals-icon {
-  font-size: 10px;
+  font-size: 12px;
   font-weight: 700;
   line-height: 1;
-  color: var(--text-tertiary);
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -715,11 +753,17 @@
    the grid, a chip is that terminal enlarged. Quieter than a section chip —
    they are always there, so they must not shout. */
 
+/* Many terminals: every chip shrinks (to 72px at least, enough for the
+   dot, the number and the ×) and the name ends in an ellipsis. Padding is
+   8px of visual inset on both sides — the dot on the left, the ×'s own 4px
+   plus 4px on the right — and the × sits 10px past the text. */
 .lane-bar-terminal {
-  gap: 5px;
+  gap: 6px;
+  min-width: 72px;
   max-width: 150px;
-  padding: 4px 4px 4px 7px;
-  font-family: var(--font-mono);
+  /* Same height as the other pages (4px top and bottom). */
+  padding: 4px 4px 4px 8px;
+  font-family: var(--font-sans);
 }
 
 .lane-bar-terminal .lane-bar-section-label {
@@ -727,25 +771,10 @@
   font-weight: 400;
 }
 
-/* One caret separates the group from Terminals; the chips themselves are
-   siblings, not a nesting path, so they get no caret of their own. */
-.lane-bar-terminals + .lane-bar-terminal::before {
-  content: '›';
-  color: var(--text-muted);
-  margin-right: 3px;
-  flex-shrink: 0;
-}
-
-/* This × drops the chip, not the terminal. It appears on hover of its own
-   chip only: a row of live terminals is exactly the case where the bar is
-   already crowded, and a permanent × on each is more of the same. */
+/* This × drops the chip, not the terminal. Always visible (user's call,
+   2026-10-07), pushed to the chip's right edge. */
 .lane-bar-terminal .lane-bar-section-close {
-  opacity: 0;
-}
-
-.lane-bar-terminal:hover .lane-bar-section-close,
-.lane-bar-terminal .lane-bar-section-close:focus-visible {
-  opacity: 1;
+  margin-left: auto;
 }
 
 /* ─── "Close this terminal?" confirmation ───────────────── */
@@ -828,7 +857,7 @@
   font-family: inherit;
   font-size: 12px;
   font-weight: 600;
-  padding: 10px 16px;
+  padding: 12px 16px;
   border-radius: var(--radius-md);
   cursor: pointer;
   transition: all var(--transition-fast);
@@ -873,7 +902,7 @@
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
-  padding: 3px 8px;
+  padding: 4px 8px;
   min-width: 0;
   max-width: 260px;
 }
@@ -916,7 +945,7 @@
 .lane-rail-header {
   display: flex;
   justify-content: flex-end;
-  padding: 6px 8px 0;
+  padding: 8px 8px 0;
 }
 
 .lane-rail-toggle,
@@ -925,7 +954,7 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 5px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
@@ -947,20 +976,20 @@
 }
 
 .lane-rail-section {
-  padding: 4px 10px 12px;
+  padding: 4px 12px 12px;
 }
 
 .lane-rail-section + .lane-rail-section {
   border-top: 1px solid var(--border-subtle);
   margin-top: 2px;
-  padding-top: 10px;
+  padding-top: 12px;
 }
 
 .lane-rail-section-header {
   display: flex;
   align-items: center;
   gap: 6px;
-  padding: 6px 4px;
+  padding: 8px 4px;
   cursor: pointer;
   user-select: none;
   border-radius: var(--radius-sm);
@@ -989,7 +1018,7 @@
   color: var(--text-secondary);
   background: var(--bg-elevated);
   border-radius: 99px;
-  padding: 0 7px;
+  padding: 0 8px;
   line-height: 16px;
 }
 
@@ -998,7 +1027,7 @@
   border: none;
   color: var(--text-secondary);
   cursor: pointer;
-  padding: 3px;
+  padding: 4px;
   border-radius: var(--radius-sm);
   display: flex;
   opacity: 0;
@@ -1017,11 +1046,11 @@
   display: flex;
   flex-direction: column;
   gap: 4px;
-  padding-top: 2px;
+  padding-top: 4px;
 }
 
 .lane-rail-item {
-  padding: 7px 8px;
+  padding: 8px 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   display: flex;
@@ -1057,7 +1086,7 @@
    the panels' own classes (spec-phase-badge, task-priority,
    task-category) so colors stay in sync automatically. */
 .lane-rail-card {
-  padding: 9px 10px;
+  padding: 8px 12px;
   gap: 6px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
@@ -1132,7 +1161,7 @@
   letter-spacing: 0.3px;
   text-transform: uppercase;
   border-radius: 3px;
-  padding: 1px 5px;
+  padding: 0 4px;
   flex-shrink: 0;
 }
 
@@ -1147,7 +1176,7 @@
 .lane-rail-controls {
   display: flex;
   gap: 6px;
-  padding: 2px 4px 8px;
+  padding: 4px 4px 8px;
 }
 
 .lane-rail-ctl-wrap {
@@ -1156,7 +1185,7 @@
 
 .lane-rail-ctl-btn {
   font-size: 10px;
-  padding: 4px 9px;
+  padding: 4px 8px;
   gap: 5px;
 }
 
@@ -1210,13 +1239,13 @@
 .lane-rail-empty {
   font-size: 11px;
   color: var(--text-secondary);
-  padding: 6px 8px;
+  padding: 8px 8px;
 }
 
 .lane-rail-more {
   font-size: 11px;
   color: var(--text-secondary);
-  padding: 5px 8px;
+  padding: 4px 8px;
   cursor: pointer;
   border-radius: var(--radius-sm);
 }
@@ -1244,7 +1273,7 @@
 }
 
 .lanes-rail-body {
-  padding: 4px 10px 10px;
+  padding: 4px 12px 12px;
 }
 
 /* New Terminal CTA in the Other Terminals rail — same accent treatment as
@@ -1261,7 +1290,7 @@
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-md);
   color: var(--bg-deep);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -1298,7 +1327,7 @@
   color: var(--bg-primary);
   background: var(--accent-primary);
   border-radius: 99px;
-  padding: 0 6px;
+  padding: 0 8px;
   line-height: 14px;
   flex-shrink: 0;
   margin-left: auto;
@@ -1330,14 +1359,14 @@
 /* Rail variant of the assignment chip: smaller, aligned under the title */
 .lane-rail-item .lane-assignment-chip {
   font-size: 10px;
-  padding: 1px 7px;
+  padding: 0 8px;
   margin-left: 16px;
 }
 
 
 /* ─── Prompt composer ───────────────────────────────────── */
 /* The one action Home exists for, so it owns the top half: the greeting
-   centred over a rounded box, the prompt inside it with Start along its
+   left-aligned over a rounded box, the prompt inside it with Start along its
    bottom edge, and the agent picker just outside, under its bottom-left
    corner. The box itself is the field: its border lights up while the
    textarea has focus.
@@ -1348,29 +1377,32 @@
 
 .home-composer {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
   min-width: 0;
   min-height: 0;
-  padding: 12px;
+  /* No side padding: the box runs edge to edge with the cards below.
+     28px + the board's 12px puts the title 40px from the top. No bottom
+     padding: the grid's 24px gap is the whole space to the cards. */
+  padding: 28px 0 0;
 }
 
 .home-composer-stack {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
+  gap: 24px; /* title → box */
   width: 100%;
-  max-width: 920px;
 }
 
 .home-composer-title {
-  margin: 0 0 4px;
+  margin: 0;
   font-size: 24px;
   font-weight: 700;
   letter-spacing: -0.01em;
   color: var(--text-primary);
-  text-align: center;
+  align-self: flex-start;
+  text-align: left;
   white-space: nowrap;
 }
 
@@ -1403,12 +1435,14 @@
   max-height: 320px;
   box-sizing: border-box;
   resize: none;
-  padding: 16px 18px 8px;
+  /* 16px from the box's top and left, like the cards' text (see
+     .home-card-header). */
+  padding: 16px 16px 8px;
   background: transparent;
   border: none;
   outline: none;
   color: var(--text-primary);
-  font-family: var(--font-sans);
+  font-family: var(--font-mono);
   font-size: 14px;
   line-height: 1.55;
 }
@@ -1422,40 +1456,43 @@
   align-items: center;
   gap: 10px;
   justify-content: flex-end;
-  padding: 8px 10px 10px 12px;
+  /* The picker and Start sit 16px from the box's edges, in line with the
+     prompt above. */
+  padding: 8px 16px 16px;
 }
 
-/* Outside the box, flush with its left edge. */
+/* Inside the box, on the controls row's left; Start takes the right. */
 .home-composer .ai-tool-picker {
-  align-self: flex-start;
-  height: 34px;
-  min-width: 160px;
+  margin-right: auto;
+  height: 40px;
   padding-left: 12px;
   background: var(--bg-primary);
-  border-radius: 10px;
+  border-radius: 8px;
 }
 
-.home-composer .home-agent-tool {
-  flex: 1 1 auto;
-  width: 100%;
+/* The base background above outranks the shared :hover, so restate it. */
+.home-composer .ai-tool-picker:hover {
+  background: var(--bg-elevated);
+}
+
+/* Matched to the shared select's :hover/:focus selectors, which would
+   otherwise outrank this and drop the text to 11px on hover. */
+.home-composer .ai-tool-picker .home-agent-tool,
+.home-composer .ai-tool-picker .home-agent-tool:hover,
+.home-composer .ai-tool-picker .home-agent-tool:focus {
+  /* Sized to its value, so the picker hugs "Agent Claude" + chevron. */
+  flex: 0 1 auto;
+  width: auto;
   min-width: 0;
   font-size: 12px;
 }
 
-.home-composer-shortcut {
-  margin-left: auto;
-  font-family: var(--font-sans);
-  font-size: 11px;
-  color: var(--text-tertiary);
-  white-space: nowrap;
-}
-
 .home-composer .primary-btn {
-  height: 34px;
-  padding: 0 18px 0 14px;
-  border-radius: 10px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 8px;
   font-size: 12.5px;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .home-composer .primary-btn:disabled {
@@ -1463,19 +1500,10 @@
   cursor: default;
 }
 
-.home-composer .primary-btn svg {
-  width: 13px;
-  height: 13px;
-}
-
-/* Narrow board: the shortcut hint goes. */
+/* Narrow board: tighter vertical padding. */
 @container (max-width: 759px) {
   .home-composer {
     padding: 4px 0;
-  }
-
-  .home-composer-shortcut {
-    display: none;
   }
 }
 
@@ -1506,4 +1534,31 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   opacity: 0.85;
+}
+
+/* ─── Light schemes: soft grey boxes ───────────────────── */
+/* On the light grounds the composer and the cards are --surface-card, a step
+   lighter than the ground, with the scheme's one stroke and a soft wide
+   shadow instead of the dark schemes' heavier one. */
+[data-scheme="light"] .home-composer-box,
+[data-scheme="light"] .home-card {
+  background: var(--surface-card);
+  border-color: var(--border-default);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 8px 28px rgba(0, 0, 0, 0.05);
+}
+
+[data-scheme="light"] .home-composer-box:hover,
+[data-scheme="light"] .home-card:hover {
+  border-color: var(--border-strong);
+}
+
+[data-scheme="light"] .home-composer-box:focus-within {
+  border-color: color-mix(in srgb, var(--accent-primary) 55%, transparent);
+  box-shadow:
+    0 0 0 3px var(--accent-subtle),
+    0 8px 32px rgba(0, 0, 0, 0.02);
+}
+
+[data-scheme="light"] .home-card.active {
+  border-color: color-mix(in srgb, var(--accent-primary) 45%, transparent);
 }

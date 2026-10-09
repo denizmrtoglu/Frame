@@ -53,7 +53,7 @@
 }
 
 .view-header-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-tertiary);
   min-width: 24px;

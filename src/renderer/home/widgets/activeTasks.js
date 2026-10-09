@@ -31,7 +31,6 @@ module.exports = {
   mount(el) {
     this.card = widgetShell({
       id: 'tasks',
-      icon: Check,
       title: 'Active Tasks',
       onOpen: () => require('./../../tasksDashboard').show()
     });

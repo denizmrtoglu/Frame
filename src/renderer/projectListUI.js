@@ -342,13 +342,13 @@ function buildWorkspaceNav() {
   nav.innerHTML = WORKSPACE_NAV_GROUPS.map(group => `
     <div class="workspace-nav-group${collapsed[group.key] ? ' collapsed' : ''}" data-group="${group.key}">
       <div class="workspace-nav-group-header" tabindex="0" role="button" aria-expanded="${!collapsed[group.key]}">
-        <span class="workspace-nav-group-chevron">&#8250;</span>
+        <span class="workspace-nav-group-chevron" aria-hidden="true"></span>
         <span class="workspace-nav-group-label">${group.label}</span>
       </div>
       <div class="workspace-nav-group-items">
+        <div class="workspace-nav-group-rows">
         ${group.items.map(item => `
           <div class="workspace-nav-item" data-view="${item.view}" tabindex="0" role="button">
-            <span class="workspace-nav-icon">${item.icon}</span>
             <span class="workspace-nav-label">${item.label}</span>
             ${item.beta ? '<span class="workspace-nav-beta" title="Orchestration is in beta">Beta</span>' : ''}
             <span class="workspace-nav-right">
@@ -357,11 +357,11 @@ function buildWorkspaceNav() {
               ${item.view === 'terminals' || item.count ? `<span class="workspace-nav-count" data-count="${item.view}"></span>` : ''}
             </span>
           </div>`).join('')}
+        </div>
       </div>
     </div>`).join('') + `
     <div class="workspace-nav-foot">
       <div id="project-settings-btn" class="workspace-nav-item" data-view="${WORKSPACE_NAV_FOOT.view}" tabindex="0" role="button">
-        <span class="workspace-nav-icon">${WORKSPACE_NAV_FOOT.icon}</span>
         <span class="workspace-nav-label">${WORKSPACE_NAV_FOOT.label}</span>
       </div>
     </div>`;

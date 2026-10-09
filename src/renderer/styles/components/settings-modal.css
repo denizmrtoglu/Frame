@@ -45,7 +45,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 14px 18px;
+  padding: 16px 20px;
   border-bottom: 1px solid var(--border-default);
 }
 
@@ -75,7 +75,7 @@
 .settings-body {
   flex: 1;
   overflow-y: auto;
-  padding: 16px 18px 20px;
+  padding: 16px 20px 20px;
 }
 
 .settings-section {
@@ -99,7 +99,7 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 16px;
-  padding: 10px 0;
+  padding: 12px 0;
   border-top: 1px solid var(--border-subtle);
 }
 
@@ -163,7 +163,7 @@
 .settings-danger-btn {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   font-family: inherit;
   color: var(--text-secondary);
@@ -188,7 +188,7 @@
 .settings-action-btn {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   font-family: inherit;
   color: var(--text-secondary);
@@ -214,7 +214,7 @@
 .settings-status-chip {
   flex-shrink: 0;
   align-self: flex-start;
-  padding: 4px 10px;
+  padding: 4px 12px;
   font-size: 11px;
   color: var(--text-secondary);
   background: var(--bg-tertiary);
@@ -322,7 +322,7 @@
   color: var(--text-primary);
   border: 1px solid var(--border-default);
   border-radius: 6px;
-  padding: 6px 12px;
+  padding: 8px 12px;
   font-family: inherit;
   font-size: 12px;
   cursor: pointer;
@@ -354,7 +354,7 @@
 
 .settings-update-banner {
   margin-top: 6px;
-  padding: 12px 14px;
+  padding: 12px 16px;
   background: var(--accent-subtle);
   border: 1px solid var(--accent-primary);
   border-radius: 8px;

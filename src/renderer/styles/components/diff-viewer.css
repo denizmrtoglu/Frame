@@ -86,7 +86,7 @@
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.3px;
-  padding: 2px 7px;
+  padding: 4px 8px;
   border-radius: 99px;
 }
 
@@ -116,7 +116,7 @@
 }
 
 .diff-section-mode {
-  padding: 5px 10px;
+  padding: 4px 12px;
   border: none;
   background: var(--bg-tertiary);
   color: var(--text-secondary);
@@ -136,8 +136,8 @@
 }
 
 .diff-section-mode.active {
-  background: var(--accent-subtle);
-  color: var(--accent-primary);
+  background: var(--selected-bg);
+  color: var(--selected-fg);
 }
 
 .diff-section-body {
@@ -214,7 +214,7 @@
   flex: 0 0 auto;
   font-size: 10px;
   font-weight: 600;
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -240,7 +240,7 @@
   display: inline-flex;
   background: var(--bg-elevated);
   border-radius: var(--radius-md);
-  padding: 2px;
+  padding: 4px;
 }
 
 .btn-diff-mode {
@@ -248,7 +248,7 @@
   border: none;
   color: var(--text-secondary);
   font-size: 11px;
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: calc(var(--radius-md) - 2px);
   cursor: pointer;
 }
@@ -258,8 +258,8 @@
 }
 
 .btn-diff-mode.active {
-  background: var(--accent-subtle);
-  color: var(--accent-primary);
+  background: var(--selected-bg);
+  color: var(--selected-fg);
 }
 
 #diff-viewer-content {

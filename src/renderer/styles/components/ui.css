@@ -13,7 +13,7 @@ body {
      the bar's height instead of sliding under it. */
   padding: 0 0 var(--status-bar-height) 0;
   background-color: var(--bg-deep);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   overflow: hidden;
   height: 100vh;
   /* A column: the app header row, then #shell (sidebar + center) filling
@@ -25,6 +25,21 @@ body {
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Stroke icons: one style everywhere, the sidebar rail's — round ends and
+   round joins. Small icons (up to the 18px header buttons) draw a true 1.5px
+   line whatever their size: non-scaling-stroke measures stroke-width in
+   screen pixels, not viewBox units. The rail (24px, 2px line) and the large
+   empty-state / card icons (width 20 and up) keep their own weight. */
+svg[stroke="currentColor"] {
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+svg[stroke="currentColor"]:not(.sidebar-rail-btn svg, [width="20"], [width="22"], [width="24"], [width="40"], [width="48"]) * {
+  vector-effect: non-scaling-stroke;
+  stroke-width: 1.5px;
 }
 
 /* Custom Scrollbar */
@@ -51,8 +66,11 @@ body {
    bar's Start (terminalTabBar.js), the Home Agents card's Start
    (home/widgets/agents.js) and the "+ New Task" / "+ New Spec" view-header
    actions (index.html). One rule, so a change here is the change
-   everywhere: 28px line, accent fill, mono 11px/600, 11px glyph, brightness
-   on hover, press scale. */
+   everywhere: accent fill, 11px/700, 16px side padding, brightness on
+   hover, press scale.
+
+   Three heights: 24 (header), 32 (default), 40 (Home's Start). 32 and 40
+   take an 8px radius; 24 takes 6px so its corners read the same. */
 .primary-btn {
   flex: 0 0 auto;
   display: inline-flex;
@@ -60,15 +78,15 @@ body {
   justify-content: center;
   gap: 6px;
   width: auto;
-  height: 28px;
-  padding: 0 12px 0 10px;
+  height: 32px;
+  padding: 0 16px;
   background: var(--accent-primary);
   border: 1px solid var(--accent-primary);
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   color: var(--bg-deep);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.2px;
   white-space: nowrap;
   cursor: pointer;
@@ -102,7 +120,7 @@ body {
   padding: var(--space-sm) var(--space-md);
   border-radius: var(--radius-md);
   cursor: pointer;
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 500;
   transition: all var(--transition-fast);
@@ -238,8 +256,8 @@ body {
   width: 14px;
   height: 14px;
   background: var(--accent-primary);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .file-icon-default::before {
@@ -248,8 +266,8 @@ body {
   width: 14px;
   height: 14px;
   background: var(--text-tertiary);
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .file-icon-js::before {
@@ -258,8 +276,8 @@ body {
   width: 14px;
   height: 14px;
   background: #f0db4f;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .file-icon-json::before {
@@ -268,8 +286,8 @@ body {
   width: 14px;
   height: 14px;
   background: #8bc34a;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .file-icon-md::before {
@@ -278,8 +296,8 @@ body {
   width: 14px;
   height: 14px;
   background: #42a5f5;
-  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
-  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.57' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z'/%3E%3Cpolyline points='14 2 14 8 20 8'/%3E%3C/svg%3E") center/contain no-repeat;
 }
 
 .file-wrapper {
@@ -373,7 +391,7 @@ body {
   font-weight: 600;
   background: var(--accent-subtle);
   color: var(--accent-primary);
-  padding: 3px 8px;
+  padding: 4px 8px;
   border-radius: 4px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -399,7 +417,7 @@ body {
   color: var(--text-primary);
   border: none;
   padding: var(--space-xl);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   line-height: 1.7;
   resize: none;
@@ -487,7 +505,7 @@ body {
   line-height: 1.3;
 }
 .markdown-body h1 { font-size: 28px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
-.markdown-body h2 { font-size: 18px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 6px; }
+.markdown-body h2 { font-size: 18px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; }
 .markdown-body h3 { font-size: 15px; }
 
 .markdown-body p { margin: 0 0 14px; color: var(--text-secondary); }
@@ -496,11 +514,11 @@ body {
 .markdown-body a:hover { text-decoration: underline; }
 
 .markdown-body code {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   background: var(--bg-tertiary);
   color: var(--accent-primary);
-  padding: 2px 6px;
+  padding: 4px 8px;
   border-radius: 4px;
 }
 
@@ -694,7 +712,7 @@ select:focus-visible {
   border-radius: var(--radius-md);
   padding: var(--space-sm) var(--space-md);
   color: var(--text-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   transition: all var(--transition-fast);
 }
@@ -745,7 +763,7 @@ select:focus-visible {
   border-radius: var(--radius-sm);
   font-size: 12px;
   color: var(--text-secondary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
 }
 
 .migration-progress p {
@@ -777,6 +795,6 @@ select:focus-visible {
 }
 
 .migration-receipt code {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
 }

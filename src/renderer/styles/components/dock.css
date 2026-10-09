@@ -24,9 +24,8 @@
   width: auto;
 }
 
-/* Flush against the window edge (compact-center-vs-code-density): no
-   margin, no radius, no outer border. The one hairline sits on the inner
-   edge — the same edge the resize handle already occupies. */
+/* A layout card of its own, 4px from the terminal card (the container's
+   gap; see #shell in layout.css). */
 #dock {
   display: none;
   position: relative;
@@ -34,24 +33,15 @@
   flex-direction: column;
   min-height: 0;
   min-width: 0;
+  box-sizing: border-box;
   background: var(--bg-secondary);
-  border: none;
-  border-radius: 0;
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
   overflow: hidden;
 }
 
 #dock.open {
   display: flex;
-}
-
-#terminal-container.dock-bottom > #dock {
-  margin-top: 0;
-  border-top: 1px solid var(--border-subtle);
-}
-
-#terminal-container.dock-right > #dock {
-  margin-left: 0;
-  border-left: 1px solid var(--border-subtle);
 }
 
 /* ---------- Resize handle ---------- */
@@ -127,7 +117,7 @@ body.dock-resizing-ew * {
 
 .dock-tab {
   flex: 0 0 auto;
-  padding: 0 10px;
+  padding: 0 12px;
   background: transparent;
   border: none;
   border-bottom: 2px solid transparent;
@@ -245,7 +235,7 @@ body.dock-resizing-ew * {
 }
 
 .dock-view-count {
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   color: var(--text-tertiary);
   min-width: 24px;
@@ -254,7 +244,7 @@ body.dock-resizing-ew * {
 
 .dock-view-btn {
   height: 24px;
-  padding: 0 10px;
+  padding: 0 12px;
   background: var(--bg-tertiary);
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-sm);

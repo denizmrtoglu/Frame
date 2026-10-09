@@ -8,13 +8,19 @@
    them and 6px to the window edges; the header above and the status bar below
    share that ground. This overturns compact-center-vs-code-density's
    "no margin, radius or gap between the sidebar's border and the window
-   edge" — on purpose, per the user's screenshot. */
+   edge" — on purpose, per the user's screenshot.
+
+   Grouped cards (2026-10-07): every area is its own card — the rail, the
+   sidebar panel, the terminal, the dock and the right panels — each with an
+   8px radius (--radius-card) and a very soft stroke (--card-border), 4px
+   apart and 4px from the window edges (the user's VS Code screenshot,
+   2026-10-07). */
 #shell {
   flex: 1;
   min-height: 0;
   display: flex;
   gap: 4px;
-  padding: 0 6px 6px;
+  padding: 0 4px 4px;
   background: var(--bg-deep);
 }
 
@@ -24,29 +30,22 @@
   /* The module's drag detent (sidebarResize.js MIN_WIDTH). */
   min-width: 231px;
   max-width: 500px;
-  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
-  /* A card: border all round, rounded (see #shell). Not overflow: hidden —
-     the resize handle sits in the gutter past the right edge. */
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  /* Not a card itself: it groups two — the rail and the panel (see
+     #sidebar-body). The resize handle sits in the gutter past its right
+     edge. */
   display: flex;
   flex-direction: column;
-  /* Left inset matches the rail's own right padding, so the rail's icons
-     sit with the same 6px on either side. */
-  padding: var(--space-sm) var(--space-lg) var(--space-lg) var(--space-sm);
   position: relative;
   flex-shrink: 0;
 }
 
 /* Collapsed to the rail (sidebarResize.hide): the panel goes, the icon rail
    stays, VS Code activity-bar style. The inline width is cleared by the
-   module, so the card shrinks to the rail plus symmetric 6px insets. The
-   resize handle stays (without its grip dots) so dragging it out reopens
+   module, so the sidebar shrinks to the rail's card. The resize handle stays (without its grip dots) so dragging it out reopens
    the panel. */
 #sidebar.collapsed {
   width: auto;
   min-width: 0;
-  padding: var(--space-sm);
 }
 
 #sidebar.collapsed .sidebar-panel {
@@ -57,20 +56,15 @@
   display: none;
 }
 
-#sidebar.collapsed .sidebar-rail {
-  padding-right: 0;
-  border-right: none;
-}
-
-/* Sidebar resize handle: fills the 4px gutter between the sidebar card and
-   the center card (right: -5px = the card's 1px border + the gutter). A
+/* Sidebar resize handle: fills the 4px gutter between the sidebar and the
+   center card (right: -4px = the gutter). A
    vertical three-dot grip at mid-height says "drag me" at rest; while
    hovered or dragging, a 2px accent line with rounded ends and a 2px inset
    top and bottom replaces it. */
 #sidebar-resize-handle {
   position: absolute;
   top: 0;
-  right: -5px;
+  right: -4px;
   width: 4px;
   height: 100%;
   cursor: col-resize;
@@ -133,7 +127,7 @@ body.sidebar-resizing * {
 .sidebar-update-banner {
   flex-shrink: 0;
   margin-top: var(--space-md);
-  padding: 10px 12px;
+  padding: 12px 12px;
   background: var(--accent-subtle);
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-md);
@@ -188,7 +182,7 @@ body.sidebar-resizing * {
 .sidebar-update-banner-version {
   font-size: 10px;
   color: var(--text-tertiary);
-  font-family: 'JetBrains Mono', monospace;
+  font-family: var(--font-sans);
 }
 
 .sidebar-update-banner-arrow {
@@ -250,16 +244,23 @@ body.sidebar-resizing * {
   display: flex;
   flex: 1;
   min-height: 0;
-  gap: var(--space-sm);
+  gap: 4px;
+}
+
+/* The rail and the panel are two cards side by side (see #shell). */
+.sidebar-rail,
+.sidebar-panel {
+  background: var(--bg-secondary);
+  border: 1px solid var(--card-border);
+  border-radius: var(--radius-card);
 }
 
 .sidebar-rail {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 2px;
-  padding-right: var(--space-sm);
-  border-right: 1px solid var(--border-subtle);
+  gap: 8px;
+  padding: 8px;
 }
 
 /* Rail buttons are square icons in a column (Projects / Files / Changes /
@@ -268,12 +269,13 @@ body.sidebar-resizing * {
    semantics (view switching, the active state). */
 .sidebar-rail-btn {
   flex: 0 0 auto;
-  width: 36px;
-  height: 36px;
+  /* 32px target with a 4px inset, leaving the icon 24px. */
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0;
+  padding: 4px;
   background: transparent;
   border: none;
   border-radius: var(--radius-md);
@@ -286,6 +288,10 @@ body.sidebar-resizing * {
 
 .sidebar-rail-btn svg {
   display: block;
+  width: 24px;
+  height: 24px;
+  /* 24-unit viewBox drawn at 24px, so the stroke renders at 2px. */
+  stroke-width: 2;
 }
 
 .sidebar-rail-btn:hover {
@@ -294,8 +300,8 @@ body.sidebar-resizing * {
 }
 
 .sidebar-rail-btn.active {
-  color: var(--accent-primary);
-  background: var(--accent-subtle);
+  color: var(--selected-fg);
+  background: var(--selected-bg);
   border-bottom: none;
 }
 
@@ -312,6 +318,7 @@ body.sidebar-resizing * {
   min-height: 0;
   display: flex;
   flex-direction: column;
+  padding: 8px 12px 12px;
 }
 
 /* ---- Agent view: default-agent controls + running-agents list ---- */
@@ -329,12 +336,12 @@ body.sidebar-resizing * {
   align-items: center;
   justify-content: center;
   gap: 6px;
-  padding: 9px var(--space-sm);
+  padding: 8px var(--space-sm);
   background: var(--accent-primary);
   border: 1px solid var(--accent-primary);
   border-radius: var(--radius-md);
   color: var(--bg-deep);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -390,7 +397,7 @@ body.sidebar-resizing * {
 
 #project-path {
   color: var(--accent-primary);
-  font-family: var(--font-mono);
+  font-family: var(--font-sans);
   font-size: 11px;
   word-break: break-all;
   line-height: 1.6;
@@ -486,24 +493,20 @@ body.sidebar-resizing * {
   flex: 1;
   display: flex;
   overflow: hidden;
-  background: var(--bg-primary);
-  /* The center card (see #shell). overflow: hidden clips the terminal
-     container and the Specs / Tasks panels to the rounded corners. */
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-lg);
+  /* Not a card itself: it lines up the center's cards — the terminal, the
+     dock, and the Specs / Tasks / Sessions panels — with the shell's 4px
+     gutter (see #shell). */
+  gap: 4px;
 }
 
-/* One flat surface from the sidebar's border to the window edge and from
-   the top to the status bar (compact-center-vs-code-density). No margin,
-   padding or radius: the sidebar's 1px border-right is the only seam, and
-   the dock inside inherits the same edge-to-edge box. */
+/* Holds the terminal card and the dock card, 4px apart; the cards carry
+   the chrome (#terminal here, #dock in dock.css). */
 #terminal-container {
   flex: 1;
   display: flex;
   flex-direction: column;
-  background: var(--bg-primary);
+  gap: 4px;
   padding: 0;
   min-width: 400px;
-  border-radius: 0;
   margin: 0;
 }

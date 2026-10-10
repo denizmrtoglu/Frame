@@ -231,7 +231,7 @@ function init() {
 
       // Add to workspace and update project list
       const projectName = projectPath.split('/').pop() || projectPath.split('\\').pop();
-      projectListUI.addProject(projectPath, projectName, state.getIsFrameProject());
+      projectListUI.addProject(projectPath, projectName);
       projectListUI.setActiveProject(projectPath);
 
       // Load tasks if tasks panel is visible
@@ -265,6 +265,9 @@ function init() {
     fileTreeUI.refreshFileTree();
     // Load tasks for the new project
     tasksPanel.loadTasks();
+    // The spec watch skipped this project while it had no .frame/ — start it
+    // now (this also stages the spec commands).
+    specPanel.startWatchingForProject(projectPath);
   });
 
   // Initialize the Open Project modal (shell over the existing open flows)

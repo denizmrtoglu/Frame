@@ -101,6 +101,9 @@ function getMenuTemplate() {
       cmd('Add Project to Workspace…', 'project.add'),
       cmd('Create New Project…', 'project.create'),
       SEP,
+      // PoC (poc/frame-server): open a remote Frame Server over SSH.
+      { label: 'Connect to Server…', click: () => require('./remoteConnect').openConnectDialog(mainWindow) },
+      SEP,
       { label: 'Open History File', accelerator: 'CmdOrCtrl+H', click: () => openHistoryFile() },
       ...(isMac ? [] : [
         SEP,

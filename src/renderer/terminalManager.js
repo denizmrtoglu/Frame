@@ -306,6 +306,22 @@ class TerminalManager {
   }
 
   /**
+   * Adopt a PTY that is already running in the main process (Frame Server:
+   * the page reloaded but the terminal — and the agent in it — kept going).
+   * Builds the same view createTerminal would, then replays recent output.
+   * @param {{terminalId: string, cwd?: string, projectPath?: string, scrollback?: string}} t
+   */
+  adoptTerminal(t) {
+    if (!t || !t.terminalId || this.terminals.has(t.terminalId)) return;
+    this._initializeTerminal(t.terminalId, {
+      projectPath: t.projectPath !== undefined ? t.projectPath : this.currentProjectPath,
+      cwd: t.cwd || null
+    });
+    const instance = this.terminals.get(t.terminalId);
+    if (instance && t.scrollback) instance.terminal.write(t.scrollback);
+  }
+
+  /**
    * Get available shells from main process
    * @returns {Promise<Array<{id: string, name: string, path: string}>>}
    */

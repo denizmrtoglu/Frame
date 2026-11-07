@@ -83,6 +83,13 @@ function init() {
       : [];
   ipcRenderer
     .invoke(IPC.RECONCILE_TERMINALS, knownTerminalIds)
+    .then((result) => {
+      // Frame Server keeps PTYs across page loads and lists them here
+      // (desktop main returns no `alive`, so this is a no-op there).
+      const alive = result && Array.isArray(result.alive) ? result.alive : [];
+      const manager = multiTerminalUI && multiTerminalUI.manager;
+      if (manager) for (const t of alive) manager.adoptTerminal(t);
+    })
     .catch((err) => console.error('Terminal reconcile failed:', err));
 
   // Initialize state management

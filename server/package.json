@@ -1,0 +1,9 @@
+{
+  "name": "frame-server-poc",
+  "private": true,
+  "description": "PoC: run Frame's main process headless under plain Node and serve the renderer to a browser over WebSocket.",
+  "dependencies": {
+    "node-pty": "^1.0.0",
+    "ws": "^8.18.0"
+  }
+}
